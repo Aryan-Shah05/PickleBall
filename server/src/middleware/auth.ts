@@ -4,10 +4,6 @@ import { prisma } from '../lib/prisma';
 import { AppError } from './errorHandler';
 import { UserRole } from '@prisma/client';
 
-interface JwtPayload {
-  userId: string;
-}
-
 declare global {
   namespace Express {
     interface Request {
@@ -20,7 +16,7 @@ declare global {
   }
 }
 
-export const isAuthenticated = async (
+export const protect = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -29,37 +25,46 @@ export const isAuthenticated = async (
     // Get token from header
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new AppError(401, 'No token provided', 'UNAUTHORIZED');
+      throw new AppError(401, 'Not authorized', 'UNAUTHORIZED');
     }
 
     const token = authHeader.split(' ')[1];
 
     // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'your-secret-key'
-    ) as JwtPayload;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new AppError(500, 'JWT secret not configured', 'SERVER_ERROR');
+    }
 
-    // Get user from token
+    const decoded = jwt.verify(token, secret) as { userId: string };
+
+    // Get user
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, role: true },
+      select: { id: true, email: true, role: true }
     });
 
     if (!user) {
-      throw new AppError(401, 'Invalid token', 'UNAUTHORIZED');
+      throw new AppError(401, 'Not authorized', 'UNAUTHORIZED');
     }
 
-    // Add user to request object
+    // Add user to request
     req.user = user;
     next();
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      next(new AppError(401, 'Invalid token', 'UNAUTHORIZED'));
-    } else {
-      next(error);
-    }
+    next(new AppError(401, 'Not authorized', 'UNAUTHORIZED'));
   }
+};
+
+export const restrictTo = (...roles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return next(
+        new AppError(403, 'Not authorized to access this route', 'FORBIDDEN')
+      );
+    }
+    next();
+  };
 };
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {

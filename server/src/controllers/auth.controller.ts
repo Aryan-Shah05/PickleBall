@@ -16,8 +16,12 @@ import { z } from 'zod';
 const prismaClient = new PrismaClient();
 
 const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET as string, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  return jwt.sign({ userId }, secret, {
+    expiresIn: Number(process.env.JWT_EXPIRES_IN?.replace('d', '')) * 24 * 60 * 60 // Convert days to seconds
   });
 };
 

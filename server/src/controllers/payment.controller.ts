@@ -22,17 +22,16 @@ export const paymentController = {
         throw new AppError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
       }
 
-      // Create payment intent
+      // Calculate amount in cents
+      const amount = Math.round(booking.totalAmount * 100);
+
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(booking.totalAmount * 100), // Convert to cents
+        amount,
         currency: 'usd',
-        metadata: {
-          bookingId: booking.id,
-          userId: req.user?.id,
-        },
+        metadata: { bookingId },
       });
 
-      res.json({
+      res.status(200).json({
         status: 'success',
         data: {
           clientSecret: paymentIntent.client_secret,
@@ -140,4 +139,48 @@ export const paymentController = {
       next(error);
     }
   },
+
+  handleWebhook: async (req: Request, res: Response) => {
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    try {
+      if (!sig || !webhookSecret) {
+        throw new Error('Missing Stripe webhook signature or secret');
+      }
+
+      const event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        webhookSecret
+      );
+
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          const bookingId = paymentIntent.metadata.bookingId;
+
+          await prisma.payment.create({
+            data: {
+              bookingId,
+              userId: req.user.id,
+              amount: paymentIntent.amount / 100,
+              status: 'COMPLETED',
+              paymentMethod: 'STRIPE',
+              transactionId: paymentIntent.id
+            }
+          });
+
+          await prisma.booking.update({
+            where: { id: bookingId },
+            data: { paymentStatus: 'COMPLETED' }
+          });
+          break;
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      res.status(400).send(`Webhook Error: ${error.message}`);
+    }
+  }
 }; 

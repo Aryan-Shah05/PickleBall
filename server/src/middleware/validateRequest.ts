@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject } from 'zod';
+import { AnyZodObject, ZodError } from 'zod';
+import { AppError } from './errorHandler';
 
 export const validateRequest = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -9,13 +10,13 @@ export const validateRequest = (schema: AnyZodObject) => {
         query: req.query,
         params: req.params,
       });
-      return next();
-    } catch (error) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid request data',
-        errors: error.errors,
-      });
+      next();
+    } catch (err) {
+      if (err instanceof ZodError) {
+        next(new AppError(400, err.errors[0].message, 'VALIDATION_ERROR'));
+      } else {
+        next(new AppError(400, 'Invalid request data', 'VALIDATION_ERROR'));
+      }
     }
   };
 }; 
