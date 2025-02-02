@@ -1,35 +1,52 @@
 # Build stage
-FROM node:20-alpine as build
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Add necessary packages for building
+RUN apk add --no-cache python3 make g++ openssl
+
 # Copy package files
 COPY package*.json ./
-RUN npm install
 
-# Copy source code and build
-COPY . .
-RUN npm run build
+# Install all dependencies (including devDependencies)
+RUN npm install --legacy-peer-deps
 
-# Generate Prisma client
+# Copy prisma schema and generate client
+COPY prisma ./prisma/
 RUN npx prisma generate
+
+# Copy the rest of the application
+COPY . .
+
+# Build TypeScript
+RUN npm run build
 
 # Production stage
 FROM node:20-alpine
 
 WORKDIR /app
 
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
 # Copy package files and install production dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm install --omit=dev
 
-# Copy built files and Prisma schema
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY prisma ./prisma
+# Copy prisma schema and generated client
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Expose port 4000
+# Copy built files
+COPY --from=builder /app/dist ./dist
+
+# Expose port
 EXPOSE 4000
 
-# Start the application
-CMD ["node", "dist/index.js"] 
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=4000
+
+# Start the server
+CMD ["npm", "start"] 
