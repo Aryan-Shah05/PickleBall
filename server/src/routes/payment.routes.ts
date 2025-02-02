@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { paymentController } from '../controllers/payment.controller';
 import { validateRequest } from '../middleware/validateRequest';
-import { isAuthenticated } from '../middleware/auth';
+import { protect } from '../middleware/auth';
 
 const router = Router();
 
 // Protected routes
-router.use(isAuthenticated);
+router.use(protect);
 
 // Create payment intent
 router.post('/create-intent', paymentController.createPaymentIntent);

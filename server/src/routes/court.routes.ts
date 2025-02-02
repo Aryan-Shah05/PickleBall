@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { courtController } from '../controllers/court.controller';
 import { validateRequest } from '../middleware/validateRequest';
-import { isAuthenticated } from '../middleware/auth';
+import { protect } from '../middleware/auth';
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.get('/', courtController.getAllCourts);
 router.get('/:id', courtController.getCourtById);
 
 // Protected routes
-router.use(isAuthenticated);
+router.use(protect);
 
 // Create court (Admin only)
 router.post('/', courtController.createCourt);

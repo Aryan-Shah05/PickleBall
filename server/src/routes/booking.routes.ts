@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { bookingController } from '../controllers/booking.controller';
 import { validateRequest } from '../middleware/validateRequest';
-import { isAuthenticated } from '../middleware/auth';
+import { protect } from '../middleware/auth';
 
 const router = Router();
 
 // Protected routes
-router.use(isAuthenticated);
+router.use(protect);
 
 // Get user's bookings
 router.get('/my-bookings', bookingController.getMyBookings);

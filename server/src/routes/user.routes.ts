@@ -1,32 +1,47 @@
 import { Router } from 'express';
 import { userController } from '../controllers/user.controller';
 import { validateRequest } from '../middleware/validateRequest';
-import { isAuthenticated, isAdmin } from '../middleware/auth';
+import { protect, authorize } from '../middleware/auth';
+import { PrismaClient } from '@prisma/client';
 
 const router = Router();
+const prisma = new PrismaClient();
+
+// Public routes
 
 // Protected routes
-router.use(isAuthenticated);
+router.use(protect);
 
-// Get current user
-router.get('/me', userController.getCurrentUser);
+// Current user routes
+router.get('/me', userController.getProfile);
+router.patch('/me', userController.updateProfile);
+router.patch('/me/membership', userController.updateMembership);
 
-// Update current user
-router.patch('/me', userController.updateCurrentUser);
-
-// Admin routes
-router.use(isAdmin);
+// Admin only routes
+router.use(authorize('ADMIN'));
 
 // Get all users
-router.get('/', userController.getAllUsers);
+router.get('/', userController.getProfile);
 
 // Get user by ID
-router.get('/:id', userController.getUserById);
+router.get('/:id', userController.getProfile);
 
 // Update user
-router.patch('/:id', userController.updateUser);
+router.patch('/:id', userController.updateProfile);
 
 // Delete user
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const user = await prisma.user.delete({
+      where: { id: req.params.id }
+    });
+    res.status(200).json({
+      status: 'success',
+      data: { user }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router; 

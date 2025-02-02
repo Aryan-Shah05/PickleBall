@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
-import { PaymentStatus } from '@prisma/client';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -46,6 +45,10 @@ export const paymentController = {
     try {
       const { bookingId, paymentIntentId } = req.body;
 
+      if (!req.user?.id) {
+        throw new AppError(401, 'User not authenticated', 'UNAUTHORIZED');
+      }
+
       const booking = await prisma.booking.findUnique({
         where: { id: bookingId },
       });
@@ -58,9 +61,9 @@ export const paymentController = {
       const payment = await prisma.payment.create({
         data: {
           bookingId,
-          userId: req.user?.id!,
+          userId: req.user.id,
           amount: booking.totalAmount,
-          status: PaymentStatus.COMPLETED,
+          status: 'COMPLETED',
           paymentMethod: 'stripe',
           transactionId: paymentIntentId,
         },
@@ -70,7 +73,7 @@ export const paymentController = {
       await prisma.booking.update({
         where: { id: bookingId },
         data: {
-          paymentStatus: PaymentStatus.COMPLETED,
+          paymentStatus: 'COMPLETED',
         },
       });
 
@@ -86,6 +89,10 @@ export const paymentController = {
   getPaymentById: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+
+      if (!req.user?.id) {
+        throw new AppError(401, 'User not authenticated', 'UNAUTHORIZED');
+      }
 
       const payment = await prisma.payment.findUnique({
         where: { id },
@@ -103,7 +110,7 @@ export const paymentController = {
       }
 
       // Check if user is authorized to view this payment
-      if (req.user?.role !== 'ADMIN' && payment.userId !== req.user?.id) {
+      if (req.user.role !== 'ADMIN' && payment.userId !== req.user.id) {
         throw new AppError(403, 'Not authorized to view this payment', 'FORBIDDEN');
       }
 
@@ -118,9 +125,13 @@ export const paymentController = {
 
   getMyPayments: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!req.user?.id) {
+        throw new AppError(401, 'User not authenticated', 'UNAUTHORIZED');
+      }
+
       const payments = await prisma.payment.findMany({
         where: {
-          userId: req.user?.id,
+          userId: req.user.id,
         },
         include: {
           booking: {
@@ -160,6 +171,10 @@ export const paymentController = {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           const bookingId = paymentIntent.metadata.bookingId;
 
+          if (!req.user?.id) {
+            throw new AppError(401, 'User not authenticated', 'UNAUTHORIZED');
+          }
+
           await prisma.payment.create({
             data: {
               bookingId,
@@ -179,7 +194,8 @@ export const paymentController = {
       }
 
       res.json({ received: true });
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error;
       res.status(400).send(`Webhook Error: ${error.message}`);
     }
   }
