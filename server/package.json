@@ -6,7 +6,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "seed": "ts-node prisma/seed.ts"
@@ -28,21 +28,21 @@
     "stripe": "^14.25.0",
     "winston": "^3.17.0",
     "zod": "^3.24.1",
-    "typescript": "^5.7.3",
-    "@types/node": "^20.17.16",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.16",
     "@types/express": "^4.17.21",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.8",
-    "prisma": "^5.22.0"
+    "prisma": "^5.22.0",
+    "eslint": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/jest": "^29.5.14",
     "@types/morgan": "^1.9.9",
     "@types/supertest": "^6.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.1",
     "jest": "^29.7.0",
     "supertest": "^6.3.4",
     "ts-jest": "^29.2.5",
@@ -55,6 +55,7 @@
   "license": "ISC",
   "type": "commonjs",
   "prisma": {
+    "schema": "./prisma/schema.prisma",
     "seed": "ts-node prisma/seed.ts"
   }
 }
