@@ -2,13 +2,16 @@ services:
   - type: web
     name: pickleball-backend
     env: node
-    buildCommand: npm install && npx prisma generate && npm run build
+    buildCommand: |
+      npm install
+      npx prisma generate
+      npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: postgresql://neondb_owner:npg_8SYnbg9IHNDA@ep-tiny-star-a9jxbgn7-pooler.gwc.azure.neon.tech/neondb?sslmode=require
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
