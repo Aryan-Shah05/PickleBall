@@ -4,10 +4,9 @@ services:
     env: node
     buildCommand: |
       npm install --legacy-peer-deps
+      npm run prisma:generate
       npm run build
-    startCommand: |
-      npx prisma generate
-      npm start
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -17,5 +16,7 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: https://pickle-ball-g6clrugyf-aryan-shahs-projects-8276b85a.vercel.app
+      - key: JWT_EXPIRES_IN
+        value: 1d
     healthCheckPath: /api/v1/health
     autoDeploy: true 

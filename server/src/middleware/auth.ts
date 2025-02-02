@@ -20,16 +20,16 @@ declare global {
   }
 }
 
-export const protect = async (
+export const isAuthenticated = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new AppError(401, 'Not authorized to access this route', 'UNAUTHORIZED');
+      throw new AppError(401, 'No token provided', 'UNAUTHORIZED');
     }
 
     const token = authHeader.split(' ')[1];
@@ -43,24 +43,30 @@ export const protect = async (
     // Get user from token
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true,
-      },
+      select: { id: true, role: true },
     });
 
-    if (!user || !user.isActive) {
-      throw new AppError(401, 'Not authorized to access this route', 'UNAUTHORIZED');
+    if (!user) {
+      throw new AppError(401, 'Invalid token', 'UNAUTHORIZED');
     }
 
     // Add user to request object
     req.user = user;
     next();
   } catch (error) {
-    next(error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      next(new AppError(401, 'Invalid token', 'UNAUTHORIZED'));
+    } else {
+      next(error);
+    }
   }
+};
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    throw new AppError(403, 'Admin access required', 'FORBIDDEN');
+  }
+  next();
 };
 
 export const authorize = (...roles: UserRole[]) => {
