@@ -3,7 +3,7 @@ services:
     name: pickleball-backend
     env: node
     buildCommand: |
-      npm install
+      npm install --legacy-peer-deps
       npx prisma generate
       npm run build
     startCommand: npm start
