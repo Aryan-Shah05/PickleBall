@@ -22,8 +22,8 @@ const useBookingStore = create<BookingState & BookingActions>((set) => ({
   fetchBookings: async () => {
     set({ isLoading: true });
     try {
-      const response = await apiClient.get<{ data: Booking[] }>('/api/v1/bookings');
-      set({ bookings: response.data.data, isLoading: false });
+      const response = await apiClient.get<{ data: { bookings: Booking[] } }>('/api/v1/bookings');
+      set({ bookings: response.data.data.bookings, isLoading: false });
     } catch (error) {
       set({ error: 'Failed to fetch bookings', isLoading: false });
     }

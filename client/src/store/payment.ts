@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Payment, PaymentStatus } from '@/types';
-import { apiClient } from '@/api/client';
+import apiClient from '@/api/client';
 
 interface PaymentState {
   payments: Payment[];
@@ -30,8 +30,8 @@ export const usePaymentStore = create<PaymentState>((set) => ({
   fetchPayments: async () => {
     try {
       set({ isLoading: true, error: null });
-      const payments = await apiClient.get<Payment[]>('/payments');
-      set({ payments, isLoading: false });
+      const response = await apiClient.get<{ data: { payments: Payment[] } }>('/api/v1/payments');
+      set({ payments: response.data.data.payments, isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch payments',
@@ -43,7 +43,8 @@ export const usePaymentStore = create<PaymentState>((set) => ({
   processPayment: async (paymentData: ProcessPaymentData) => {
     try {
       set({ isLoading: true, error: null });
-      const payment = await apiClient.post<Payment>('/payments/process', paymentData);
+      const response = await apiClient.post<{ data: { payment: Payment } }>('/api/v1/payments/process', paymentData);
+      const payment = response.data.data.payment;
       set((state) => ({
         payments: [...state.payments, payment],
         isLoading: false,
@@ -61,7 +62,7 @@ export const usePaymentStore = create<PaymentState>((set) => ({
   requestRefund: async (paymentId: string) => {
     try {
       set({ isLoading: true, error: null });
-      await apiClient.post(`/payments/${paymentId}/refund`);
+      await apiClient.post(`/api/v1/payments/${paymentId}/refund`);
       set((state) => ({
         payments: state.payments.map((payment) =>
           payment.id === paymentId

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { Court, CourtStatus } from '@/types';
-import { apiClient } from '@/api/client';
+import { Court } from '@/types';
+import apiClient from '@/api/client';
 
 interface CourtState {
   courts: Court[];
@@ -29,8 +29,8 @@ export const useCourtStore = create<CourtState>((set) => ({
   fetchCourts: async () => {
     try {
       set({ isLoading: true, error: null });
-      const courts = await apiClient.get<Court[]>('/courts');
-      set({ courts, isLoading: false });
+      const response = await apiClient.get<{ data: { courts: Court[] } }>('/api/v1/courts');
+      set({ courts: response.data.data.courts, isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch courts',
@@ -42,11 +42,11 @@ export const useCourtStore = create<CourtState>((set) => ({
   fetchCourtAvailability: async (courtId: string, date: string) => {
     try {
       set({ isLoading: true, error: null });
-      const timeSlots = await apiClient.get<TimeSlot[]>(
-        `/courts/${courtId}/availability?date=${date}`
+      const response = await apiClient.get<{ data: { timeSlots: TimeSlot[] } }>(
+        `/api/v1/courts/${courtId}/availability?date=${date}`
       );
       set({ isLoading: false });
-      return timeSlots;
+      return response.data.data.timeSlots;
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch availability',
