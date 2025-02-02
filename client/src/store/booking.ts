@@ -14,7 +14,7 @@ interface BookingActions {
   removeBooking: (bookingId: string) => void;
 }
 
-const useBookingStore = create<BookingState & BookingActions>((set) => ({
+export const useBookingStore = create<BookingState & BookingActions>((set) => ({
   bookings: [],
   isLoading: false,
   error: null,
@@ -29,13 +29,11 @@ const useBookingStore = create<BookingState & BookingActions>((set) => ({
     }
   },
 
-  addBooking: (booking) => 
+  addBooking: (booking: Booking) => 
     set((state) => ({ bookings: [...state.bookings, booking] })),
 
-  removeBooking: (bookingId) =>
+  removeBooking: (bookingId: string) =>
     set((state) => ({
       bookings: state.bookings.filter((booking) => booking.id !== bookingId)
     }))
-}));
-
-export default useBookingStore; 
+})); 

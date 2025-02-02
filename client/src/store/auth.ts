@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { User, UserRole } from '../types';
-import apiClient from '../api/client';
+import { User } from '@/types';
+import apiClient from '@/api/client';
 
 interface AuthState {
   user: User | null;
@@ -9,9 +9,11 @@ interface AuthState {
   error: string | null;
 }
 
-interface LoginData {
-  email: string;
-  password: string;
+interface AuthActions {
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  register: (userData: RegisterData) => Promise<void>;
+  clearError: () => void;
 }
 
 interface RegisterData {
@@ -21,40 +23,28 @@ interface RegisterData {
   lastName: string;
 }
 
-interface AuthActions {
-  login: (data: LoginData) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
-  clearError: () => void;
-}
-
 const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
 
-  login: async (data: LoginData) => {
-    set({ isLoading: true, error: null });
+  login: async (email: string, password: string) => {
     try {
-      const response = await apiClient.post('/api/v1/auth/login', data);
+      set({ isLoading: true, error: null });
+      const response = await apiClient.post<{ data: { user: User; token: string } }>('/api/v1/auth/login', {
+        email,
+        password,
+      });
       const { user, token } = response.data.data;
       localStorage.setItem('token', token);
       set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
-    }
-  },
-
-  register: async (data: RegisterData) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await apiClient.post('/api/v1/auth/register', data);
-      const { user, token } = response.data.data;
-      localStorage.setItem('token', token);
-      set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Login failed',
+        isLoading: false,
+      });
+      throw error;
     }
   },
 
@@ -63,8 +53,23 @@ const useAuthStore = create<AuthState & AuthActions>((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
+  register: async (userData: RegisterData) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await apiClient.post<{ data: { user: User; token: string } }>('/api/v1/auth/register', userData);
+      const { user, token } = response.data.data;
+      localStorage.setItem('token', token);
+      set({ user, isAuthenticated: true, isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Registration failed',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   clearError: () => set({ error: null }),
 }));
 
-export type { AuthState, AuthActions, LoginData, RegisterData };
 export default useAuthStore;

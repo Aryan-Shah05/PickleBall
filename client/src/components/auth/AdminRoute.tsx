@@ -1,21 +1,25 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
-import useAuthStore from '@/store/auth'
-import { UserRole } from '@/types'
+import { Navigate } from 'react-router-dom';
+import { ReactNode } from 'react';
+import useAuthStore from '@/store/auth';
+import { AuthState } from '@/types';
 
 interface AdminRouteProps {
-  children: React.ReactNode
+  children: ReactNode;
 }
 
-const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const userRole = useAuthStore((state) => state.user?.role)
+const AdminRoute = ({ children }: AdminRouteProps) => {
+  const isAuthenticated = useAuthStore((state: AuthState) => state.isAuthenticated);
+  const isAdmin = useAuthStore((state: AuthState) => state.user?.role === 'ADMIN');
 
-  if (!isAuthenticated || userRole !== UserRole.ADMIN) {
-    return <Navigate to="/" replace />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
   }
 
-  return <>{children}</>
-}
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" />;
+  }
 
-export default AdminRoute 
+  return <>{children}</>;
+};
+
+export default AdminRoute; 

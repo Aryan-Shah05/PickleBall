@@ -1,68 +1,58 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
-import { Calendar } from 'react-big-calendar';
-import { Card, CardContent, Typography, Button } from '@mui/material';
-import { Court } from '../types';
-import api from '../api/client';
-import useAuthStore from '@/store/auth';
+import { useState } from 'react';
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Button,
+} from '@mui/material';
+import { useCourtStore } from '@/store/court';
+import { Court } from '@/types';
 
-const BookCourt: React.FC = () => {
-  const navigate = useNavigate();
-  const [courts, setCourts] = useState<Court[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { user } = useAuthStore();
-
-  useEffect(() => {
-    const fetchCourts = async () => {
-      try {
-        const response = await api.get('/api/v1/courts');
-        setCourts(response.data.data);
-      } catch (error) {
-        console.error('Error fetching courts:', error);
-      }
-    };
-
-    fetchCourts();
-  }, []);
-
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-  };
-
-  const handleCourtSelect = (court: Court) => {
-    navigate(`/book/${court.id}`, {
-      state: { date: format(selectedDate, 'yyyy-MM-dd') }
-    });
-  };
+const BookCourt = () => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const { courts, isLoading, error, fetchCourts } = useCourtStore();
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Book a Court</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courts.map((court) => (
-          <Card key={court.id}>
-            <CardContent>
-              <Typography variant="h6">{court.name}</Typography>
-              <Typography color="textSecondary">
-                Type: {court.type}
-              </Typography>
-              <Typography color="textSecondary">
-                Rate: ${court.hourlyRate}/hour
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleCourtSelect(court)}
-                className="mt-4"
-              >
-                Select Court
-              </Button>
-            </CardContent>
-          </Card>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Book a Court
+      </Typography>
+
+      {error && (
+        <Typography color="error" gutterBottom>
+          {error}
+        </Typography>
+      )}
+
+      <Grid container spacing={3}>
+        {courts.map((court: Court) => (
+          <Grid item xs={12} sm={6} md={4} key={court.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{court.name}</Typography>
+                <Typography color="textSecondary">
+                  Type: {court.type}
+                </Typography>
+                <Typography color="textSecondary">
+                  Rate: ${court.hourlyRate}/hour
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  disabled={isLoading}
+                >
+                  Select Time
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

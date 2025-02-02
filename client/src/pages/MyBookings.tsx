@@ -1,44 +1,78 @@
-import React from 'react';
-import { Typography, Card, CardContent } from '@mui/material';
-import useBookingStore from '@/store/booking';
+import { useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Button,
+} from '@mui/material';
+import { useBookingStore } from '@/store/booking';
+import { Booking } from '@/types';
 
-const MyBookings: React.FC = () => {
-  const { bookings, isLoading, error } = useBookingStore();
+const MyBookings = () => {
+  const { bookings, isLoading, error, fetchBookings } = useBookingStore();
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box p={3}>
+        <Typography>Loading...</Typography>
+      </Box>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Box p={3}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <Box p={3}>
       <Typography variant="h4" gutterBottom>
         My Bookings
       </Typography>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {bookings.map((booking) => (
-          <Card key={booking.id}>
-            <CardContent>
-              <Typography variant="h6">
-                Court {booking.courtId}
-              </Typography>
-              <Typography color="textSecondary">
-                Start: {new Date(booking.startTime).toLocaleString()}
-              </Typography>
-              <Typography color="textSecondary">
-                End: {new Date(booking.endTime).toLocaleString()}
-              </Typography>
-              <Typography color="textSecondary">
-                Status: {booking.status}
-              </Typography>
-            </CardContent>
-          </Card>
+
+      <Grid container spacing={3}>
+        {bookings.map((booking: Booking) => (
+          <Grid item xs={12} sm={6} md={4} key={booking.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">
+                  Court: {booking.court?.name}
+                </Typography>
+                <Typography color="textSecondary">
+                  Date: {new Date(booking.startTime).toLocaleDateString()}
+                </Typography>
+                <Typography color="textSecondary">
+                  Time: {new Date(booking.startTime).toLocaleTimeString()} - {new Date(booking.endTime).toLocaleTimeString()}
+                </Typography>
+                <Typography color="textSecondary">
+                  Status: {booking.status}
+                </Typography>
+                <Typography color="textSecondary">
+                  Payment: {booking.paymentStatus}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                >
+                  Cancel Booking
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

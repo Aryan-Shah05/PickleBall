@@ -7,6 +7,9 @@ interface PaymentState {
   selectedPayment: Payment | null;
   isLoading: boolean;
   error: string | null;
+}
+
+interface PaymentActions {
   fetchPayments: () => Promise<void>;
   processPayment: (paymentData: ProcessPaymentData) => Promise<Payment>;
   requestRefund: (paymentId: string) => Promise<void>;
@@ -21,7 +24,7 @@ interface ProcessPaymentData {
   paymentMethodId?: string;
 }
 
-export const usePaymentStore = create<PaymentState>((set) => ({
+export const usePaymentStore = create<PaymentState & PaymentActions>((set) => ({
   payments: [],
   selectedPayment: null,
   isLoading: false,

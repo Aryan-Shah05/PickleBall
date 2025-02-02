@@ -17,6 +17,13 @@ export enum UserRole {
   GUEST = 'GUEST'
 }
 
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
 export type Court = {
   id: string;
   name: string;
