@@ -10,64 +10,94 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum MembershipLevel {
+  BASIC
+  PREMIUM
+  PRO
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum CourtStatus {
+  AVAILABLE
+  MAINTENANCE
+  RESERVED
+}
+
 model User {
-  id              String    @id @default(uuid())
-  email           String    @unique
+  id              String          @id @default(uuid())
+  email           String          @unique
   password        String    // Changed from passwordHash to password
   firstName       String
   lastName        String
-  membershipLevel String    @default("BASIC")
-  role            String    @default("MEMBER")
+  membershipLevel MembershipLevel @default(BASIC)
+  role            UserRole        @default(MEMBER)
   rating          Float?
   preferences     String?   // Changed from Json to String for SQLite compatibility
-  isActive        Boolean   @default(true)
+  isActive        Boolean         @default(true)
   lastLogin       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   bookings        Booking[]
   payments        Payment[]
 }
 
 model Court {
-  id                  String    @id @default(uuid())
+  id                  String      @id @default(uuid())
   name                String
   type                String
   isIndoor            Boolean
-  status              String    @default("AVAILABLE")
+  status              CourtStatus @default(AVAILABLE)
   maintenanceSchedule String?   // Changed from Json to String for SQLite compatibility
   hourlyRate          Float
   peakHourRate        Float
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
   bookings            Booking[]
 }
 
 model Booking {
-  id            String    @id @default(uuid())
+  id            String        @id @default(uuid())
   courtId       String
   userId        String
   startTime     DateTime
   endTime       DateTime
-  status        String    @default("PENDING")
-  paymentStatus String    @default("PENDING")
+  status        BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
   totalAmount   Float
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  court         Court     @relation(fields: [courtId], references: [id])
-  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  court         Court         @relation(fields: [courtId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
   payment       Payment?
 }
 
 model Payment {
-  id            String    @id @default(uuid())
-  bookingId     String    @unique
+  id            String        @id @default(uuid())
+  bookingId     String        @unique
   userId        String
   amount        Float
-  status        String    @default("PENDING")
+  status        PaymentStatus @default(PENDING)
   paymentMethod String
   transactionId String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  booking       Booking   @relation(fields: [bookingId], references: [id])
-  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
 } 

@@ -10,7 +10,21 @@ import {
 } from '../../test/helpers';
 import { UserRole } from '@prisma/client';
 
+// Initialize prisma client
+beforeAll(async () => {
+  await prisma.$connect();
+});
+
+// Disconnect prisma after all tests
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
 describe('Booking Controller', () => {
+  let existingBooking: any;
+  let booking1: any;
+  let booking2: any;
+
   beforeEach(async () => {
     await clearDatabase();
   });
@@ -46,7 +60,7 @@ describe('Booking Controller', () => {
       const token = generateTestToken(user.id);
 
       // Create an existing booking
-      const existingBooking = await createTestBooking(user.id, court.id, {
+      existingBooking = await createTestBooking(user.id, court.id, {
         startTime: new Date(Date.now() + 3600000),
         endTime: new Date(Date.now() + 7200000),
       });
@@ -75,8 +89,8 @@ describe('Booking Controller', () => {
       const court = await createTestCourt();
       const token = generateTestToken(user.id);
 
-      const booking1 = await createTestBooking(user.id, court.id);
-      const booking2 = await createTestBooking(user.id, court.id);
+      booking1 = await createTestBooking(user.id, court.id);
+      booking2 = await createTestBooking(user.id, court.id);
 
       const response = await request(app)
         .get('/api/v1/bookings')
@@ -96,8 +110,8 @@ describe('Booking Controller', () => {
       const court = await createTestCourt();
       const token = generateTestToken(admin.id);
 
-      const booking1 = await createTestBooking(user.id, court.id);
-      const booking2 = await createTestBooking(admin.id, court.id);
+      booking1 = await createTestBooking(user.id, court.id);
+      booking2 = await createTestBooking(admin.id, court.id);
 
       const response = await request(app)
         .get('/api/v1/bookings')

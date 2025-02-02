@@ -4,6 +4,16 @@ import { app } from '../../index';
 import { prisma } from '../../lib/prisma';
 import { createTestUser, clearDatabase } from '../../test/helpers';
 
+// Initialize prisma client
+beforeAll(async () => {
+  await prisma.$connect();
+});
+
+// Disconnect prisma after all tests
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
 describe('Auth Controller', () => {
   beforeEach(async () => {
     await clearDatabase();
