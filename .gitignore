@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache directories
+.npm/
+.eslintcache
+.stylelintcache
+.cache/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+temp/
+
+# Production SSL certificates
+nginx/ssl/
+
+# Database files
+*.sqlite
+*.db
+
+# Compiled output
+*.compiled
+*.min.*
+
+# Docker volumes
+docker/volumes/
+
+# System Files
+Thumbs.db 
