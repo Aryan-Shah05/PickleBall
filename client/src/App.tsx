@@ -5,7 +5,7 @@ import { theme } from './styles/theme';
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/auth/Login';
 import { Dashboard } from './pages/Dashboard';
-import { BookCourt } from './pages/BookCourt';
+import BookCourt from './pages/BookCourt';
 import { MyBookings } from './pages/MyBookings';
 import { Profile } from './pages/Profile';
 import { TestRunner } from './tests/components/TestRunner';

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User, UserRole } from '../types';
-import api from '../api/client';
+import apiClient from '../api/client';
 
 interface AuthState {
   user: User | null;
@@ -37,7 +37,7 @@ const useAuthStore = create<AuthState & AuthActions>((set) => ({
   login: async (data: LoginData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post('/api/v1/auth/login', data);
+      const response = await apiClient.post('/api/v1/auth/login', data);
       const { user, token } = response.data.data;
       localStorage.setItem('token', token);
       set({ user, isAuthenticated: true, isLoading: false });
@@ -49,7 +49,7 @@ const useAuthStore = create<AuthState & AuthActions>((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post('/api/v1/auth/register', data);
+      const response = await apiClient.post('/api/v1/auth/register', data);
       const { user, token } = response.data.data;
       localStorage.setItem('token', token);
       set({ user, isAuthenticated: true, isLoading: false });
@@ -66,4 +66,5 @@ const useAuthStore = create<AuthState & AuthActions>((set) => ({
   clearError: () => set({ error: null }),
 }));
 
+export type { AuthState, AuthActions, LoginData, RegisterData };
 export default useAuthStore;
