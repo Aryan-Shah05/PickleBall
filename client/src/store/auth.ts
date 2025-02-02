@@ -1,17 +1,17 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '../types';
-import { apiClient } from '@/api/client';
+import { User, UserRole } from '../types';
+import api from '../api/client';
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  setUser: (user: User | null) => void;
-  logout: () => void;
-  clearError: () => void;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
 }
 
 interface RegisterData {
@@ -21,69 +21,49 @@ interface RegisterData {
   lastName: string;
 }
 
-// Default users for development
-const DEFAULT_USERS = {
-  admin: {
-    id: '1',
-    email: 'admin@example.com',
-    password: 'admin123',
-    name: 'Admin User',
-    role: 'ADMIN' as const,
-  },
-  member: {
-    id: '2',
-    email: 'user@example.com',
-    password: 'user123',
-    name: 'Regular User',
-    role: 'MEMBER' as const,
-  },
-};
+interface AuthActions {
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => void;
+  clearError: () => void;
+}
 
-const mockAdmin: User = {
-  id: '1',
-  email: 'admin@example.com',
-  firstName: 'Admin',
-  lastName: 'User',
-  role: 'ADMIN',
-  membershipLevel: 'PREMIUM',
-  isActive: true,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
+const useAuthStore = create<AuthState & AuthActions>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
 
-const mockMember: User = {
-  id: '2',
-  email: 'member@example.com',
-  firstName: 'John',
-  lastName: 'Doe',
-  role: 'MEMBER',
-  membershipLevel: 'BASIC',
-  isActive: true,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
-
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      logout: () => {
-        localStorage.removeItem('token');
-        set({ user: null, isAuthenticated: false });
-      },
-      clearError: () => set({ error: null }),
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        token: state.token,
-        user: state.user,
-      }),
+  login: async (data: LoginData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.post('/api/v1/auth/login', data);
+      const { user, token } = response.data.data;
+      localStorage.setItem('token', token);
+      set({ user, isAuthenticated: true, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
     }
-  )
-);
+  },
+
+  register: async (data: RegisterData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.post('/api/v1/auth/register', data);
+      const { user, token } = response.data.data;
+      localStorage.setItem('token', token);
+      set({ user, isAuthenticated: true, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem('token');
+    set({ user: null, isAuthenticated: false });
+  },
+
+  clearError: () => set({ error: null }),
+}));
+
+export default useAuthStore;

@@ -1,13 +1,20 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box } from '@mui/material';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import { Toaster } from 'react-hot-toast';
 
-export const Layout: React.FC = () => {
+const Layout: React.FC = () => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Box component="main" sx={{ flexGrow: 1 }}>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
         <Outlet />
-      </Box>
-    </Box>
+      </main>
+      <Footer />
+      <Toaster position="top-right" />
+    </div>
   );
-}; 
+};
+
+export default Layout; 

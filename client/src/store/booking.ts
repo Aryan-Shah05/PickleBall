@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Booking, BookingStatus } from '../types';
+import { Booking, BookingStatus, Court, PaymentStatus, User } from '../types';
 import api from '../api/client';
 
 interface BookingState {
@@ -7,6 +7,9 @@ interface BookingState {
   selectedBooking: Booking | null;
   isLoading: boolean;
   error: string | null;
+}
+
+interface BookingActions {
   fetchBookings: () => Promise<void>;
   createBooking: (bookingData: CreateBookingData) => Promise<void>;
   cancelBooking: (bookingId: string) => Promise<void>;
@@ -20,17 +23,17 @@ interface CreateBookingData {
   endTime: string;
 }
 
-export const useBookingStore = create<BookingState>((set, get) => ({
+const useBookingStore = create<BookingState & BookingActions>((set, get) => ({
   bookings: [],
   selectedBooking: null,
   isLoading: false,
   error: null,
 
   fetchBookings: async () => {
+    set({ isLoading: true });
     try {
-      set({ isLoading: true });
-      const response = await api.get('/bookings');
-      set({ bookings: response.data, isLoading: false });
+      const response = await api.get('/api/v1/bookings');
+      set({ bookings: response.data.data, isLoading: false });
     } catch (error) {
       set({ error: 'Failed to fetch bookings', isLoading: false });
     }
@@ -55,22 +58,21 @@ export const useBookingStore = create<BookingState>((set, get) => ({
 
   cancelBooking: async (bookingId: string) => {
     try {
-      set({ isLoading: true });
-      await api.patch(`/bookings/${bookingId}/cancel`);
-      
+      await api.patch(`/api/v1/bookings/${bookingId}/cancel`);
       set((state) => ({
-        bookings: state.bookings.map(booking => 
-          booking.id === bookingId 
+        bookings: state.bookings.map((booking) =>
+          booking.id === bookingId
             ? { ...booking, status: BookingStatus.CANCELLED }
             : booking
         ),
-        isLoading: false
       }));
     } catch (error) {
-      set({ error: 'Failed to cancel booking', isLoading: false });
+      set({ error: 'Failed to cancel booking' });
     }
   },
 
   setSelectedBooking: (booking: Booking | null) => set({ selectedBooking: booking }),
   clearError: () => set({ error: null }),
-})); 
+}));
+
+export default useBookingStore; 

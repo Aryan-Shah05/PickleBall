@@ -1,60 +1,27 @@
 import { io, Socket } from 'socket.io-client';
 import { Booking, Court, CourtStatus } from '@/types';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:4000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
 class SocketService {
   private socket: Socket | null = null;
   private listeners: Map<string, Function[]> = new Map();
 
-  connect(token: string): void {
-    if (this.socket?.connected) return;
+  connect() {
+    if (!this.socket) {
+      this.socket = io(SOCKET_URL, {
+        transports: ['websocket'],
+        autoConnect: true,
+      });
 
-    this.socket = io(SOCKET_URL, {
-      auth: {
-        token,
-      },
-      transports: ['websocket'],
-    });
-
-    this.setupListeners();
+      this.socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+      });
+    }
+    return this.socket;
   }
 
-  private setupListeners(): void {
-    if (!this.socket) return;
-
-    this.socket.on('connect', () => {
-      console.info('Socket connected');
-    });
-
-    this.socket.on('disconnect', () => {
-      console.info('Socket disconnected');
-    });
-
-    this.socket.on('error', (error: Error) => {
-      console.error('Socket error:', error);
-    });
-
-    // Court status updates
-    this.socket.on('court:status', (data: { courtId: string; status: CourtStatus }) => {
-      this.emit('courtStatus', data);
-    });
-
-    // Booking updates
-    this.socket.on('booking:created', (booking: Booking) => {
-      this.emit('bookingCreated', booking);
-    });
-
-    this.socket.on('booking:updated', (booking: Booking) => {
-      this.emit('bookingUpdated', booking);
-    });
-
-    this.socket.on('booking:cancelled', (bookingId: string) => {
-      this.emit('bookingCancelled', bookingId);
-    });
-  }
-
-  disconnect(): void {
+  disconnect() {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
@@ -95,6 +62,14 @@ class SocketService {
   unsubscribeFromBookingUpdates(bookingId: string): void {
     this.socket?.emit('booking:unsubscribe', bookingId);
   }
+
+  onBookingUpdate(callback: (booking: Booking) => void) {
+    this.socket?.on('booking:update', callback);
+  }
+
+  offBookingUpdate(callback: (booking: Booking) => void) {
+    this.socket?.off('booking:update', callback);
+  }
 }
 
-export const socketService = new SocketService();
+export default new SocketService();
