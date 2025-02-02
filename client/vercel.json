@@ -5,6 +5,10 @@
       "destination": "/index.html"
     }
   ],
+  "env": {
+    "VITE_API_URL": "https://pickleball-n3kt.onrender.com",
+    "VITE_SOCKET_URL": "https://pickleball-n3kt.onrender.com"
+  },
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite"
