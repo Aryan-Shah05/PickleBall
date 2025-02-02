@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import { app } from '../../index';
 import { createTestUser, createTestCourt, generateTestToken, clearDatabase, UserRole } from '../../test/helpers';

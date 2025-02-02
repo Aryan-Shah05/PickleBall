@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../../index';
