@@ -22,7 +22,7 @@ declare global {
 
 export const protect = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
@@ -37,7 +37,7 @@ export const protect = async (
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET || 'your-secret-key'
     ) as JwtPayload;
 
     // Get user from token
@@ -64,7 +64,7 @@ export const protect = async (
 };
 
 export const authorize = (...roles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
       throw new AppError(401, 'Not authorized to access this route', 'UNAUTHORIZED');
     }

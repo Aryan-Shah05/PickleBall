@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../utils/logger';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
 
@@ -7,7 +6,7 @@ export class AppError extends Error {
   constructor(
     public statusCode: number,
     public message: string,
-    public code?: string
+    public code: string
   ) {
     super(message);
     this.name = 'AppError';
@@ -17,23 +16,17 @@ export class AppError extends Error {
 
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  logger.error('Error:', {
-    error: err,
-    path: req.path,
-    method: req.method,
-  });
+  console.error('Error:', err);
 
-  // Handle validation errors
+  // Handle Zod validation errors
   if (err instanceof ZodError) {
     return res.status(400).json({
       status: 'error',
       code: 'VALIDATION_ERROR',
-      message: 'Validation failed',
       errors: err.errors,
     });
   }
@@ -43,13 +36,13 @@ export const errorHandler = (
     if (err.code === 'P2002') {
       return res.status(409).json({
         status: 'error',
-        code: 'DUPLICATE_ERROR',
+        code: 'DUPLICATE_ENTRY',
         message: 'A record with this value already exists',
       });
     }
   }
 
-  // Handle custom application errors
+  // Handle custom AppError
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       status: 'error',
@@ -71,17 +64,14 @@ export const errorHandler = (
     return res.status(401).json({
       status: 'error',
       code: 'TOKEN_EXPIRED',
-      message: 'Token expired',
+      message: 'Token has expired',
     });
   }
 
   // Default error
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode).json({
+  return res.status(500).json({
     status: 'error',
     code: 'INTERNAL_SERVER_ERROR',
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Something went wrong'
-      : err.message,
+    message: 'Something went wrong',
   });
 }; 

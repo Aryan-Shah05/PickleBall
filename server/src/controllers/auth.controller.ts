@@ -11,6 +11,7 @@ import type {
   ForgotPasswordInput,
 } from '../schemas/auth.schema';
 import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
 
 const prismaClient = new PrismaClient();
 
@@ -40,6 +41,11 @@ const DEFAULT_USERS = {
   },
 };
 
+const LoginInput = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
 export const authController = {
   register: async (
     req: Request<unknown, unknown, RegisterInput>,
@@ -59,8 +65,7 @@ export const authController = {
       }
 
       // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(password, 12);
 
       // Create user
       const user = await prisma.user.create({
@@ -77,60 +82,76 @@ export const authController = {
           lastName: true,
           role: true,
           membershipLevel: true,
+          createdAt: true,
         },
       });
 
-      // Generate token
-      const token = generateToken(user.id);
+      // Create token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '1d' }
+      );
 
       res.status(201).json({
         status: 'success',
-        data: {
-          user,
-          token,
-        },
+        data: { user, token },
       });
     } catch (error) {
       next(error);
     }
   },
 
-  login: async (req: Request, res: Response) => {
+  login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = req.body;
+      const { email, password } = LoginInput.parse(req.body);
 
-      // For development, check against default users
-      const adminUser = DEFAULT_USERS.admin;
-      const memberUser = DEFAULT_USERS.member;
-
-      let user;
-      if (email === adminUser.email && password === adminUser.password) {
-        user = adminUser;
-      } else if (email === memberUser.email && password === memberUser.password) {
-        user = memberUser;
-      }
+      // Find user
+      const user = await prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          password: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          membershipLevel: true,
+        },
+      });
 
       if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS');
       }
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { userId: user.id, role: user.role },
-        process.env.JWT_SECRET || 'fallback_secret',
-        { expiresIn: '1d' }
-      );
+      // Check password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS');
+      }
 
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
 
-      res.json({
-        user: userWithoutPassword,
-        token,
+      // Create token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '1d' }
+      );
+
+      // Update last login
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+
+      res.status(200).json({
+        status: 'success',
+        data: { user: userWithoutPassword, token },
       });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      next(error);
     }
   },
 
@@ -146,43 +167,40 @@ export const authController = {
       const { token } = req.body;
 
       if (!token) {
-        throw new AppError(400, 'Token is required', 'TOKEN_REQUIRED');
+        throw new AppError(401, 'No token provided', 'INVALID_TOKEN');
       }
 
-      // Verify token
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET as string
-      ) as { userId: string };
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.userId },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            membershipLevel: true,
+          },
+        });
 
-      // Check if user exists
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          membershipLevel: true,
-          isActive: true,
-        },
-      });
+        if (!user) {
+          throw new AppError(401, 'Invalid token', 'INVALID_TOKEN');
+        }
 
-      if (!user || !user.isActive) {
+        const newToken = jwt.sign(
+          { userId: user.id },
+          process.env.JWT_SECRET || 'your-secret-key',
+          { expiresIn: '1d' }
+        );
+
+        res.status(200).json({
+          status: 'success',
+          data: { user, token: newToken },
+        });
+      } catch (error) {
         throw new AppError(401, 'Invalid token', 'INVALID_TOKEN');
       }
-
-      // Generate new token
-      const newToken = generateToken(user.id);
-
-      res.json({
-        status: 'success',
-        data: {
-          user,
-          token: newToken,
-        },
-      });
     } catch (error) {
       next(error);
     }
