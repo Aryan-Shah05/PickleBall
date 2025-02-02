@@ -1,5 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { ApiError } from '@/types';
+
+interface ApiError {
+  message: string;
+  code?: string;
+}
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -33,20 +37,15 @@ class ApiClient {
     // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
-      (error: AxiosError) => {
-        const apiError: ApiError = {
-          message: error.response?.data?.message || 'An unexpected error occurred',
-          code: error.response?.data?.code,
-          status: error.response?.status,
-        };
-
-        // Handle 401 Unauthorized
+      (error: AxiosError<ApiError>) => {
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           window.location.href = '/login';
         }
-
-        return Promise.reject(apiError);
+        return Promise.reject({
+          message: error.response?.data?.message || 'An error occurred',
+          code: error.response?.data?.code || error.code
+        });
       }
     );
   }

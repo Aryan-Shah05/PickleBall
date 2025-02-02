@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, AuthResponse } from '@/types';
+import { User } from '../types';
 import { apiClient } from '@/api/client';
 
 interface AuthState {
@@ -9,8 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: RegisterData) => Promise<void>;
+  setUser: (user: User | null) => void;
   logout: () => void;
   clearError: () => void;
 }
@@ -40,6 +39,30 @@ const DEFAULT_USERS = {
   },
 };
 
+const mockAdmin: User = {
+  id: '1',
+  email: 'admin@example.com',
+  firstName: 'Admin',
+  lastName: 'User',
+  role: 'ADMIN',
+  membershipLevel: 'PREMIUM',
+  isActive: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
+const mockMember: User = {
+  id: '2',
+  email: 'member@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+  role: 'MEMBER',
+  membershipLevel: 'BASIC',
+  isActive: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -48,59 +71,11 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
-
-      login: async (email: string, password: string) => {
-        // For development, check against default users
-        const adminUser = DEFAULT_USERS.admin;
-        const memberUser = DEFAULT_USERS.member;
-
-        if (email === adminUser.email && password === adminUser.password) {
-          const { password: _, ...user } = adminUser;
-          set({ user, isAuthenticated: true });
-          return;
-        }
-
-        if (email === memberUser.email && password === memberUser.password) {
-          const { password: _, ...user } = memberUser;
-          set({ user, isAuthenticated: true });
-          return;
-        }
-
-        throw new Error('Invalid credentials');
-      },
-
-      register: async (userData: RegisterData) => {
-        try {
-          set({ isLoading: true, error: null });
-          const response = await apiClient.post<AuthResponse>('/auth/register', userData);
-          
-          set({
-            user: response.user,
-            token: response.token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-
-          localStorage.setItem('token', response.token);
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Registration failed',
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
-
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
       logout: () => {
         localStorage.removeItem('token');
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          error: null,
-        });
+        set({ user: null, isAuthenticated: false });
       },
-
       clearError: () => set({ error: null }),
     }),
     {

@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import { Booking, Court } from '@/types';
-import { apiClient } from '@/api/client';
+import { Booking, BookingStatus } from '../types';
+import api from '../api/client';
 
 interface BookingState {
   bookings: Booking[];
   selectedBooking: Booking | null;
   isLoading: boolean;
   error: string | null;
-  fetchUserBookings: () => Promise<void>;
+  fetchBookings: () => Promise<void>;
   createBooking: (bookingData: CreateBookingData) => Promise<void>;
   cancelBooking: (bookingId: string) => Promise<void>;
   setSelectedBooking: (booking: Booking | null) => void;
@@ -26,23 +26,20 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchUserBookings: async () => {
+  fetchBookings: async () => {
     try {
-      set({ isLoading: true, error: null });
-      const bookings = await apiClient.get<Booking[]>('/bookings/user');
-      set({ bookings, isLoading: false });
+      set({ isLoading: true });
+      const response = await api.get('/bookings');
+      set({ bookings: response.data, isLoading: false });
     } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Failed to fetch bookings',
-        isLoading: false,
-      });
+      set({ error: 'Failed to fetch bookings', isLoading: false });
     }
   },
 
   createBooking: async (bookingData: CreateBookingData) => {
     try {
       set({ isLoading: true, error: null });
-      const booking = await apiClient.post<Booking>('/bookings', bookingData);
+      const booking = await api.post('/bookings', bookingData);
       set((state) => ({
         bookings: [...state.bookings, booking],
         isLoading: false,
@@ -58,22 +55,19 @@ export const useBookingStore = create<BookingState>((set, get) => ({
 
   cancelBooking: async (bookingId: string) => {
     try {
-      set({ isLoading: true, error: null });
-      await apiClient.post(`/bookings/${bookingId}/cancel`);
+      set({ isLoading: true });
+      await api.patch(`/bookings/${bookingId}/cancel`);
+      
       set((state) => ({
-        bookings: state.bookings.map((booking) =>
-          booking.id === bookingId
-            ? { ...booking, status: 'CANCELLED' }
+        bookings: state.bookings.map(booking => 
+          booking.id === bookingId 
+            ? { ...booking, status: BookingStatus.CANCELLED }
             : booking
         ),
-        isLoading: false,
+        isLoading: false
       }));
     } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Failed to cancel booking',
-        isLoading: false,
-      });
-      throw error;
+      set({ error: 'Failed to cancel booking', isLoading: false });
     }
   },
 
