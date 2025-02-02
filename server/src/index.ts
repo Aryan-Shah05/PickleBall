@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { authRoutes } from './routes/auth.routes';
+import authRoutes from './routes/auth.routes';
+import healthRoutes from './routes/health.routes';
 
 // Load environment variables
 config();
@@ -20,6 +21,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/health', healthRoutes);
 
 // Basic health check route
 app.get('/health', (req, res) => {
