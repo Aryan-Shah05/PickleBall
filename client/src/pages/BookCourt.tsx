@@ -5,7 +5,7 @@ import { Calendar } from 'react-big-calendar';
 import { Card, CardContent, Typography, Button } from '@mui/material';
 import { Court } from '../types';
 import api from '../api/client';
-import useAuthStore from '../store/auth';
+import useAuthStore from '@/store/auth';
 
 const BookCourt: React.FC = () => {
   const navigate = useNavigate();
@@ -38,10 +38,7 @@ const BookCourt: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <Typography variant="h4" gutterBottom>
-        Book a Court
-      </Typography>
-
+      <h1 className="text-2xl font-bold mb-4">Book a Court</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {courts.map((court) => (
           <Card key={court.id}>

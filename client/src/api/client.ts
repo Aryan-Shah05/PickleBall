@@ -1,18 +1,18 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
 interface ApiError {
   message: string;
   code?: string;
 }
 
-const api = axios.create({
-  baseURL,
-  withCredentials: true,
-});
-
-api.interceptors.request.use(
+apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -23,7 +23,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const errorResponse: ApiError = {
@@ -38,4 +38,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api; 
+export default apiClient; 
