@@ -5,15 +5,15 @@ WORKDIR /app
 # Add necessary packages for building
 RUN apk add --no-cache python3 make g++
 
-# Copy package files and prisma schema first
+# Copy package files first
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Install dependencies with legacy peer deps flag
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-# Generate Prisma Client (with explicit schema path)
-RUN npx prisma generate --schema=/app/prisma/schema.prisma
+# Copy prisma schema and generate client
+COPY prisma ./prisma/
+RUN npx prisma generate
 
 # Copy the rest of the application
 COPY . .

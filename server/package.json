@@ -6,7 +6,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "rimraf dist && tsc",
     "start": "node dist/index.js",
-    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "postinstall": "prisma generate",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "seed": "ts-node prisma/seed.ts"
@@ -57,7 +57,6 @@
   "license": "ISC",
   "type": "commonjs",
   "prisma": {
-    "schema": "./prisma/schema.prisma",
-    "seed": "ts-node prisma/seed.ts"
+    "schema": "./prisma/schema.prisma"
   }
 }
