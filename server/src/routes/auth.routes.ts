@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authController } from '../controllers/auth.controller';
-import { validateRequest } from '../middleware/validateRequest';
-import { loginSchema, registerSchema } from '../schemas/auth.schema';
+import { validate } from '../middleware/validate';
+import { registerSchema, loginSchema, resetPasswordSchema, forgotPasswordSchema } from '../schemas/auth.schema';
 
 const router = Router();
 
@@ -21,11 +21,11 @@ router.get('/', (req, res) => {
   });
 });
 
-router.post('/register', validateRequest(registerSchema), authController.register);
-router.post('/login', validateRequest(loginSchema), authController.login);
+router.post('/register', validate(registerSchema), authController.register);
+router.post('/login', validate(loginSchema), authController.login);
 router.post('/logout', authController.logout);
 router.post('/refresh-token', authController.refreshToken);
-router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
+router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
+router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
 
-export { router as authRoutes }; 
+export default router; 
