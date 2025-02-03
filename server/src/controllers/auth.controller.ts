@@ -12,7 +12,7 @@ import {
   ResetPasswordInput,
   ForgotPasswordInput,
 } from '../schemas/auth.schema';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, MembershipLevel } from '@prisma/client';
 import { z } from 'zod';
 
 const prismaClient = new PrismaClient();
@@ -80,7 +80,7 @@ export const authController = {
           firstName,
           lastName,
           role: UserRole.MEMBER,
-          membershipLevel: 'BASIC',
+          membershipLevel: MembershipLevel.BASIC,
           isActive: true
         },
         select: {
