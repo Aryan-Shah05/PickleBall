@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, UserConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -53,4 +53,4 @@ export default defineConfig({
       'yup'
     ]
   }
-}) 
+} as UserConfig) 
