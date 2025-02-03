@@ -55,6 +55,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Test route at API prefix level
+app.get(apiPrefix, (req, res) => {
+  res.json({
+    status: 'success',
+    message: 'API is accessible',
+    prefix: apiPrefix
+  });
+});
+
 // Setup API routes
 setupRoutes(app, apiPrefix);
 
@@ -65,6 +74,7 @@ app.use(errorHandler);
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+    console.log(`API prefix:`, apiPrefix);
     console.log(`Allowed CORS origins:`, allowedOrigins);
   });
 }
