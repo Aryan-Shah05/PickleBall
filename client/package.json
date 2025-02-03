@@ -51,7 +51,6 @@
     "vitest": "^1.3.1"
   },
   "overrides": {
-    "glob": "^10.3.10",
     "rimraf": "6.0.1",
     "inflight": "npm:lru-cache@^10.2.0",
     "@humanwhocodes/object-schema": "@eslint/object-schema@^2.1.6",
