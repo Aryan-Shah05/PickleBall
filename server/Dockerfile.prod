@@ -6,6 +6,9 @@ WORKDIR /app
 # Add necessary packages for building
 RUN apk add --no-cache python3 make g++ openssl
 
+# Update npm to version 11.1.0
+RUN npm install -g npm@11.1.0
+
 # Copy package files and prisma schema first
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -29,6 +32,9 @@ WORKDIR /app
 
 # Install OpenSSL
 RUN apk add --no-cache openssl
+
+# Update npm to version 11.1.0
+RUN npm install -g npm@11.1.0
 
 # Copy package files
 COPY package*.json ./
