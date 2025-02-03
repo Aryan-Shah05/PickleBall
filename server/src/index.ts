@@ -13,15 +13,30 @@ const prisma = new PrismaClient();
 const port = process.env.PORT || 4000;
 const apiPrefix = process.env.API_PREFIX || '/api/v1';
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+// CORS configuration
+const allowedOrigins = [
+  'https://visionary-daffodil-37862c.netlify.app',
+  'https://pickleball-booking.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173'
+];
+
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Content-Range', 'X-Content-Range']
-}));
+};
 
+// Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Basic health check route
@@ -39,7 +54,7 @@ app.use(errorHandler);
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    console.log(`CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
+    console.log(`Allowed CORS origins:`, allowedOrigins);
   });
 }
 

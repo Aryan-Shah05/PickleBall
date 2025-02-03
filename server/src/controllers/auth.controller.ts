@@ -4,7 +4,9 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
-import type {
+import {
+  registerSchema,
+  loginSchema,
   RegisterInput,
   LoginInput,
   ResetPasswordInput,
@@ -52,13 +54,11 @@ const LoginInput = z.object({
 });
 
 export const authController = {
-  register: async (
-    req: Request<unknown, unknown, RegisterInput>,
-    res: Response,
-    next: NextFunction
-  ) => {
+  register: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      // Validate request body
+      const validatedData = registerSchema.parse({ body: req.body });
+      const { email, password, firstName, lastName } = validatedData.body;
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
@@ -108,11 +108,9 @@ export const authController = {
 
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
-        throw new AppError(400, 'Please provide email and password', 'VALIDATION_ERROR');
-      }
+      // Validate request body
+      const validatedData = loginSchema.parse({ body: req.body });
+      const { email, password } = validatedData.body;
 
       // Find user
       const user = await prisma.user.findUnique({
