@@ -2,14 +2,14 @@ import { create } from 'zustand';
 import { User } from '@/types';
 import apiClient from '@/api/client';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
 }
 
-interface AuthActions {
+export interface AuthActions {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (userData: RegisterData) => Promise<void>;

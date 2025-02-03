@@ -11,11 +11,6 @@ import { Profile } from './pages/Profile';
 import { TestRunner } from './tests/components/TestRunner';
 import { PageWrapper, AccessibleAnimationWrapper } from './components/animations';
 import './styles/globals.css';
-import Layout from './components/layout/Layout';
-import Home from './pages/Home';
-import Register from './pages/Register';
-import PrivateRoute from './components/auth/PrivateRoute';
-import AdminRoute from './components/auth/AdminRoute';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

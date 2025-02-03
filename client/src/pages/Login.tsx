@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/auth';
+import useAuthStore from '@/store/auth';
+import type { AuthState, AuthActions } from '@/store/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const login = useAuthStore(state => state.login);
+  const login = useAuthStore((state: AuthState & AuthActions) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
