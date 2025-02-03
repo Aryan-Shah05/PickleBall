@@ -105,6 +105,6 @@ const App: React.FC = () => {
       </AccessibleAnimationWrapper>
     </ThemeProvider>
   );
-}
+};
 
-export default App; 
+export default App;
