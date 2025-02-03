@@ -38,12 +38,11 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', formData);
+      const response = await api.post('/api/v1/auth/login', formData);
       const { data } = response;
       
       if (data.status === 'success' && data.data.token) {
         localStorage.setItem('token', data.data.token);
-        // Store user data if needed
         localStorage.setItem('user', JSON.stringify(data.data.user));
         navigate('/dashboard');
       } else {

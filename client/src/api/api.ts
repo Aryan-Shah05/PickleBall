@@ -8,7 +8,7 @@ const apiUrl = import.meta.env.VITE_API_URL.replace(/\/$/, ''); // Remove traili
 console.log('API URL:', apiUrl); // Debug log
 
 const api = axios.create({
-  baseURL: `${apiUrl}/api/v1`,
+  baseURL: apiUrl, // Removed /api/v1 since it's added by the server
   headers: {
     'Content-Type': 'application/json',
   },
