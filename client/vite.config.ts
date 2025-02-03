@@ -15,6 +15,19 @@ export default defineConfig({
       usePolling: true
     }
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material'],
+          'utils-vendor': ['axios', 'date-fns', 'formik', 'yup']
+        }
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -26,5 +39,18 @@ export default defineConfig({
       '@store': path.resolve(__dirname, './src/store'),
       '@api': path.resolve(__dirname, './src/api')
     }
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@mui/material',
+      '@mui/icons-material',
+      'axios',
+      'date-fns',
+      'formik',
+      'yup'
+    ]
   }
 }) 
