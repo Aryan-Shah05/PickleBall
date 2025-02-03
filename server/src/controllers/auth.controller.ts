@@ -57,8 +57,8 @@ export const authController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Validate request body
-      const validatedData = registerSchema.parse({ body: req.body });
-      const { email, password, firstName, lastName } = validatedData.body;
+      const validatedData = registerSchema.parse(req.body);
+      const { email, password, firstName, lastName } = validatedData;
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
@@ -109,8 +109,8 @@ export const authController = {
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Validate request body
-      const validatedData = loginSchema.parse({ body: req.body });
-      const { email, password } = validatedData.body;
+      const validatedData = loginSchema.parse(req.body);
+      const { email, password } = validatedData;
 
       // Find user
       const user = await prisma.user.findUnique({
