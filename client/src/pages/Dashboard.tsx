@@ -7,7 +7,7 @@ import {
   Typography,
   Button,
   Stack,
-  Chip,
+  Chip
 } from '@mui/material';
 import {
   SportsTennis,
@@ -15,7 +15,7 @@ import {
   TrendingUp,
   CalendarToday,
   AccessTime,
-  ArrowForward,
+  ArrowForward
 } from '@mui/icons-material';
 
 export const Dashboard: React.FC = () => {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
@@ -10,7 +10,7 @@ import type {
   ResetPasswordInput,
   ForgotPasswordInput,
 } from '../schemas/auth.schema';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import { z } from 'zod';
 
 const prismaClient = new PrismaClient();
@@ -18,11 +18,12 @@ const prismaClient = new PrismaClient();
 const generateToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error('JWT_SECRET is not defined');
+    throw new AppError(500, 'JWT secret not configured', 'SERVER_ERROR');
   }
-  return jwt.sign({ userId }, secret, {
-    expiresIn: Number(process.env.JWT_EXPIRES_IN?.replace('d', '')) * 24 * 60 * 60 // Convert days to seconds
-  });
+  const options: SignOptions = {
+    expiresIn: 24 * 60 * 60 // 1 day in seconds
+  };
+  return jwt.sign({ userId }, secret, options);
 };
 
 // Default users for development
@@ -78,6 +79,9 @@ export const authController = {
           password: hashedPassword,
           firstName,
           lastName,
+          role: UserRole.MEMBER,
+          membershipLevel: 'BASIC',
+          isActive: true
         },
         select: {
           id: true,
@@ -90,12 +94,8 @@ export const authController = {
         },
       });
 
-      // Create token
-      const token = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '1d' }
-      );
+      // Generate token
+      const token = generateToken(user.id);
 
       res.status(201).json({
         status: 'success',
@@ -108,7 +108,11 @@ export const authController = {
 
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = LoginInput.parse(req.body);
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        throw new AppError(400, 'Please provide email and password', 'VALIDATION_ERROR');
+      }
 
       // Find user
       const user = await prisma.user.findUnique({
@@ -121,10 +125,11 @@ export const authController = {
           lastName: true,
           role: true,
           membershipLevel: true,
+          isActive: true
         },
       });
 
-      if (!user) {
+      if (!user || !user.isActive) {
         throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS');
       }
 
@@ -137,12 +142,8 @@ export const authController = {
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
 
-      // Create token
-      const token = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '1d' }
-      );
+      // Generate token
+      const token = generateToken(user.id);
 
       // Update last login
       await prisma.user.update({
@@ -160,7 +161,7 @@ export const authController = {
   },
 
   logout: async (req: Request, res: Response) => {
-    res.json({
+    res.status(200).json({
       status: 'success',
       message: 'Logged out successfully',
     });
@@ -174,8 +175,13 @@ export const authController = {
         throw new AppError(401, 'No token provided', 'INVALID_TOKEN');
       }
 
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new AppError(500, 'JWT secret not configured', 'SERVER_ERROR');
+      }
+
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+        const decoded = jwt.verify(token, secret) as { userId: string };
         const user = await prisma.user.findUnique({
           where: { id: decoded.userId },
           select: {
@@ -185,18 +191,15 @@ export const authController = {
             lastName: true,
             role: true,
             membershipLevel: true,
+            isActive: true
           },
         });
 
-        if (!user) {
+        if (!user || !user.isActive) {
           throw new AppError(401, 'Invalid token', 'INVALID_TOKEN');
         }
 
-        const newToken = jwt.sign(
-          { userId: user.id },
-          process.env.JWT_SECRET || 'your-secret-key',
-          { expiresIn: '1d' }
-        );
+        const newToken = generateToken(user.id);
 
         res.status(200).json({
           status: 'success',
@@ -225,7 +228,7 @@ export const authController = {
 
       if (!user) {
         // Don't reveal whether a user exists
-        res.json({
+        res.status(200).json({
           status: 'success',
           message: 'If an account exists, a password reset email will be sent',
         });
@@ -233,16 +236,12 @@ export const authController = {
       }
 
       // Generate reset token
-      const resetToken = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_SECRET as string,
-        { expiresIn: '1h' }
-      );
+      const resetToken = generateToken(user.id);
 
       // TODO: Send reset email
       logger.info(`Reset token for ${email}: ${resetToken}`);
 
-      res.json({
+      res.status(200).json({
         status: 'success',
         message: 'If an account exists, a password reset email will be sent',
       });
@@ -259,26 +258,27 @@ export const authController = {
     try {
       const { token, password } = req.body;
 
-      // Verify token
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET as string
-      ) as { userId: string };
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new AppError(500, 'JWT secret not configured', 'SERVER_ERROR');
+      }
 
-      // Hash new password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      try {
+        const decoded = jwt.verify(token, secret) as { userId: string };
+        const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Update password
-      await prisma.user.update({
-        where: { id: decoded.userId },
-        data: { password: hashedPassword },
-      });
+        await prisma.user.update({
+          where: { id: decoded.userId },
+          data: { password: hashedPassword },
+        });
 
-      res.json({
-        status: 'success',
-        message: 'Password reset successful',
-      });
+        res.status(200).json({
+          status: 'success',
+          message: 'Password has been reset successfully',
+        });
+      } catch (error) {
+        throw new AppError(401, 'Invalid or expired token', 'INVALID_TOKEN');
+      }
     } catch (error) {
       next(error);
     }

@@ -38,7 +38,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -47,11 +47,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleProfileMenuClose = () => {
+  const handleClose = () => {
     setAnchorEl(null);
   };
 
@@ -107,7 +107,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
-            onClick={handleProfileMenuOpen}
+            onClick={handleMenu}
             size="large"
             edge="end"
             color="inherit"
@@ -117,7 +117,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
-            onClose={handleProfileMenuClose}
+            onClose={handleClose}
           >
             <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
             <MenuItem onClick={() => navigate('/settings')}>Settings</MenuItem>
