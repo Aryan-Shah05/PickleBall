@@ -1,18 +1,9 @@
-import { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-} from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Button } from '@mui/material';
 import { useCourtStore } from '@/store/court';
 import { Court } from '@/types';
 
 const BookCourt: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { courts, isLoading, error, fetchCourts } = useCourtStore();
+  const { courts, isLoading, error } = useCourtStore();
 
   return (
     <Box p={3}>

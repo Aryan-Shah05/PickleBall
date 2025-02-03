@@ -13,9 +13,11 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '@/store/auth';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const login = useAuthStore(state => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
