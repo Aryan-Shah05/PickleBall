@@ -20,7 +20,15 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
-  console.error('Error:', err);
+  console.error('Error details:', {
+    name: err.name,
+    message: err.message,
+    stack: err.stack,
+    ...(err instanceof Prisma.PrismaClientKnownRequestError && {
+      code: err.code,
+      meta: err.meta,
+    }),
+  });
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
@@ -72,6 +80,6 @@ export const errorHandler = (
   return res.status(500).json({
     status: 'error',
     code: 'INTERNAL_SERVER_ERROR',
-    message: 'Something went wrong',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
   });
 }; 
