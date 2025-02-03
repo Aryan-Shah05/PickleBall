@@ -8,7 +8,14 @@ import {
   generateTestToken,
   clearDatabase,
 } from '../../test/helpers';
-import { UserRole } from '@prisma/client';
+import { Booking } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+
+// Define UserRole enum since it's not exported from @prisma/client
+export enum UserRole {
+  USER = 'USER',
+  ADMIN = 'ADMIN'
+}
 
 // Initialize prisma client
 beforeAll(async () => {
@@ -21,9 +28,9 @@ afterAll(async () => {
 });
 
 describe('Booking Controller', () => {
-  let existingBooking: any;
-  let booking1: any;
-  let booking2: any;
+  let existingBooking: Booking;
+  let booking1: Booking;
+  let booking2: Booking;
 
   beforeEach(async () => {
     await clearDatabase();

@@ -10,7 +10,7 @@ import {
 import apiClient from '@/api/client';
 import { Court } from '@/types';
 
-const Home = () => {
+const Home: React.FC = () => {
   const [courts, setCourts] = useState<Court[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

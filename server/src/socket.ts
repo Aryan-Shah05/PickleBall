@@ -2,9 +2,24 @@ import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { prisma } from './lib/prisma';
 import { logger } from './utils/logger';
+import { Court, Booking } from '@prisma/client';
+
+export enum NotificationType {
+  BOOKING_CONFIRMED = 'BOOKING_CONFIRMED',
+  BOOKING_CANCELLED = 'BOOKING_CANCELLED',
+  COURT_MAINTENANCE = 'COURT_MAINTENANCE',
+  COURT_AVAILABLE = 'COURT_AVAILABLE',
+  SYSTEM = 'SYSTEM'
+}
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
+}
+
+interface SocketService {
+  emitCourtUpdate: (courtId: string, data: Partial<Court>) => void;
+  emitBookingUpdate: (bookingId: string, data: Partial<Booking>) => void;
+  emitUserNotification: (userId: string, type: NotificationType, data: Record<string, unknown>) => void;
 }
 
 export const setupSocketHandlers = (io: Server) => {
@@ -71,15 +86,15 @@ export const setupSocketHandlers = (io: Server) => {
 
   // Utility functions for emitting events
   return {
-    emitCourtUpdate: (courtId: string, data: unknown) => {
+    emitCourtUpdate: (courtId: string, data: Partial<Court>) => {
       io.to(`court:${courtId}`).emit('court:update', data);
     },
 
-    emitBookingUpdate: (bookingId: string, data: unknown) => {
+    emitBookingUpdate: (bookingId: string, data: Partial<Booking>) => {
       io.to(`booking:${bookingId}`).emit('booking:update', data);
     },
 
-    emitUserNotification: (userId: string, type: string, data: unknown) => {
+    emitUserNotification: (userId: string, type: NotificationType, data: Record<string, unknown>) => {
       io.to(`user:${userId}`).emit('notification', { type, data });
     },
   };

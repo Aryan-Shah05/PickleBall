@@ -2,6 +2,7 @@ import { authService } from '../api/auth.service';
 import { userService } from '../api/user.service';
 import { courtService } from '../api/court.service';
 import { bookingService } from '../api/booking.service';
+import { AxiosError } from 'axios';
 
 const testAuth = async () => {
   try {
@@ -41,8 +42,12 @@ const testAuth = async () => {
     const verifyResponse = await authService.verifyToken();
     console.log('✓ Token verification successful', verifyResponse);
 
-  } catch (error: any) {
-    console.error('✗ Auth Service Test Failed:', error.response?.data?.message || error.message);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('API Error:', error.response?.data);
+    } else {
+      console.error('Unknown error:', error);
+    }
     throw error; // Propagate error to stop further tests
   }
 };
@@ -72,8 +77,12 @@ const testUserProfile = async () => {
     const updateResponse = await userService.updateProfile(updateData);
     console.log('✓ Update profile successful', updateResponse);
 
-  } catch (error: any) {
-    console.error('✗ User Service Test Failed:', error.response?.data?.message || error.message);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('API Error:', error.response?.data);
+    } else {
+      console.error('Unknown error:', error);
+    }
     throw error;
   }
 };
@@ -96,8 +105,12 @@ const testCourts = async () => {
       console.log('✓ Get court availability successful', availability);
     }
 
-  } catch (error: any) {
-    console.error('✗ Court Service Test Failed:', error.response?.data?.message || error.message);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('API Error:', error.response?.data);
+    } else {
+      console.error('Unknown error:', error);
+    }
     throw error;
   }
 };
@@ -132,8 +145,12 @@ const testBookings = async () => {
       }
     }
 
-  } catch (error: any) {
-    console.error('✗ Booking Service Test Failed:', error.response?.data?.message || error.message);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('API Error:', error.response?.data);
+    } else {
+      console.error('Unknown error:', error);
+    }
     throw error;
   }
 };
@@ -159,13 +176,21 @@ export const runApiTests = async () => {
       try {
         console.log(`\nRunning ${test.name} tests...`);
         await test.fn();
-      } catch (error: any) {
-        console.error(`✗ ${test.name} tests failed:`, error.response?.data?.message || error.message);
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          console.error(`✗ ${test.name} tests failed: API Error:`, error.response?.data);
+        } else {
+          console.error(`✗ ${test.name} tests failed: Unknown error:`, error);
+        }
         // Continue with next test instead of breaking
       }
     }
-  } catch (error: any) {
-    console.error('✗ Test suite failed:', error.response?.data?.message || error.message);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('✗ Test suite failed: API Error:', error.response?.data);
+    } else {
+      console.error('✗ Test suite failed: Unknown error:', error);
+    }
   } finally {
     console.log('\nAPI Tests Completed');
   }

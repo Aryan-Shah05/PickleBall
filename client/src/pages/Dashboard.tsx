@@ -19,7 +19,7 @@ import {
   ArrowForward,
 } from '@mui/icons-material';
 
-export const Dashboard = () => {
+export const Dashboard: React.FC = () => {
   // Mock data - replace with real API calls later
   const stats = [
     { label: 'Total Bookings', value: '24', icon: <Event /> },

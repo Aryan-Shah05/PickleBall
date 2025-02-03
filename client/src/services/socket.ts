@@ -3,9 +3,20 @@ import { Booking, Court, CourtStatus } from '@/types';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
+type SocketEventMap = {
+  'court:subscribe': string;
+  'court:unsubscribe': string;
+  'booking:subscribe': string;
+  'booking:unsubscribe': string;
+  'booking:update': Booking;
+  'court:update': Court;
+};
+
+type SocketEventCallback<T> = (data: T) => void;
+
 class SocketService {
   private socket: Socket | null = null;
-  private listeners: Map<string, Function[]> = new Map();
+  private listeners: Map<keyof SocketEventMap, SocketEventCallback<any>[]> = new Map();
 
   connect() {
     if (!this.socket) {
@@ -28,19 +39,19 @@ class SocketService {
     }
   }
 
-  on(event: string, callback: Function): void {
+  on<K extends keyof SocketEventMap>(event: K, callback: SocketEventCallback<SocketEventMap[K]>): void {
     const eventListeners = this.listeners.get(event) || [];
     eventListeners.push(callback);
     this.listeners.set(event, eventListeners);
   }
 
-  off(event: string, callback: Function): void {
+  off<K extends keyof SocketEventMap>(event: K, callback: SocketEventCallback<SocketEventMap[K]>): void {
     const eventListeners = this.listeners.get(event) || [];
     const filteredListeners = eventListeners.filter((listener) => listener !== callback);
     this.listeners.set(event, filteredListeners);
   }
 
-  private emit(event: string, data: unknown): void {
+  private emit<K extends keyof SocketEventMap>(event: K, data: SocketEventMap[K]): void {
     const eventListeners = this.listeners.get(event) || [];
     eventListeners.forEach((listener) => listener(data));
   }
@@ -63,11 +74,11 @@ class SocketService {
     this.socket?.emit('booking:unsubscribe', bookingId);
   }
 
-  onBookingUpdate(callback: (booking: Booking) => void) {
+  onBookingUpdate(callback: SocketEventCallback<Booking>): void {
     this.socket?.on('booking:update', callback);
   }
 
-  offBookingUpdate(callback: (booking: Booking) => void) {
+  offBookingUpdate(callback: SocketEventCallback<Booking>): void {
     this.socket?.off('booking:update', callback);
   }
 }
