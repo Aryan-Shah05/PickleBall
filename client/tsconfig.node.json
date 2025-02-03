@@ -7,7 +7,11 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "types": ["node"],
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "emitDeclarationOnly": true,
     "outDir": "dist"
   },
-  "include": ["vite.config.ts", "package.json"]
+  "include": ["vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
 } 
