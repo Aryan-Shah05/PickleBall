@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "rimraf dist",
+    "type-check": "tsc --noEmit",
+    "prebuild": "rimraf dist && npm run type-check",
     "build:vite-config": "tsc -p tsconfig.vite.json",
     "build:app": "tsc && vite build",
     "build": "npm run prebuild && npm run build:vite-config && npm run build:app",
