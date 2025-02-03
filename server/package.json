@@ -66,6 +66,7 @@
     "schema": "./prisma/schema.prisma"
   },
   "overrides": {
-    "glob": "^10.3.10"
+    "glob": "^10.3.10",
+    "superagent": "9.0.2"
   }
 }
