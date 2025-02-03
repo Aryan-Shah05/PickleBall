@@ -1,22 +1,28 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4002';
+if (!import.meta.env.VITE_API_URL) {
+  throw new Error('VITE_API_URL environment variable is not set');
+}
+
+const apiUrl = import.meta.env.VITE_API_URL.replace(/\/$/, ''); // Remove trailing slash if present
+console.log('API URL:', apiUrl); // Debug log
 
 const api = axios.create({
-  baseURL: `${BASE_URL}/api/v1`,
+  baseURL: `${apiUrl}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: false // Changed to false since we're using token-based auth
 });
 
-// Add request interceptor to attach token
+// Add request interceptor to attach token and log requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Making request to:', config.baseURL + config.url); // Debug log
     return config;
   },
   (error) => {
@@ -38,8 +44,11 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    const errorMessage = error.response?.data?.message || error.message;
-    console.error('API Error:', errorMessage);
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: error.config
+    });
     return Promise.reject(error);
   }
 );
