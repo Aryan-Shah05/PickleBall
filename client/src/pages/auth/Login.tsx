@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/api';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -37,29 +38,24 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
+      const response = await api.post('/auth/login', formData);
+      const { data } = response;
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Invalid credentials');
-      }
-
-      if (data.token) {
-        localStorage.setItem('token', data.token);
+      if (data.status === 'success' && data.data.token) {
+        localStorage.setItem('token', data.data.token);
+        // Store user data if needed
+        localStorage.setItem('user', JSON.stringify(data.data.user));
         navigate('/dashboard');
       } else {
-        throw new Error('No token received from server');
+        throw new Error('Invalid response from server');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to connect to the server. Please try again.');
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to connect to the server. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
