@@ -10,7 +10,7 @@ import {
 import { useCourtStore } from '@/store/court';
 import { Court } from '@/types';
 
-const BookCourt = () => {
+const BookCourt: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const { courts, isLoading, error, fetchCourts } = useCourtStore();
 

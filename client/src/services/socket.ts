@@ -3,55 +3,59 @@ import { Booking, Court, CourtStatus } from '@/types';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
-type SocketEventMap = {
-  'court:subscribe': string;
-  'court:unsubscribe': string;
-  'booking:subscribe': string;
-  'booking:unsubscribe': string;
-  'booking:update': Booking;
-  'court:update': Court;
-};
+interface ServerToClientEvents {
+  'booking:update': (data: Booking) => void;
+  'court:update': (data: Court) => void;
+  'connect_error': (error: Error) => void;
+}
+
+interface ClientToServerEvents {
+  'court:subscribe': (courtId: string) => void;
+  'court:unsubscribe': (courtId: string) => void;
+  'booking:subscribe': (bookingId: string) => void;
+  'booking:unsubscribe': (bookingId: string) => void;
+}
 
 type SocketEventCallback<T> = (data: T) => void;
 
 class SocketService {
-  private socket: Socket | null = null;
-  private listeners: Map<keyof SocketEventMap, SocketEventCallback<any>[]> = new Map();
+  private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
+  private listeners: Map<keyof ServerToClientEvents, Function[]> = new Map();
 
-  connect() {
+  connect(): Socket<ServerToClientEvents, ClientToServerEvents> | null {
     if (!this.socket) {
       this.socket = io(SOCKET_URL, {
         transports: ['websocket'],
         autoConnect: true,
       });
 
-      this.socket.on('connect_error', (error) => {
+      this.socket.on('connect_error', (error: Error) => {
         console.error('Socket connection error:', error);
       });
     }
     return this.socket;
   }
 
-  disconnect() {
+  disconnect(): void {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
   }
 
-  on<K extends keyof SocketEventMap>(event: K, callback: SocketEventCallback<SocketEventMap[K]>): void {
+  on<K extends keyof ServerToClientEvents>(event: K, callback: SocketEventCallback<ServerToClientEvents[K]>): void {
     const eventListeners = this.listeners.get(event) || [];
     eventListeners.push(callback);
     this.listeners.set(event, eventListeners);
   }
 
-  off<K extends keyof SocketEventMap>(event: K, callback: SocketEventCallback<SocketEventMap[K]>): void {
+  off<K extends keyof ServerToClientEvents>(event: K, callback: SocketEventCallback<ServerToClientEvents[K]>): void {
     const eventListeners = this.listeners.get(event) || [];
     const filteredListeners = eventListeners.filter((listener) => listener !== callback);
     this.listeners.set(event, filteredListeners);
   }
 
-  private emit<K extends keyof SocketEventMap>(event: K, data: SocketEventMap[K]): void {
+  private emit<K extends keyof ServerToClientEvents>(event: K, data: ServerToClientEvents[K]): void {
     const eventListeners = this.listeners.get(event) || [];
     eventListeners.forEach((listener) => listener(data));
   }
@@ -74,11 +78,11 @@ class SocketService {
     this.socket?.emit('booking:unsubscribe', bookingId);
   }
 
-  onBookingUpdate(callback: SocketEventCallback<Booking>): void {
+  onBookingUpdate(callback: (booking: Booking) => void): void {
     this.socket?.on('booking:update', callback);
   }
 
-  offBookingUpdate(callback: SocketEventCallback<Booking>): void {
+  offBookingUpdate(callback: (booking: Booking) => void): void {
     this.socket?.off('booking:update', callback);
   }
 }

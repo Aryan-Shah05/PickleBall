@@ -2,16 +2,22 @@ import { Link } from 'react-router-dom';
 import { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/store/auth';
+import useAuthStore from '@/store/auth';
+
+interface NavigationItem {
+  name: string;
+  href: string;
+  current: boolean;
+}
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-function Navbar() {
+const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
 
-  const navigation = [
+  const navigation: NavigationItem[] = [
     { name: 'Home', href: '/', current: false },
     { name: 'Courts', href: '/courts', current: false },
     { name: 'Book Now', href: '/booking', current: false },

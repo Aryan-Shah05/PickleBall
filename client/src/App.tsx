@@ -6,7 +6,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/auth/Login';
 import { Dashboard } from './pages/Dashboard';
 import BookCourt from './pages/BookCourt';
-import { MyBookings } from './pages/MyBookings';
+import MyBookings from './pages/MyBookings';
 import { Profile } from './pages/Profile';
 import { TestRunner } from './tests/components/TestRunner';
 import { PageWrapper, AccessibleAnimationWrapper } from './components/animations';
@@ -18,7 +18,7 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
 // Protected route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const token = localStorage.getItem('token');
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <MainLayout>{children}</MainLayout>;
 };
 
-function App() {
+const App: React.FC = () => {
   const location = useLocation();
 
   return (
