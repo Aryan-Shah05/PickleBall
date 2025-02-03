@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
 if (!import.meta.env.VITE_API_URL) {
   throw new Error('VITE_API_URL environment variable is not set');
@@ -17,12 +17,17 @@ const api = axios.create({
 
 // Add request interceptor to attach token and log requests
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Making request to:', config.baseURL + config.url); // Debug log
+    
+    // Safe access to URL components with fallbacks
+    const baseURL = config.baseURL || '';
+    const url = config.url || '';
+    console.log('Making request to:', baseURL + url);
+    
     return config;
   },
   (error) => {
