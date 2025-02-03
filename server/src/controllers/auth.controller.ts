@@ -5,15 +5,12 @@ import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import {
-  registerSchema,
-  loginSchema,
   RegisterInput,
   LoginInput,
   ResetPasswordInput,
   ForgotPasswordInput,
 } from '../schemas/auth.schema';
 import { PrismaClient, UserRole, MembershipLevel } from '@prisma/client';
-import { z } from 'zod';
 
 const prismaClient = new PrismaClient();
 
@@ -48,17 +45,10 @@ const DEFAULT_USERS = {
   },
 };
 
-const LoginInput = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
 export const authController = {
-  register: async (req: Request, res: Response, next: NextFunction) => {
+  register: async (req: Request<unknown, unknown, RegisterInput>, res: Response, next: NextFunction) => {
     try {
-      // Validate request body
-      const validatedData = registerSchema.parse(req.body);
-      const { email, password, firstName, lastName } = validatedData;
+      const { email, password, firstName, lastName } = req.body;
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
@@ -106,11 +96,9 @@ export const authController = {
     }
   },
 
-  login: async (req: Request, res: Response, next: NextFunction) => {
+  login: async (req: Request<unknown, unknown, LoginInput>, res: Response, next: NextFunction) => {
     try {
-      // Validate request body
-      const validatedData = loginSchema.parse(req.body);
-      const { email, password } = validatedData;
+      const { email, password } = req.body;
 
       // Find user
       const user = await prisma.user.findUnique({
