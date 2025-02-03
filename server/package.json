@@ -31,7 +31,7 @@
     "typescript": "^5.3.3",
     "winston": "^3.11.0",
     "zod": "^3.22.4",
-    "glob": "^10.3.10",
+    "glob": "10.3.10",
     "lru-cache": "^10.2.0"
   },
   "devDependencies": {
@@ -47,7 +47,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "@eslint/config-array": "0.19.2",
     "@eslint/object-schema": "2.1.6",
-    "eslint": "9.0.0",
+    "eslint": "8.56.0",
     "jest": "^29.7.0",
     "jest-mock-extended": "^3.0.5",
     "rimraf": "6.0.1",
@@ -66,9 +66,10 @@
     "schema": "./prisma/schema.prisma"
   },
   "overrides": {
-    "glob": "^10.3.10",
+    "glob": "10.3.10",
     "superagent": "9.0.2",
-    "rimraf": "6.0.1"
+    "rimraf": "6.0.1",
+    "eslint": "8.56.0"
   },
   "resolutions": {
     "@humanwhocodes/config-array": "@eslint/config-array@0.19.2",
