@@ -8,7 +8,6 @@ import {
   Button,
   Stack,
   Chip,
-  IconButton,
 } from '@mui/material';
 import {
   SportsTennis,

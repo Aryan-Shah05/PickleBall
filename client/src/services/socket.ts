@@ -55,11 +55,6 @@ class SocketService {
     this.listeners.set(event, filteredListeners);
   }
 
-  private emit<K extends keyof ServerToClientEvents>(event: K, data: ServerToClientEvents[K]): void {
-    const eventListeners = this.listeners.get(event) || [];
-    eventListeners.forEach((listener) => listener(data));
-  }
-
   // Court-related methods
   subscribeToCourtUpdates(courtId: string): void {
     this.socket?.emit('court:subscribe', courtId);
