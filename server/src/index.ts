@@ -18,14 +18,25 @@ const allowedOrigins = [
   'https://visionary-daffodil-37862c.netlify.app',
   'https://pickleball-booking.vercel.app',
   'http://localhost:3000',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://pickleball-booking.netlify.app',
+  'https://pickleball-booking.netlify.com'
 ];
 
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    // Check if the origin is allowed
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn('Blocked request from:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
