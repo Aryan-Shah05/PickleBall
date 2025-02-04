@@ -41,8 +41,8 @@ const MyBookings: React.FC = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await api.get('/bookings/my');
-      setBookings(response.data);
+      const response = await api.get('/bookings/my-bookings');
+      setBookings(response.data.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load bookings');
     } finally {

@@ -4,6 +4,7 @@ import courtRoutes from './court.routes';
 import bookingRoutes from './booking.routes';
 import paymentRoutes from './payment.routes';
 import userRoutes from './user.routes';
+import dashboardRoutes from './dashboard.routes';
 
 export const setupRoutes = (app: Express, apiPrefix: string) => {
   app.use(`${apiPrefix}/auth`, authRoutes);
@@ -11,4 +12,5 @@ export const setupRoutes = (app: Express, apiPrefix: string) => {
   app.use(`${apiPrefix}/bookings`, bookingRoutes);
   app.use(`${apiPrefix}/payments`, paymentRoutes);
   app.use(`${apiPrefix}/users`, userRoutes);
+  app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
 }; 
