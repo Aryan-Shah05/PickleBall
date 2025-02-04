@@ -17,6 +17,7 @@ import {
   Menu,
   MenuItem,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -24,6 +25,7 @@ import {
   Dashboard,
   EventNote,
   ExitToApp,
+  AccountCircle,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../api/api';
@@ -41,6 +43,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { user } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(true);
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -48,6 +51,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useEffect(() => {
     // Debug log to check user data
     console.log('Current user data:', user);
+    // Set loading to false after initial user check
+    setIsLoading(false);
   }, [user]);
 
   const handleDrawerToggle = () => {
@@ -82,14 +87,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { text: 'My Bookings', icon: <EventNote />, path: '/bookings' },
   ];
 
-  // Early return if no user data
-  if (!user) {
-    console.warn('No user data available');
-    return null;
-  }
-
-  const userInitials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`;
-
   const drawer = (
     <div>
       <Toolbar>
@@ -111,6 +108,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </List>
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const userInitials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : '';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -139,9 +146,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             edge="end"
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-              {userInitials}
-            </Avatar>
+            {user ? (
+              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+                {userInitials}
+              </Avatar>
+            ) : (
+              <AccountCircle />
+            )}
           </IconButton>
           <Menu
             anchorEl={anchorEl}
@@ -159,26 +170,30 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               },
             }}
           >
-            <Box sx={{ px: 2, py: 1.5 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Signed in as
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500, mt: 0.5 }}>
-                {user.firstName} {user.lastName}
-              </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                sx={{ 
-                  wordBreak: 'break-all',
-                  mt: 0.5,
-                  fontSize: '0.875rem'
-                }}
-              >
-                {user.email}
-              </Typography>
-            </Box>
-            <Divider />
+            {user && (
+              <>
+                <Box sx={{ px: 2, py: 1.5 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Signed in as
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mt: 0.5 }}>
+                    {user.firstName} {user.lastName}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                      wordBreak: 'break-all',
+                      mt: 0.5,
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {user.email}
+                  </Typography>
+                </Box>
+                <Divider />
+              </>
+            )}
             <MenuItem 
               onClick={() => { handleClose(); handleLogout(); }}
               sx={{ 
