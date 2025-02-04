@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -16,8 +16,6 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Divider,
-  CircularProgress,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -43,33 +41,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { user } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get('/users/me');
-        const data = response.data.data || response.data;
-        console.log('Fetched user data:', data);
-        setUserData(data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchUserData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [user]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -85,7 +59,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      setIsLoading(true);
       await api.post('/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -95,8 +68,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       navigate('/login');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -128,15 +99,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     </div>
   );
 
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  const userInitials = userData ? `${userData.firstName?.[0] || ''}${userData.lastName?.[0] || ''}` : '';
+  const userInitials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : '';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -171,7 +134,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               },
             }}
           >
-            {userData ? (
+            {user ? (
               <Avatar 
                 sx={{ 
                   width: 32, 
@@ -196,54 +159,25 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             PaperProps={{
               elevation: 3,
               sx: {
-                width: 250,
                 overflow: 'visible',
                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                 mt: 1.5,
-                '& .MuiAvatar-root': {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
-                },
               },
             }}
           >
-            {userData && (
-              <>
-                <Box sx={{ px: 3, py: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Signed in as
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    {userData.firstName} {userData.lastName}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    sx={{ 
-                      wordBreak: 'break-all',
-                      mt: 0.5,
-                      fontSize: '0.875rem'
-                    }}
-                  >
-                    {userData.email}
-                  </Typography>
-                </Box>
-                <Divider />
-              </>
-            )}
             <MenuItem 
               onClick={() => { handleClose(); handleLogout(); }}
               sx={{ 
                 py: 1.5,
-                px: 3,
+                px: 2,
+                display: 'flex',
+                alignItems: 'center',
                 '&:hover': {
                   backgroundColor: 'rgba(0, 0, 0, 0.04)'
                 }
               }}
             >
-              <ExitToApp sx={{ mr: 2 }} />
+              <ExitToApp sx={{ mr: 1.5 }} />
               Sign out
             </MenuItem>
           </Menu>
