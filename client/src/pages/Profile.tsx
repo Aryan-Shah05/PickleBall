@@ -41,14 +41,23 @@ export const Profile: React.FC = () => {
   const fetchProfile = async () => {
     try {
       const response = await api.get('/users/me');
-      const userData = response.data.data;
-      setProfile(userData);
+      console.log('Profile response:', response.data); // Debug log
+      const userData = response.data.data || response.data;
+      setProfile({
+        email: userData.email || '',
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        phoneNumber: userData.phoneNumber || '',
+        membershipLevel: userData.membershipLevel || 'Standard',
+        role: userData.role || 'Member'
+      });
       setFormData({
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
         phoneNumber: userData.phoneNumber || ''
       });
     } catch (err: any) {
+      console.error('Profile fetch error:', err); // Debug log
       setError(err.response?.data?.message || 'Failed to load profile');
     } finally {
       setLoading(false);

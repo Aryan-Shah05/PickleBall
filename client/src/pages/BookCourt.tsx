@@ -28,13 +28,12 @@ interface Court {
   peakHourRate: number;
 }
 
-// Time slots from 6 AM to 10 PM
-const TIME_SLOTS = Array.from({ length: 32 }, (_, i) => {
-  const hour = Math.floor(i / 2) + 6;
-  const minutes = (i % 2) * 30;
+// Time slots from 6 AM to 10 PM (1-hour intervals)
+const TIME_SLOTS = Array.from({ length: 16 }, (_, i) => {
+  const hour = i + 6; // Start from 6 AM
   return {
-    label: format(setMinutes(setHours(new Date(), hour), minutes), 'h:mm a'),
-    value: `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+    label: format(setHours(new Date(), hour), 'h:mm a'),
+    value: `${hour.toString().padStart(2, '0')}:00`
   };
 });
 
@@ -56,15 +55,28 @@ const BookCourt: React.FC = () => {
     const fetchCourts = async () => {
       try {
         const response = await api.get('/courts/available');
+        console.log('Courts response:', response.data); // Debug log
         if (!response.data.data || response.data.data.length === 0) {
           setError('No courts are currently available for booking');
           return;
         }
-        setCourts(response.data.data);
-        if (!preselectedCourtId && response.data.data.length > 0) {
-          setSelectedCourt(response.data.data[0].id);
+        const courtsData = response.data.data;
+        setCourts(courtsData);
+        
+        // Set selected court if preselected or default to first court
+        if (preselectedCourtId) {
+          const exists = courtsData.some((court: Court) => court.id === preselectedCourtId);
+          if (exists) {
+            setSelectedCourt(preselectedCourtId);
+          } else {
+            setSelectedCourt(courtsData[0].id);
+            setError('Selected court is not available, defaulting to first available court');
+          }
+        } else if (courtsData.length > 0) {
+          setSelectedCourt(courtsData[0].id);
         }
       } catch (err: any) {
+        console.error('Courts fetch error:', err); // Debug log
         setError(err.response?.data?.message || 'Failed to load courts. Please try again later.');
       } finally {
         setLoading(false);
@@ -73,6 +85,12 @@ const BookCourt: React.FC = () => {
 
     fetchCourts();
   }, [preselectedCourtId]);
+
+  // Add debug log for selected court changes
+  useEffect(() => {
+    console.log('Selected court:', selectedCourt);
+    console.log('Available courts:', courts);
+  }, [selectedCourt, courts]);
 
   const validateBookingTime = (date: Date, timeSlot: string): boolean => {
     const [hours, minutes] = timeSlot.split(':');
