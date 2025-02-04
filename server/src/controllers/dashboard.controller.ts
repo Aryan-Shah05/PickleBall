@@ -1,68 +1,101 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
+import { BookingStatus } from '@prisma/client';
+import { startOfDay, endOfDay } from 'date-fns';
 import { AppError } from '../middleware/errorHandler';
 
 export const dashboardController = {
-  getDashboardStats: async (req: Request, res: Response, next: NextFunction) => {
+  getDashboardData: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new AppError(401, 'Unauthorized', 'UNAUTHORIZED');
       }
 
-      // Get total number of courts
-      const totalCourts = await prisma.court.count();
+      // Get all courts
+      const courts = await prisma.court.findMany();
 
-      // Get available courts (not in maintenance and not reserved)
-      const availableCourts = await prisma.court.count({
+      // Get current bookings
+      const now = new Date();
+      const currentBookings = await prisma.booking.findMany({
         where: {
-          status: 'AVAILABLE'
-        }
+          status: BookingStatus.CONFIRMED,
+          startTime: {
+            gte: startOfDay(now),
+            lte: endOfDay(now),
+          },
+        },
+        include: {
+          court: true,
+        },
       });
 
-      // Get user's total bookings
-      const userBookings = await prisma.booking.count({
-        where: {
-          userId
-        }
-      });
+      // Calculate available courts
+      const bookedCourtIds = new Set(currentBookings.map(booking => booking.courtId));
+      const availableCourts = courts.filter(court => !bookedCourtIds.has(court.id));
 
-      // Get upcoming bookings for the user
+      // Get user's upcoming bookings
       const upcomingBookings = await prisma.booking.findMany({
         where: {
           userId,
+          status: BookingStatus.CONFIRMED,
           startTime: {
-            gte: new Date()
-          }
+            gte: now,
+          },
         },
         include: {
-          court: true
+          court: true,
         },
         orderBy: {
-          startTime: 'asc'
+          startTime: 'asc',
         },
-        take: 5
+        take: 5,
       });
 
-      // Get available courts with details
-      const availableCourtsDetails = await prisma.court.findMany({
+      // Get statistics
+      const totalBookings = await prisma.booking.count({
         where: {
-          status: 'AVAILABLE'
+          userId,
+          status: BookingStatus.CONFIRMED,
         },
-        take: 5
+      });
+
+      const cancelledBookings = await prisma.booking.count({
+        where: {
+          userId,
+          status: BookingStatus.CANCELLED,
+        },
+      });
+
+      const totalSpent = await prisma.booking.aggregate({
+        where: {
+          userId,
+          status: BookingStatus.CONFIRMED,
+        },
+        _sum: {
+          totalAmount: true,
+        },
       });
 
       res.json({
-        stats: {
-          totalCourts,
-          availableCourts,
-          userBookings
+        success: true,
+        data: {
+          statistics: {
+            totalBookings,
+            cancelledBookings,
+            totalSpent: totalSpent._sum.totalAmount || 0,
+            availableCourts: availableCourts.length,
+            totalCourts: courts.length,
+          },
+          upcomingBookings,
+          courts: {
+            all: courts,
+            available: availableCourts,
+          },
         },
-        upcomingBookings,
-        availableCourtsDetails
       });
     } catch (error) {
       next(error);
     }
-  }
+  },
 }; 
