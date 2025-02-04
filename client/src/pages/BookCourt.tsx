@@ -42,7 +42,8 @@ const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
   date.setHours(hour, 0, 0, 0);
   return {
     label: format(date, 'h:mm a'),
-    value: `${hour.toString().padStart(2, '0')}:00`
+    value: `${hour.toString().padStart(2, '0')}:00`,
+    hour: hour
   };
 });
 
@@ -109,31 +110,31 @@ const BookCourt: React.FC = () => {
   }, [preselectedCourtId]);
 
   // Fetch existing bookings when date or court changes
+  const fetchExistingBookings = async () => {
+    if (!bookingDate || !selectedCourt) return;
+
+    try {
+      // Create start and end time for the entire day
+      const startTime = new Date(bookingDate);
+      startTime.setHours(0, 0, 0, 0);
+      
+      const endTime = new Date(bookingDate);
+      endTime.setHours(23, 59, 59, 999);
+
+      const response = await api.get('/bookings/availability', {
+        params: {
+          courtId: selectedCourt,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString()
+        }
+      });
+      setExistingBookings(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching existing bookings:', err);
+    }
+  };
+
   useEffect(() => {
-    const fetchExistingBookings = async () => {
-      if (!bookingDate || !selectedCourt) return;
-
-      try {
-        // Create start and end time for the entire day
-        const startTime = new Date(bookingDate);
-        startTime.setHours(0, 0, 0, 0);
-        
-        const endTime = new Date(bookingDate);
-        endTime.setHours(23, 59, 59, 999);
-
-        const response = await api.get('/bookings/availability', {
-          params: {
-            courtId: selectedCourt,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString()
-          }
-        });
-        setExistingBookings(response.data.data || []);
-      } catch (err) {
-        console.error('Error fetching existing bookings:', err);
-      }
-    };
-
     fetchExistingBookings();
   }, [bookingDate, selectedCourt]);
 
@@ -143,11 +144,18 @@ const BookCourt: React.FC = () => {
     const [hours] = timeSlot.split(':');
     const startTime = new Date(bookingDate);
     startTime.setHours(parseInt(hours), 0, 0, 0);
+    startTime.setMinutes(0, 0, 0);
     
-    return existingBookings.some(booking => 
-      new Date(booking.startTime).getTime() === startTime.getTime() &&
-      booking.courtId === selectedCourt
-    );
+    return existingBookings.some(booking => {
+      const bookingStart = new Date(booking.startTime);
+      return (
+        bookingStart.getFullYear() === startTime.getFullYear() &&
+        bookingStart.getMonth() === startTime.getMonth() &&
+        bookingStart.getDate() === startTime.getDate() &&
+        bookingStart.getHours() === startTime.getHours() &&
+        booking.courtId === selectedCourt
+      );
+    });
   };
 
   const getUserBookingsForDate = (date: Date): number => {
@@ -225,9 +233,11 @@ const BookCourt: React.FC = () => {
       const [hours] = selectedTimeSlot.split(':');
       const startTime = new Date(bookingDate);
       startTime.setHours(parseInt(hours), 0, 0, 0);
+      startTime.setMinutes(0, 0, 0);
       
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + 1);
+      endTime.setMinutes(0, 0, 0);
 
       const bookingData = {
         courtId: selectedCourt,
@@ -249,9 +259,16 @@ const BookCourt: React.FC = () => {
       console.log('Availability response:', availabilityResponse.data);
 
       const existingBookings = availabilityResponse.data.data || [];
-      const isTimeSlotTaken = existingBookings.some((booking: BookingSlot) => 
-        new Date(booking.startTime).getTime() === startTime.getTime()
-      );
+      const isTimeSlotTaken = existingBookings.some((booking: BookingSlot) => {
+        const bookingStart = new Date(booking.startTime);
+        return (
+          bookingStart.getFullYear() === startTime.getFullYear() &&
+          bookingStart.getMonth() === startTime.getMonth() &&
+          bookingStart.getDate() === startTime.getDate() &&
+          bookingStart.getHours() === startTime.getHours() &&
+          booking.courtId === selectedCourt
+        );
+      });
 
       if (isTimeSlotTaken) {
         setError('This time slot has just been booked. Please select another time.');
@@ -266,28 +283,7 @@ const BookCourt: React.FC = () => {
       if (response.data.success) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
         // Refresh existing bookings
-        const fetchBookings = async () => {
-          if (!bookingDate || !selectedCourt) return;
-          try {
-            const startOfDay = new Date(bookingDate);
-            startOfDay.setHours(0, 0, 0, 0);
-            
-            const endOfDay = new Date(bookingDate);
-            endOfDay.setHours(23, 59, 59, 999);
-
-            const response = await api.get('/bookings/availability', {
-              params: {
-                courtId: selectedCourt,
-                startTime: startOfDay.toISOString(),
-                endTime: endOfDay.toISOString()
-              }
-            });
-            setExistingBookings(response.data.data || []);
-          } catch (err) {
-            console.error('Error fetching existing bookings:', err);
-          }
-        };
-        await fetchBookings();
+        await fetchExistingBookings();
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);

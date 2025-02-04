@@ -131,18 +131,12 @@ export const bookingController = {
           OR: [
             {
               AND: [
-                { startTime: { lte: bookingStart } },
-                { endTime: { gt: bookingStart } },
-              ],
-            },
-            {
-              AND: [
-                { startTime: { lt: bookingEnd } },
-                { endTime: { gte: bookingEnd } },
-              ],
-            },
-          ],
-        },
+                { startTime: { lte: bookingEnd } },
+                { endTime: { gt: bookingStart } }
+              ]
+            }
+          ]
+        }
       });
 
       if (existingBooking) {
@@ -151,7 +145,7 @@ export const bookingController = {
 
       // Get court details
       const court = await prisma.court.findUnique({
-        where: { id: courtId },
+        where: { id: courtId }
       });
 
       if (!court) {
@@ -173,7 +167,7 @@ export const bookingController = {
           endTime: bookingEnd,
           status: BookingStatus.CONFIRMED,
           paymentStatus: PaymentStatus.PENDING,
-          totalAmount,
+          totalAmount
         },
         include: {
           court: true,
@@ -182,16 +176,16 @@ export const bookingController = {
               id: true,
               email: true,
               firstName: true,
-              lastName: true,
-            },
-          },
-        },
+              lastName: true
+            }
+          }
+        }
       });
 
       res.status(201).json({
         success: true,
         message: 'Booking created successfully',
-        data: booking,
+        data: booking
       });
     } catch (error) {
       next(error);
@@ -321,16 +315,21 @@ export const bookingController = {
         where: {
           courtId: courtId as string,
           status: BookingStatus.CONFIRMED,
-          startTime: {
-            gte: bookingStart,
-            lt: bookingEnd
-          }
+          OR: [
+            {
+              AND: [
+                { startTime: { lte: bookingEnd } },
+                { endTime: { gt: bookingStart } }
+              ]
+            }
+          ]
         },
         select: {
           id: true,
           startTime: true,
           endTime: true,
-          courtId: true
+          courtId: true,
+          status: true
         },
         orderBy: {
           startTime: 'asc'
@@ -340,9 +339,10 @@ export const bookingController = {
       res.json({
         status: 'success',
         data: existingBookings.map(booking => ({
-          startTime: booking.startTime,
-          endTime: booking.endTime,
-          courtId: booking.courtId
+          startTime: booking.startTime.toISOString(),
+          endTime: booking.endTime.toISOString(),
+          courtId: booking.courtId,
+          status: booking.status
         }))
       });
     } catch (error) {
