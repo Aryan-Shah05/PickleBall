@@ -17,7 +17,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
-import { addDays, format, setHours, setMinutes } from 'date-fns';
+import { addDays, format, setHours, setMinutes, isPast, isAfter } from 'date-fns';
 
 interface Court {
   id: string;
@@ -44,6 +44,7 @@ const BookCourt: React.FC = () => {
   const preselectedCourtId = searchParams.get('courtId');
 
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [courts, setCourts] = useState<Court[]>([]);
   const [selectedCourt, setSelectedCourt] = useState<string>(preselectedCourtId || '');
   const [bookingDate, setBookingDate] = useState<Date | null>(new Date());
@@ -55,12 +56,16 @@ const BookCourt: React.FC = () => {
     const fetchCourts = async () => {
       try {
         const response = await api.get('/courts/available');
+        if (!response.data.data || response.data.data.length === 0) {
+          setError('No courts are currently available for booking');
+          return;
+        }
         setCourts(response.data.data);
         if (!preselectedCourtId && response.data.data.length > 0) {
           setSelectedCourt(response.data.data[0].id);
         }
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load courts');
+        setError(err.response?.data?.message || 'Failed to load courts. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -69,30 +74,81 @@ const BookCourt: React.FC = () => {
     fetchCourts();
   }, [preselectedCourtId]);
 
+  const validateBookingTime = (date: Date, timeSlot: string): boolean => {
+    const [hours, minutes] = timeSlot.split(':');
+    const bookingTime = setMinutes(setHours(date, parseInt(hours)), parseInt(minutes));
+    
+    // Check if booking time is in the past
+    if (isPast(bookingTime)) {
+      setError('Cannot book a court for a past time');
+      return false;
+    }
+
+    // Check if booking is more than 30 days in advance
+    if (isAfter(bookingTime, addDays(new Date(), 30))) {
+      setError('Cannot book more than 30 days in advance');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCourt || !bookingDate || !selectedTimeSlot) {
-      setError('Please fill in all required fields');
+    setError(null);
+    setSuccess(null);
+
+    // Validate required fields
+    if (!selectedCourt) {
+      setError('Please select a court');
+      return;
+    }
+    if (!bookingDate) {
+      setError('Please select a booking date');
+      return;
+    }
+    if (!selectedTimeSlot) {
+      setError('Please select a time slot');
       return;
     }
 
+    // Validate booking time
+    if (!validateBookingTime(bookingDate, selectedTimeSlot)) {
+      return;
+    }
+
+    setSubmitting(true);
+
     try {
       const [hours, minutes] = selectedTimeSlot.split(':');
-      const startTime = setMinutes(setHours(bookingDate!, parseInt(hours)), parseInt(minutes));
-      const endTime = setMinutes(setHours(bookingDate!, parseInt(hours) + 1), parseInt(minutes));
+      const startTime = setMinutes(setHours(bookingDate, parseInt(hours)), parseInt(minutes));
+      const endTime = setMinutes(setHours(bookingDate, parseInt(hours) + 1), parseInt(minutes));
 
-      await api.post('/bookings', {
+      const response = await api.post('/bookings', {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
       });
 
-      setSuccess('Booking created successfully!');
-      setTimeout(() => {
-        navigate('/bookings');
-      }, 2000);
+      if (response.data.success) {
+        setSuccess('Booking created successfully! Redirecting to your bookings...');
+        setTimeout(() => {
+          navigate('/bookings');
+        }, 2000);
+      } else {
+        setError('Failed to create booking. Please try again.');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create booking');
+      const errorMessage = err.response?.data?.message || 'Failed to create booking. Please try again later.';
+      if (err.response?.status === 409) {
+        setError('This time slot is already booked. Please select a different time.');
+      } else if (err.response?.status === 403) {
+        setError('You are not authorized to make this booking.');
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -112,8 +168,16 @@ const BookCourt: React.FC = () => {
         Book a Court
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
@@ -121,12 +185,15 @@ const BookCourt: React.FC = () => {
             <CardContent>
               <form onSubmit={handleSubmit}>
                 <Stack spacing={3}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth error={!selectedCourt}>
                     <InputLabel>Select Court</InputLabel>
                     <Select
                       value={selectedCourt}
                       label="Select Court"
-                      onChange={(e) => setSelectedCourt(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedCourt(e.target.value);
+                        setError(null);
+                      }}
                       required
                     >
                       {courts.map((court) => (
@@ -140,19 +207,31 @@ const BookCourt: React.FC = () => {
                   <DatePicker
                     label="Booking Date"
                     value={bookingDate}
-                    onChange={(newValue) => setBookingDate(newValue)}
+                    onChange={(newValue) => {
+                      setBookingDate(newValue);
+                      setError(null);
+                    }}
                     disablePast
                     minDate={new Date()}
                     maxDate={addDays(new Date(), 30)}
-                    slotProps={{ textField: { fullWidth: true, required: true } }}
+                    slotProps={{ 
+                      textField: { 
+                        fullWidth: true, 
+                        required: true,
+                        error: !bookingDate 
+                      } 
+                    }}
                   />
 
-                  <FormControl fullWidth>
+                  <FormControl fullWidth error={!selectedTimeSlot}>
                     <InputLabel>Select Time Slot</InputLabel>
                     <Select
                       value={selectedTimeSlot}
                       label="Select Time Slot"
-                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedTimeSlot(e.target.value);
+                        setError(null);
+                      }}
                       required
                     >
                       {TIME_SLOTS.map((slot) => (
@@ -168,8 +247,9 @@ const BookCourt: React.FC = () => {
                     variant="contained"
                     size="large"
                     fullWidth
+                    disabled={submitting || !selectedCourt || !bookingDate || !selectedTimeSlot}
                   >
-                    Book Court
+                    {submitting ? <CircularProgress size={24} /> : 'Book Court'}
                   </Button>
                 </Stack>
               </form>
