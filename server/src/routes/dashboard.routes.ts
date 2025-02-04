@@ -4,10 +4,10 @@ import { protect } from '../middleware/auth';
 
 const router = Router();
 
-// Protected routes
+// Protect all dashboard routes
 router.use(protect);
 
-// Get dashboard stats
-router.get('/stats', dashboardController.getDashboardStats);
+// Get dashboard data
+router.get('/', dashboardController.getDashboardData);
 
 export default router; 
