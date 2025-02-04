@@ -59,7 +59,7 @@ async function main() {
       startTime: new Date('2025-02-02T10:00:00Z'),
       endTime: new Date('2025-02-02T11:00:00Z'),
       status: 'CONFIRMED',
-      paymentStatus: 'PAID',
+      paymentStatus: 'COMPLETED',
       totalAmount: 25.00,
       payment: {
         create: {

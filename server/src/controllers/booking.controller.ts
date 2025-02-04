@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { BookingStatus, PaymentStatus } from '@prisma/client';
-import { isAdmin } from '../middleware/auth';
 
 export const bookingController = {
   getMyBookings: async (req: Request, res: Response, next: NextFunction) => {
