@@ -102,9 +102,14 @@ export const bookingController = {
         throw new AppError(400, 'Missing required fields', 'INVALID_INPUT');
       }
 
-      // Check if the booking time is valid
+      // Parse dates
       const bookingStart = new Date(startTime);
       const bookingEnd = new Date(endTime);
+
+      // Validate dates
+      if (isNaN(bookingStart.getTime()) || isNaN(bookingEnd.getTime())) {
+        throw new AppError(400, 'Invalid date format', 'INVALID_DATE');
+      }
 
       if (bookingStart >= bookingEnd) {
         throw new AppError(400, 'Invalid booking time range', 'INVALID_TIME_RANGE');
