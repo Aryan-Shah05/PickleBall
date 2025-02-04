@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Box,
@@ -40,10 +40,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  useEffect(() => {
+    // Debug log to check user data
+    console.log('Current user data:', user);
+  }, [user]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -65,7 +70,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Still remove token and redirect even if the API call fails
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       navigate('/login');
@@ -77,6 +81,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { text: 'Book Court', icon: <SportsTennis />, path: '/book' },
     { text: 'My Bookings', icon: <EventNote />, path: '/bookings' },
   ];
+
+  // Early return if no user data
+  if (!user) {
+    console.warn('No user data available');
+    return null;
+  }
+
+  const userInitials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`;
 
   const drawer = (
     <div>
@@ -128,7 +140,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             color="inherit"
           >
             <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-              {user?.firstName?.[0]}{user?.lastName?.[0]}
+              {userInitials}
             </Avatar>
           </IconButton>
           <Menu
@@ -151,15 +163,31 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <Typography variant="subtitle2" color="text.secondary">
                 Signed in as
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {user?.firstName} {user?.lastName}
+              <Typography variant="body2" sx={{ fontWeight: 500, mt: 0.5 }}>
+                {user.firstName} {user.lastName}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                {user?.email}
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ 
+                  wordBreak: 'break-all',
+                  mt: 0.5,
+                  fontSize: '0.875rem'
+                }}
+              >
+                {user.email}
               </Typography>
             </Box>
             <Divider />
-            <MenuItem onClick={() => { handleClose(); handleLogout(); }}>
+            <MenuItem 
+              onClick={() => { handleClose(); handleLogout(); }}
+              sx={{ 
+                py: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
               <ExitToApp sx={{ mr: 1 }} />
               Sign out
             </MenuItem>
@@ -175,7 +203,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             '& .MuiDrawer-paper': {
