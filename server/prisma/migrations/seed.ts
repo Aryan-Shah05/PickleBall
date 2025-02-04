@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { PrismaClient, CourtStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
