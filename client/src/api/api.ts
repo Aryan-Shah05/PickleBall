@@ -7,12 +7,12 @@ if (!import.meta.env.VITE_API_URL) {
 const apiUrl = import.meta.env.VITE_API_URL.replace(/\/$/, ''); // Remove trailing slash if present
 console.log('API URL:', apiUrl); // Debug log
 
-const api = axios.create({
-  baseURL: apiUrl, // Removed /api/v1 since it's added by the server
+export const api = axios.create({
+  baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false // Changed to false since we're using token-based auth
+  withCredentials: false
 });
 
 // Add request interceptor to attach token and log requests

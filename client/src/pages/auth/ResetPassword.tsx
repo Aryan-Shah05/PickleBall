@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, Container, TextField, Typography, Alert } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../../api/api';
+import { api } from '../../api/api';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');

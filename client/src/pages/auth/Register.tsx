@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/api';
+import { api } from '../../api/api';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
