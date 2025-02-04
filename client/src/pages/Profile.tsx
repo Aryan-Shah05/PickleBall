@@ -19,8 +19,8 @@ interface UserProfile {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
-  membershipLevel: string;
-  role: string;
+  membershipLevel?: string;
+  role?: string;
 }
 
 export const Profile: React.FC = () => {
@@ -107,7 +107,7 @@ export const Profile: React.FC = () => {
                   <Typography color="textSecondary" gutterBottom>
                     Email
                   </Typography>
-                  <Typography>{profile?.email}</Typography>
+                  <Typography>{profile?.email || 'N/A'}</Typography>
                 </Box>
 
                 <Box>
@@ -115,7 +115,7 @@ export const Profile: React.FC = () => {
                     Membership Level
                   </Typography>
                   <Typography sx={{ textTransform: 'capitalize' }}>
-                    {profile?.membershipLevel.toLowerCase()}
+                    {profile?.membershipLevel?.toLowerCase() || 'Standard'}
                   </Typography>
                 </Box>
 
@@ -124,7 +124,7 @@ export const Profile: React.FC = () => {
                     Account Type
                   </Typography>
                   <Typography sx={{ textTransform: 'capitalize' }}>
-                    {profile?.role.toLowerCase()}
+                    {profile?.role?.toLowerCase() || 'Member'}
                   </Typography>
                 </Box>
               </Stack>
