@@ -54,6 +54,8 @@ export const bookingController = {
   getBookingById: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      console.log('Fetching booking with ID:', id);
+
       const booking = await prisma.booking.findUnique({
         where: { id },
         include: {
@@ -70,6 +72,8 @@ export const bookingController = {
         },
       });
 
+      console.log('Booking found:', booking);
+
       if (!booking) {
         throw new AppError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
       }
@@ -84,6 +88,7 @@ export const bookingController = {
         data: booking,
       });
     } catch (error) {
+      console.error('Error in getBookingById:', error);
       next(error);
     }
   },
@@ -277,7 +282,7 @@ export const bookingController = {
 
   clearAllBookings: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!isAdmin(req)) {
+      if (!req.user || req.user.role !== 'ADMIN') {
         throw new AppError(403, 'Admin access required', 'FORBIDDEN');
       }
 
