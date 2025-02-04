@@ -18,7 +18,6 @@ interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string;
   membershipLevel?: string;
   role?: string;
 }
@@ -30,8 +29,7 @@ export const Profile: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',
-    phoneNumber: ''
+    lastName: ''
   });
 
   useEffect(() => {
@@ -41,41 +39,36 @@ export const Profile: React.FC = () => {
   const fetchProfile = async () => {
     try {
       const response = await api.get('/users/me');
-      console.log('Profile response:', response.data); // Debug log
+      console.log('Profile response:', response.data);
       
-      // Handle both possible response structures
       const userData = response.data.data || response.data;
       
-      if (!userData) {
+      if (!userData || !userData.email) {
         throw new Error('No user data received');
       }
 
-      // Ensure we have the required data
-      if (!userData.email || !userData.firstName || !userData.lastName) {
-        throw new Error('Incomplete user data received');
-      }
-
-      // Set profile with all available data
-      setProfile({
+      // Set default values if data is missing
+      const userProfile = {
         email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        phoneNumber: userData.phoneNumber || '',
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
         membershipLevel: userData.membershipLevel || 'Standard',
         role: userData.role || 'Member'
-      });
+      };
+
+      setProfile(userProfile);
 
       // Update form data
       setFormData({
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        phoneNumber: userData.phoneNumber || ''
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName
       });
 
-      console.log('Profile set:', userData); // Debug log
+      console.log('Profile set:', userProfile);
     } catch (err: any) {
-      console.error('Profile fetch error:', err); // Debug log
-      setError(err.message || err.response?.data?.message || 'Failed to load profile');
+      console.error('Profile fetch error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to load profile';
+      setError(errorMessage === 'Incomplete user data received' ? 'Please update your profile information' : errorMessage);
     } finally {
       setLoading(false);
     }
@@ -92,6 +85,11 @@ export const Profile: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setError('Please fill in both first name and last name');
+      return;
+    }
 
     try {
       await api.patch('/users/me', formData);
@@ -175,6 +173,8 @@ export const Profile: React.FC = () => {
                     onChange={handleChange}
                     fullWidth
                     required
+                    error={!formData.firstName.trim()}
+                    helperText={!formData.firstName.trim() ? 'First name is required' : ''}
                   />
 
                   <TextField
@@ -184,15 +184,8 @@ export const Profile: React.FC = () => {
                     onChange={handleChange}
                     fullWidth
                     required
-                  />
-
-                  <TextField
-                    label="Phone Number"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    fullWidth
-                    placeholder="Optional"
+                    error={!formData.lastName.trim()}
+                    helperText={!formData.lastName.trim() ? 'Last name is required' : ''}
                   />
 
                   <Button
