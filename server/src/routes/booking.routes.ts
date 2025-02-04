@@ -17,11 +17,14 @@ router.get('/', authorize('ADMIN'), bookingController.getAllBookings);
 // Add route to clear all bookings (admin only)
 router.delete('/clear-all', authorize('ADMIN'), bookingController.clearAllBookings);
 
-// Get single booking
-router.get('/:id', bookingController.getBookingById);
+// Check court availability
+router.get('/availability', bookingController.checkAvailability);
 
 // Create booking
 router.post('/', bookingController.createBooking);
+
+// Get single booking (must come after other specific routes)
+router.get('/:id', bookingController.getBookingById);
 
 // Update booking
 router.patch('/:id', bookingController.updateBooking);

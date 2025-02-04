@@ -295,4 +295,61 @@ export const bookingController = {
       next(error);
     }
   },
+
+  checkAvailability: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { courtId, startTime, endTime } = req.query;
+
+      if (!courtId || !startTime || !endTime) {
+        throw new AppError(400, 'Missing required fields', 'INVALID_INPUT');
+      }
+
+      const bookingStart = new Date(startTime as string);
+      const bookingEnd = new Date(endTime as string);
+
+      // Validate dates
+      if (isNaN(bookingStart.getTime()) || isNaN(bookingEnd.getTime())) {
+        throw new AppError(400, 'Invalid date format', 'INVALID_DATE');
+      }
+
+      if (bookingStart >= bookingEnd) {
+        throw new AppError(400, 'Invalid time range', 'INVALID_TIME_RANGE');
+      }
+
+      // Check for existing bookings in the time slot
+      const existingBooking = await prisma.booking.findFirst({
+        where: {
+          courtId: courtId as string,
+          status: BookingStatus.CONFIRMED,
+          OR: [
+            {
+              AND: [
+                { startTime: { lte: bookingStart } },
+                { endTime: { gt: bookingStart } },
+              ],
+            },
+            {
+              AND: [
+                { startTime: { lt: bookingEnd } },
+                { endTime: { gte: bookingEnd } },
+              ],
+            },
+          ],
+        },
+      });
+
+      res.json({
+        status: 'success',
+        data: {
+          available: !existingBooking,
+          existingBooking: existingBooking ? {
+            startTime: existingBooking.startTime,
+            endTime: existingBooking.endTime
+          } : null
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 }; 
