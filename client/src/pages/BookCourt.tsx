@@ -114,10 +114,18 @@ const BookCourt: React.FC = () => {
       if (!bookingDate || !selectedCourt) return;
 
       try {
+        // Create start and end time for the entire day
+        const startTime = new Date(bookingDate);
+        startTime.setHours(0, 0, 0, 0);
+        
+        const endTime = new Date(bookingDate);
+        endTime.setHours(23, 59, 59, 999);
+
         const response = await api.get('/bookings/availability', {
           params: {
             courtId: selectedCourt,
-            date: format(bookingDate, 'yyyy-MM-dd')
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString()
           }
         });
         setExistingBookings(response.data.data || []);

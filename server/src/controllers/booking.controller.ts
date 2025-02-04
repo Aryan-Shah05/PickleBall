@@ -316,37 +316,34 @@ export const bookingController = {
         throw new AppError(400, 'Invalid time range', 'INVALID_TIME_RANGE');
       }
 
-      // Check for existing bookings in the time slot
-      const existingBooking = await prisma.booking.findFirst({
+      // Get all bookings for the day
+      const existingBookings = await prisma.booking.findMany({
         where: {
           courtId: courtId as string,
           status: BookingStatus.CONFIRMED,
-          OR: [
-            {
-              AND: [
-                { startTime: { lte: bookingStart } },
-                { endTime: { gt: bookingStart } },
-              ],
-            },
-            {
-              AND: [
-                { startTime: { lt: bookingEnd } },
-                { endTime: { gte: bookingEnd } },
-              ],
-            },
-          ],
+          startTime: {
+            gte: bookingStart,
+            lt: bookingEnd
+          }
         },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          courtId: true
+        },
+        orderBy: {
+          startTime: 'asc'
+        }
       });
 
       res.json({
         status: 'success',
-        data: {
-          available: !existingBooking,
-          existingBooking: existingBooking ? {
-            startTime: existingBooking.startTime,
-            endTime: existingBooking.endTime
-          } : null
-        }
+        data: existingBookings.map(booking => ({
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          courtId: booking.courtId
+        }))
       });
     } catch (error) {
       next(error);
