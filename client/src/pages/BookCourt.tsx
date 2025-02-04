@@ -13,11 +13,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
-import { addDays, format, setHours, setMinutes, isPast, isAfter } from 'date-fns';
+import { addDays, format, setHours, setMinutes, isPast, isAfter, isSameDay } from 'date-fns';
 
 interface Court {
   id: string;
@@ -26,6 +27,12 @@ interface Court {
   isIndoor: boolean;
   hourlyRate: number;
   peakHourRate: number;
+}
+
+interface BookingSlot {
+  startTime: string;
+  endTime: string;
+  courtId: string;
 }
 
 // Time slots from 6 AM to 10 PM (1-hour intervals)
@@ -38,6 +45,8 @@ const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
     value: `${hour.toString().padStart(2, '0')}:00`
   };
 });
+
+const MAX_BOOKINGS_PER_DAY = 2; // Maximum bookings allowed per user per day
 
 const BookCourt: React.FC = () => {
   const navigate = useNavigate();
@@ -52,15 +61,18 @@ const BookCourt: React.FC = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
+  const [userBookings, setUserBookings] = useState<BookingSlot[]>([]);
 
+  // Fetch courts and existing bookings
   useEffect(() => {
-    const fetchCourts = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await api.get('/courts');
-        console.log('Courts response:', response.data);
+        setLoading(true);
         
-        // Handle both possible response structures
-        const courtsData = response.data.data || response.data || [];
+        // Fetch courts
+        const courtsResponse = await api.get('/courts');
+        const courtsData = courtsResponse.data.data || courtsResponse.data || [];
         
         if (courtsData.length === 0) {
           setError('No courts are currently available for booking');
@@ -69,7 +81,7 @@ const BookCourt: React.FC = () => {
 
         setCourts(courtsData);
         
-        // Set selected court if preselected or default to first court
+        // Set selected court
         if (preselectedCourtId) {
           const exists = courtsData.some((court: Court) => court.id === preselectedCourtId);
           if (exists) {
@@ -80,16 +92,61 @@ const BookCourt: React.FC = () => {
         } else if (courtsData.length > 0) {
           setSelectedCourt(courtsData[0].id);
         }
+
+        // Fetch user's existing bookings
+        const userBookingsResponse = await api.get('/bookings/my-bookings');
+        setUserBookings(userBookingsResponse.data.data || []);
+
       } catch (err: any) {
-        console.error('Courts fetch error:', err);
-        setError('Failed to load courts. Please try again later.');
+        console.error('Initial data fetch error:', err);
+        setError('Failed to load initial data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourts();
+    fetchInitialData();
   }, [preselectedCourtId]);
+
+  // Fetch existing bookings when date or court changes
+  useEffect(() => {
+    const fetchExistingBookings = async () => {
+      if (!bookingDate || !selectedCourt) return;
+
+      try {
+        const response = await api.get('/bookings/availability', {
+          params: {
+            courtId: selectedCourt,
+            date: format(bookingDate, 'yyyy-MM-dd')
+          }
+        });
+        setExistingBookings(response.data.data || []);
+      } catch (err) {
+        console.error('Error fetching existing bookings:', err);
+      }
+    };
+
+    fetchExistingBookings();
+  }, [bookingDate, selectedCourt]);
+
+  const isTimeSlotBooked = (timeSlot: string): boolean => {
+    if (!bookingDate || !selectedCourt) return false;
+
+    const [hours] = timeSlot.split(':');
+    const startTime = new Date(bookingDate);
+    startTime.setHours(parseInt(hours), 0, 0, 0);
+    
+    return existingBookings.some(booking => 
+      new Date(booking.startTime).getTime() === startTime.getTime() &&
+      booking.courtId === selectedCourt
+    );
+  };
+
+  const getUserBookingsForDate = (date: Date): number => {
+    return userBookings.filter(booking => 
+      isSameDay(new Date(booking.startTime), date)
+    ).length;
+  };
 
   const validateBookingTime = (date: Date, timeSlot: string): boolean => {
     const [hours] = timeSlot.split(':');
@@ -105,6 +162,19 @@ const BookCourt: React.FC = () => {
     // Check if booking is more than 30 days in advance
     if (isAfter(bookingTime, addDays(new Date(), 30))) {
       setError('Cannot book more than 30 days in advance');
+      return false;
+    }
+
+    // Check if time slot is already booked
+    if (isTimeSlotBooked(timeSlot)) {
+      setError('This time slot is already booked. Please select a different time.');
+      return false;
+    }
+
+    // Check if user has reached maximum bookings for the day
+    const bookingsForDay = getUserBookingsForDate(date);
+    if (bookingsForDay >= MAX_BOOKINGS_PER_DAY) {
+      setError(`You can only make ${MAX_BOOKINGS_PER_DAY} bookings per day. Please select a different date.`);
       return false;
     }
 
@@ -158,6 +228,11 @@ const BookCourt: React.FC = () => {
 
       if (response.data.success || response.status === 201) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
+        
+        // Update user bookings list
+        const userBookingsResponse = await api.get('/bookings/my-bookings');
+        setUserBookings(userBookingsResponse.data.data || []);
+        
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
@@ -267,11 +342,20 @@ const BookCourt: React.FC = () => {
                       }}
                       required
                     >
-                      {TIME_SLOTS.map((slot) => (
-                        <MenuItem key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </MenuItem>
-                      ))}
+                      {TIME_SLOTS.map((slot) => {
+                        const isBooked = isTimeSlotBooked(slot.value);
+                        return (
+                          <Tooltip title={isBooked ? "This slot is already booked" : ""} key={slot.value}>
+                            <MenuItem 
+                              value={slot.value}
+                              disabled={isBooked}
+                              sx={isBooked ? { color: 'text.disabled' } : {}}
+                            >
+                              {slot.label} {isBooked ? '(Booked)' : ''}
+                            </MenuItem>
+                          </Tooltip>
+                        );
+                      })}
                     </Select>
                   </FormControl>
 
@@ -327,6 +411,12 @@ const BookCourt: React.FC = () => {
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
                       Peak hours: ${selectedCourtDetails.peakHourRate}/hour
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography color="textSecondary">Bookings Today</Typography>
+                    <Typography>
+                      {bookingDate ? `${getUserBookingsForDate(bookingDate)} of ${MAX_BOOKINGS_PER_DAY} allowed` : '-'}
                     </Typography>
                   </Box>
                 </Stack>
