@@ -29,10 +29,12 @@ interface Court {
 }
 
 // Time slots from 6 AM to 10 PM (1-hour intervals)
-const TIME_SLOTS = Array.from({ length: 16 }, (_, i) => {
+const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
   const hour = i + 6; // Start from 6 AM
+  const date = new Date();
+  date.setHours(hour, 0, 0, 0);
   return {
-    label: format(setHours(new Date(), hour), 'h:mm a'),
+    label: format(date, 'h:mm a'),
     value: `${hour.toString().padStart(2, '0')}:00`
   };
 });
@@ -54,13 +56,17 @@ const BookCourt: React.FC = () => {
   useEffect(() => {
     const fetchCourts = async () => {
       try {
-        const response = await api.get('/courts/available');
-        console.log('Courts response:', response.data); // Debug log
-        if (!response.data.data || response.data.data.length === 0) {
+        const response = await api.get('/courts');
+        console.log('Courts response:', response.data);
+        
+        // Handle both possible response structures
+        const courtsData = response.data.data || response.data || [];
+        
+        if (courtsData.length === 0) {
           setError('No courts are currently available for booking');
           return;
         }
-        const courtsData = response.data.data;
+
         setCourts(courtsData);
         
         // Set selected court if preselected or default to first court
@@ -70,14 +76,13 @@ const BookCourt: React.FC = () => {
             setSelectedCourt(preselectedCourtId);
           } else {
             setSelectedCourt(courtsData[0].id);
-            setError('Selected court is not available, defaulting to first available court');
           }
         } else if (courtsData.length > 0) {
           setSelectedCourt(courtsData[0].id);
         }
       } catch (err: any) {
-        console.error('Courts fetch error:', err); // Debug log
-        setError(err.response?.data?.message || 'Failed to load courts. Please try again later.');
+        console.error('Courts fetch error:', err);
+        setError('Failed to load courts. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -86,15 +91,10 @@ const BookCourt: React.FC = () => {
     fetchCourts();
   }, [preselectedCourtId]);
 
-  // Add debug log for selected court changes
-  useEffect(() => {
-    console.log('Selected court:', selectedCourt);
-    console.log('Available courts:', courts);
-  }, [selectedCourt, courts]);
-
   const validateBookingTime = (date: Date, timeSlot: string): boolean => {
-    const [hours, minutes] = timeSlot.split(':');
-    const bookingTime = setMinutes(setHours(date, parseInt(hours)), parseInt(minutes));
+    const [hours] = timeSlot.split(':');
+    const bookingTime = new Date(date);
+    bookingTime.setHours(parseInt(hours), 0, 0, 0);
     
     // Check if booking time is in the past
     if (isPast(bookingTime)) {
@@ -139,16 +139,11 @@ const BookCourt: React.FC = () => {
 
     try {
       const [hours] = selectedTimeSlot.split(':');
-      const startTime = setMinutes(setHours(new Date(bookingDate), parseInt(hours)), 0);
-      const endTime = setMinutes(setHours(new Date(bookingDate), parseInt(hours) + 1), 0);
-
-      console.log('Booking details:', {
-        courtId: selectedCourt,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        selectedTimeSlot,
-        bookingDate: bookingDate.toISOString()
-      });
+      const startTime = new Date(bookingDate);
+      startTime.setHours(parseInt(hours), 0, 0, 0);
+      
+      const endTime = new Date(startTime);
+      endTime.setHours(startTime.getHours() + 1);
 
       const bookingData = {
         courtId: selectedCourt,
@@ -159,7 +154,6 @@ const BookCourt: React.FC = () => {
       console.log('Sending booking request:', bookingData);
 
       const response = await api.post('/bookings', bookingData);
-
       console.log('Booking response:', response);
 
       if (response.data.success || response.status === 201) {
@@ -323,7 +317,7 @@ const BookCourt: React.FC = () => {
                   <Box>
                     <Typography color="textSecondary">Time</Typography>
                     <Typography>
-                      {selectedTimeSlot ? format(setMinutes(setHours(new Date(), parseInt(selectedTimeSlot.split(':')[0])), parseInt(selectedTimeSlot.split(':')[1])), 'h:mm a') : '-'}
+                      {selectedTimeSlot ? format(setMinutes(setHours(new Date(), parseInt(selectedTimeSlot.split(':')[0])), 0), 'h:mm a') : '-'}
                     </Typography>
                   </Box>
                   <Box>
