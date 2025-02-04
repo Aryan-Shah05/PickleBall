@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Grid,
@@ -7,7 +7,8 @@ import {
   Typography,
   Button,
   Stack,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 import {
   SportsTennis,
@@ -17,209 +18,195 @@ import {
   AccessTime,
   ArrowForward
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../api/api';
+import { format } from 'date-fns';
+
+interface DashboardData {
+  stats: {
+    totalCourts: number;
+    availableCourts: number;
+    userBookings: number;
+  };
+  upcomingBookings: Array<{
+    id: string;
+    startTime: string;
+    endTime: string;
+    status: string;
+    court: {
+      name: string;
+      type: string;
+    };
+  }>;
+  availableCourtsDetails: Array<{
+    id: string;
+    name: string;
+    type: string;
+    hourlyRate: number;
+    isIndoor: boolean;
+  }>;
+}
 
 export const Dashboard: React.FC = () => {
-  // Mock data - replace with real API calls later
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get('/dashboard/stats');
+        setDashboardData(response.data);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
   const stats = [
-    { label: 'Total Bookings', value: '24', icon: <Event /> },
-    { label: 'Courts Available', value: '6', icon: <SportsTennis /> },
-    { label: 'Peak Hours', value: '80%', icon: <TrendingUp /> },
-  ];
-
-  const upcomingBookings = [
-    {
-      id: 1,
-      court: 'Court A',
-      date: '2024-02-03',
-      time: '10:00 AM',
-      status: 'confirmed',
+    { 
+      label: 'Total Bookings', 
+      value: dashboardData?.stats.userBookings.toString() || '0', 
+      icon: <Event /> 
     },
-    {
-      id: 2,
-      court: 'Court B',
-      date: '2024-02-04',
-      time: '2:00 PM',
-      status: 'pending',
+    { 
+      label: 'Courts Available', 
+      value: dashboardData?.stats.availableCourts.toString() || '0', 
+      icon: <SportsTennis /> 
     },
-  ];
-
-  const availableCourts = [
-    {
-      id: 1,
-      name: 'Court A',
-      type: 'Indoor',
-      status: 'Available',
-      nextSlot: '10:00 AM',
-    },
-    {
-      id: 2,
-      name: 'Court B',
-      type: 'Outdoor',
-      status: 'Available',
-      nextSlot: '11:00 AM',
-    },
-    {
-      id: 3,
-      name: 'Court C',
-      type: 'Indoor',
-      status: 'Maintenance',
-      nextSlot: '2:00 PM',
+    { 
+      label: 'Total Courts', 
+      value: dashboardData?.stats.totalCourts.toString() || '0', 
+      icon: <TrendingUp /> 
     },
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="500">
-        Welcome Back
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Welcome to PickleBall
       </Typography>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} mb={4}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={4} key={index}>
             <Card>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Box sx={{ 
-                    p: 1, 
-                    borderRadius: 1, 
-                    bgcolor: 'primary.light',
-                    color: 'white',
-                    mr: 2 
-                  }}>
-                    {stat.icon}
-                  </Box>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  {stat.icon}
                   <Box>
-                    <Typography variant="h4" fontWeight="500">
-                      {stat.value}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                      {stat.label}
-                    </Typography>
+                    <Typography variant="h5">{stat.value}</Typography>
+                    <Typography color="textSecondary">{stat.label}</Typography>
                   </Box>
-                </Box>
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* Main Content */}
-      <Grid container spacing={3}>
-        {/* Available Courts */}
-        <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6">Available Courts</Typography>
-                <Button 
-                  variant="outlined" 
-                  endIcon={<ArrowForward />}
-                  onClick={() => window.location.href = '/book'}
-                >
-                  Book Now
-                </Button>
-              </Box>
-              <Stack spacing={2}>
-                {availableCourts.map((court) => (
-                  <Box
-                    key={court.id}
-                    sx={{
-                      p: 2,
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="500">
-                        {court.name}
+      {/* Upcoming Bookings */}
+      <Box mb={4}>
+        <Typography variant="h6" gutterBottom>
+          Upcoming Bookings
+        </Typography>
+        <Grid container spacing={2}>
+          {dashboardData?.upcomingBookings.map((booking) => (
+            <Grid item xs={12} sm={6} md={4} key={booking.id}>
+              <Card>
+                <CardContent>
+                  <Stack spacing={2}>
+                    <Typography variant="h6">{booking.court.name}</Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CalendarToday fontSize="small" />
+                      <Typography>
+                        {format(new Date(booking.startTime), 'MMM dd, yyyy')}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {court.type}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Chip
-                        label={court.status}
-                        color={court.status === 'Available' ? 'success' : 'warning'}
-                        size="small"
-                      />
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="caption" display="block" color="text.secondary">
-                          Next Available
-                        </Typography>
-                        <Typography variant="body2">
-                          {court.nextSlot}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                ))}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Upcoming Bookings */}
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Upcoming Bookings
-              </Typography>
-              <Stack spacing={2}>
-                {upcomingBookings.map((booking) => (
-                  <Box
-                    key={booking.id}
-                    sx={{
-                      p: 2,
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" fontWeight="500">
-                        {booking.court}
-                      </Typography>
-                      <Chip
-                        label={booking.status}
-                        color={booking.status === 'confirmed' ? 'success' : 'warning'}
-                        size="small"
-                        sx={{ ml: 'auto' }}
-                      />
-                    </Box>
-                    <Stack direction="row" spacing={2}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CalendarToday sx={{ fontSize: 16, mr: 0.5 }} />
-                        <Typography variant="body2">
-                          {new Date(booking.date).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <AccessTime sx={{ fontSize: 16, mr: 0.5 }} />
-                        <Typography variant="body2">{booking.time}</Typography>
-                      </Box>
                     </Stack>
-                  </Box>
-                ))}
-              </Stack>
-              <Button
-                fullWidth
-                variant="outlined"
-                sx={{ mt: 2 }}
-                onClick={() => window.location.href = '/bookings'}
-              >
-                View All Bookings
-              </Button>
-            </CardContent>
-          </Card>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <AccessTime fontSize="small" />
+                      <Typography>
+                        {format(new Date(booking.startTime), 'hh:mm a')} - 
+                        {format(new Date(booking.endTime), 'hh:mm a')}
+                      </Typography>
+                    </Stack>
+                    <Chip 
+                      label={booking.status} 
+                      color={booking.status === 'CONFIRMED' ? 'success' : 'warning'}
+                      size="small"
+                    />
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          {(!dashboardData?.upcomingBookings || dashboardData.upcomingBookings.length === 0) && (
+            <Grid item xs={12}>
+              <Typography color="textSecondary">No upcoming bookings</Typography>
+            </Grid>
+          )}
         </Grid>
-      </Grid>
+      </Box>
+
+      {/* Available Courts */}
+      <Box>
+        <Typography variant="h6" gutterBottom>
+          Available Courts
+        </Typography>
+        <Grid container spacing={2}>
+          {dashboardData?.availableCourtsDetails.map((court) => (
+            <Grid item xs={12} sm={6} md={4} key={court.id}>
+              <Card>
+                <CardContent>
+                  <Stack spacing={2}>
+                    <Typography variant="h6">{court.name}</Typography>
+                    <Typography color="textSecondary">
+                      {court.type} • {court.isIndoor ? 'Indoor' : 'Outdoor'}
+                    </Typography>
+                    <Typography>
+                      ${court.hourlyRate}/hour
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      endIcon={<ArrowForward />}
+                      onClick={() => navigate(`/book?courtId=${court.id}`)}
+                    >
+                      Book Now
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          {(!dashboardData?.availableCourtsDetails || dashboardData.availableCourtsDetails.length === 0) && (
+            <Grid item xs={12}>
+              <Typography color="textSecondary">No courts available</Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
     </Box>
   );
 }; 

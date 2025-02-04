@@ -1,34 +1,89 @@
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
+  Grid,
+  Chip,
   Button,
+  Stack,
+  CircularProgress,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { useBookingStore } from '@/store/booking';
-import { Booking } from '@/types';
+import { CalendarToday, AccessTime, SportsTennis } from '@mui/icons-material';
+import { format } from 'date-fns';
+import { api } from '../api/api';
 
-const MyBookings = () => {
-  const { bookings, isLoading, error, fetchBookings } = useBookingStore();
+interface Booking {
+  id: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  totalAmount: number;
+  court: {
+    name: string;
+    type: string;
+    isIndoor: boolean;
+  };
+}
+
+const MyBookings: React.FC = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  const fetchBookings = async () => {
+    try {
+      const response = await api.get('/bookings/my');
+      setBookings(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to load bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchBookings();
-  }, [fetchBookings]);
+  }, []);
 
-  if (isLoading) {
-    return (
-      <Box p={3}>
-        <Typography>Loading...</Typography>
-      </Box>
-    );
-  }
+  const handleCancelBooking = async () => {
+    if (!selectedBooking) return;
 
-  if (error) {
+    try {
+      await api.post(`/bookings/${selectedBooking}/cancel`);
+      await fetchBookings(); // Refresh bookings
+      setCancelDialogOpen(false);
+      setSelectedBooking(null);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to cancel booking');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'CONFIRMED':
+        return 'success';
+      case 'PENDING':
+        return 'warning';
+      case 'CANCELLED':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  if (loading) {
     return (
-      <Box p={3}>
-        <Typography color="error">{error}</Typography>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
       </Box>
     );
   }
@@ -39,39 +94,94 @@ const MyBookings = () => {
         My Bookings
       </Typography>
 
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
       <Grid container spacing={3}>
-        {bookings.map((booking: Booking) => (
+        {bookings.map((booking) => (
           <Grid item xs={12} sm={6} md={4} key={booking.id}>
             <Card>
               <CardContent>
-                <Typography variant="h6">
-                  Court: {booking.court?.name}
-                </Typography>
-                <Typography color="textSecondary">
-                  Date: {new Date(booking.startTime).toLocaleDateString()}
-                </Typography>
-                <Typography color="textSecondary">
-                  Time: {new Date(booking.startTime).toLocaleTimeString()} - {new Date(booking.endTime).toLocaleTimeString()}
-                </Typography>
-                <Typography color="textSecondary">
-                  Status: {booking.status}
-                </Typography>
-                <Typography color="textSecondary">
-                  Payment: {booking.paymentStatus}
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                >
-                  Cancel Booking
-                </Button>
+                <Stack spacing={2}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6">{booking.court.name}</Typography>
+                    <Chip
+                      label={booking.status}
+                      color={getStatusColor(booking.status) as any}
+                      size="small"
+                    />
+                  </Box>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <SportsTennis fontSize="small" />
+                    <Typography>
+                      {booking.court.type} • {booking.court.isIndoor ? 'Indoor' : 'Outdoor'}
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <CalendarToday fontSize="small" />
+                    <Typography>
+                      {format(new Date(booking.startTime), 'MMMM dd, yyyy')}
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <AccessTime fontSize="small" />
+                    <Typography>
+                      {format(new Date(booking.startTime), 'hh:mm a')} - 
+                      {format(new Date(booking.endTime), 'hh:mm a')}
+                    </Typography>
+                  </Stack>
+
+                  <Box>
+                    <Typography color="textSecondary">Total Amount</Typography>
+                    <Typography variant="h6" color="primary">
+                      ${booking.totalAmount}
+                    </Typography>
+                  </Box>
+
+                  {booking.status !== 'CANCELLED' && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => {
+                        setSelectedBooking(booking.id);
+                        setCancelDialogOpen(true);
+                      }}
+                    >
+                      Cancel Booking
+                    </Button>
+                  )}
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
         ))}
+
+        {bookings.length === 0 && (
+          <Grid item xs={12}>
+            <Typography color="textSecondary" align="center">
+              No bookings found
+            </Typography>
+          </Grid>
+        )}
       </Grid>
+
+      {/* Cancel Booking Dialog */}
+      <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
+        <DialogTitle>Cancel Booking</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to cancel this booking? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelDialogOpen(false)}>No, Keep It</Button>
+          <Button onClick={handleCancelBooking} color="error" variant="contained">
+            Yes, Cancel Booking
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
