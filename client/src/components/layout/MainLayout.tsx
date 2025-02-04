@@ -16,17 +16,18 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   SportsTennis,
   Dashboard,
   EventNote,
-  Person,
   ExitToApp,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../api/api';
+import useAuthStore from '@/store/auth';
 
 const drawerWidth = 240;
 
@@ -39,6 +40,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { user } = useAuthStore();
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -74,7 +76,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { text: 'Book Court', icon: <SportsTennis />, path: '/book' },
     { text: 'My Bookings', icon: <EventNote />, path: '/bookings' },
-    { text: 'Profile', icon: <Person />, path: '/profile' },
   ];
 
   const drawer = (
@@ -126,17 +127,41 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             edge="end"
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32 }} />
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
+            </Avatar>
           </IconButton>
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                width: 220,
+                overflow: 'visible',
+                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                mt: 1.5,
+              },
+            }}
           >
-            <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>Profile</MenuItem>
+            <Box sx={{ px: 2, py: 1.5 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Signed in as
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {user?.firstName} {user?.lastName}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
+                {user?.email}
+              </Typography>
+            </Box>
+            <Divider />
             <MenuItem onClick={() => { handleClose(); handleLogout(); }}>
               <ExitToApp sx={{ mr: 1 }} />
-              Logout
+              Sign out
             </MenuItem>
           </Menu>
         </Toolbar>
