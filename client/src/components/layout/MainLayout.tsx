@@ -24,9 +24,9 @@ import {
   EventNote,
   Person,
   ExitToApp,
-  Code,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../../api/api';
 
 const drawerWidth = 240;
 
@@ -55,12 +55,26 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setAnchorEl(null);
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still remove token and redirect even if the API call fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
   const navigationItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { text: 'Book Court', icon: <SportsTennis />, path: '/book' },
     { text: 'My Bookings', icon: <EventNote />, path: '/bookings' },
     { text: 'Profile', icon: <Person />, path: '/profile' },
-    { text: 'API Tests', icon: <Code />, path: '/test' },
   ];
 
   const drawer = (
@@ -119,9 +133,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
-            <MenuItem onClick={() => navigate('/settings')}>Settings</MenuItem>
-            <MenuItem onClick={() => navigate('/logout')}>
+            <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>Profile</MenuItem>
+            <MenuItem onClick={() => { handleClose(); handleLogout(); }}>
               <ExitToApp sx={{ mr: 1 }} />
               Logout
             </MenuItem>
@@ -132,37 +145,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         component="nav"
         sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       >
-        {isMobile ? (
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-            sx={{
-              display: { xs: 'block', md: 'none' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
-          >
-            {drawer}
-          </Drawer>
-        ) : (
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', md: 'block' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        )}
+        <Drawer
+          variant={isMobile ? 'temporary' : 'permanent'}
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
       </Box>
       <Box
         component="main"

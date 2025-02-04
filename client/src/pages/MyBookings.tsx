@@ -58,7 +58,7 @@ const MyBookings: React.FC = () => {
     if (!selectedBooking) return;
 
     try {
-      await api.post(`/bookings/${selectedBooking}/cancel`);
+      await api.delete(`/bookings/${selectedBooking}`);
       await fetchBookings(); // Refresh bookings
       setCancelDialogOpen(false);
       setSelectedBooking(null);
