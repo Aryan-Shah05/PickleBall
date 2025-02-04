@@ -15,20 +15,25 @@ export const api = axios.create({
   withCredentials: true // Enable credentials
 });
 
+interface ErrorInfo {
+  url?: string;
+  method?: string;
+  status?: number;
+  statusText?: string;
+  data?: any;
+  message?: string;
+  [key: string]: any;
+}
+
 // Add request interceptor to attach token and handle dates
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token');
     
-    // Log request details
-    console.log('Making request:', {
-      url: config.url,
-      method: config.method,
-      data: config.data,
-      params: config.params,
-      headers: config.headers
-    });
-
+    // Ensure headers exist
+    config.headers = config.headers || {};
+    
+    // Add auth token if available
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
@@ -44,6 +49,26 @@ api.interceptors.request.use(
         config.data.endTime = config.data.endTime.toISOString();
       }
     }
+
+    // Clean up undefined values from params
+    if (config.params) {
+      Object.keys(config.params).forEach(key => {
+        if (config.params[key] === undefined) {
+          delete config.params[key];
+        }
+      });
+    }
+    
+    // Log request details without undefined values
+    const requestInfo = {
+      url: `${config.baseURL}${config.url}`,
+      method: config.method?.toUpperCase(),
+      headers: config.headers,
+      ...(config.params && { params: config.params }),
+      ...(config.data && { data: config.data })
+    };
+    
+    console.log('Making request:', JSON.stringify(requestInfo, null, 2));
     
     return config;
   },
@@ -56,23 +81,36 @@ api.interceptors.request.use(
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    // Log successful response
-    console.log('Response received:', {
-      url: response.config.url,
+    // Log successful response without undefined values
+    const responseInfo = {
+      url: `${response.config.baseURL}${response.config.url}`,
       status: response.status,
+      statusText: response.statusText,
       data: response.data
-    });
+    };
+    
+    console.log('Response received:', JSON.stringify(responseInfo, null, 2));
     return response;
   },
   (error) => {
-    // Log error details
-    console.error('API Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
+    // Log error details without undefined values
+    const errorInfo: ErrorInfo = {
+      url: error.config?.url ? `${error.config.baseURL}${error.config.url}` : undefined,
+      method: error.config?.method?.toUpperCase(),
       status: error.response?.status,
+      statusText: error.response?.statusText,
       data: error.response?.data,
       message: error.message
+    };
+
+    // Remove undefined properties
+    Object.keys(errorInfo).forEach(key => {
+      if (errorInfo[key] === undefined) {
+        delete errorInfo[key];
+      }
     });
+
+    console.error('API Error:', JSON.stringify(errorInfo, null, 2));
 
     if (error.response?.status === 401) {
       // Clear auth data
