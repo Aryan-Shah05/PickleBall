@@ -42,23 +42,40 @@ export const Profile: React.FC = () => {
     try {
       const response = await api.get('/users/me');
       console.log('Profile response:', response.data); // Debug log
+      
+      // Handle both possible response structures
       const userData = response.data.data || response.data;
+      
+      if (!userData) {
+        throw new Error('No user data received');
+      }
+
+      // Ensure we have the required data
+      if (!userData.email || !userData.firstName || !userData.lastName) {
+        throw new Error('Incomplete user data received');
+      }
+
+      // Set profile with all available data
       setProfile({
-        email: userData.email || '',
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
         phoneNumber: userData.phoneNumber || '',
         membershipLevel: userData.membershipLevel || 'Standard',
         role: userData.role || 'Member'
       });
+
+      // Update form data
       setFormData({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
+        firstName: userData.firstName,
+        lastName: userData.lastName,
         phoneNumber: userData.phoneNumber || ''
       });
+
+      console.log('Profile set:', userData); // Debug log
     } catch (err: any) {
       console.error('Profile fetch error:', err); // Debug log
-      setError(err.response?.data?.message || 'Failed to load profile');
+      setError(err.message || err.response?.data?.message || 'Failed to load profile');
     } finally {
       setLoading(false);
     }

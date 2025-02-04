@@ -142,28 +142,41 @@ const BookCourt: React.FC = () => {
       const startTime = setMinutes(setHours(bookingDate, parseInt(hours)), parseInt(minutes));
       const endTime = setMinutes(setHours(bookingDate, parseInt(hours) + 1), parseInt(minutes));
 
+      console.log('Submitting booking:', {
+        courtId: selectedCourt,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+      });
+
       const response = await api.post('/bookings', {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
       });
 
-      if (response.data.success) {
+      console.log('Booking response:', response.data);
+
+      // Check both possible success indicators
+      if (response.data.success || response.status === 201) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
       } else {
-        setError('Failed to create booking. Please try again.');
+        throw new Error('Booking creation failed');
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to create booking. Please try again later.';
+      console.error('Booking error:', err);
+      
+      // Handle different error scenarios
       if (err.response?.status === 409) {
         setError('This time slot is already booked. Please select a different time.');
       } else if (err.response?.status === 403) {
         setError('You are not authorized to make this booking.');
+      } else if (err.response?.status === 400) {
+        setError(err.response.data.message || 'Invalid booking request. Please check your selections.');
       } else {
-        setError(errorMessage);
+        setError(err.message || err.response?.data?.message || 'Failed to create booking. Please try again later.');
       }
     } finally {
       setSubmitting(false);
