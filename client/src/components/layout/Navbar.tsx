@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
     { name: 'Home', href: '/', current: false },
     { name: 'Courts', href: '/courts', current: false },
     { name: 'Book Now', href: '/booking', current: false },
-    ...(isAuthenticated ? [{ name: 'Dashboard', href: '/dashboard', current: false }] : []),
+    ...(isAuthenticated ? [{ name: 'My Bookings', href: '/bookings', current: false }] : []),
     ...(user?.role === 'ADMIN' ? [{ name: 'Admin', href: '/admin', current: false }] : []),
   ];
 
@@ -76,33 +76,29 @@ const Navbar: React.FC = () => {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        <Menu.Item>
-                          {({ active }) => (
-                            <Link
-                              to="/profile"
-                              className={classNames(
-                                active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700'
-                              )}
-                            >
-                              Your Profile
-                            </Link>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              onClick={logout}
-                              className={classNames(
-                                active ? 'bg-gray-100' : '',
-                                'block w-full text-left px-4 py-2 text-sm text-gray-700'
-                              )}
-                            >
-                              Sign out
-                            </button>
-                          )}
-                        </Menu.Item>
+                      <Menu.Items className="absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="px-4 py-3">
+                          <p className="text-sm">Signed in as</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {user?.firstName} {user?.lastName}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+                        </div>
+                        <div className="border-t border-gray-100">
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={logout}
+                                className={classNames(
+                                  active ? 'bg-gray-100' : '',
+                                  'block w-full text-left px-4 py-2 text-sm text-gray-700'
+                                )}
+                              >
+                                Sign out
+                              </button>
+                            )}
+                          </Menu.Item>
+                        </div>
                       </Menu.Items>
                     </Transition>
                   </Menu>
@@ -174,13 +170,6 @@ const Navbar: React.FC = () => {
                   </div>
                 </div>
                 <div className="mt-3 space-y-1">
-                  <Disclosure.Button
-                    as={Link}
-                    to="/profile"
-                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                  >
-                    Your Profile
-                  </Disclosure.Button>
                   <Disclosure.Button
                     as="button"
                     onClick={logout}

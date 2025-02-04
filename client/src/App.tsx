@@ -7,7 +7,6 @@ import { Login } from './pages/auth/Login';
 import { Dashboard } from './pages/Dashboard';
 import BookCourt from './pages/BookCourt';
 import MyBookings from './pages/MyBookings';
-import { Profile } from './pages/Profile';
 import { TestRunner } from './tests/components/TestRunner';
 import { PageWrapper, AccessibleAnimationWrapper } from './components/animations';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -93,16 +92,6 @@ const App: React.FC = () => {
                 <ProtectedRoute>
                   <PageWrapper>
                     <MyBookings />
-                  </PageWrapper>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <PageWrapper>
-                    <Profile />
                   </PageWrapper>
                 </ProtectedRoute>
               }
