@@ -48,6 +48,7 @@ model User {
   lastName        String
   membershipLevel MembershipLevel @default(BASIC)
   role            UserRole        @default(MEMBER)
+  resetToken      String?         // Added for password reset functionality
   rating          Float?
   preferences     String?   // Changed from Json to String for SQLite compatibility
   isActive        Boolean         @default(true)

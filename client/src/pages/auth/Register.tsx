@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 
-export const Login: React.FC = () => {
+const Register: React.FC = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +25,8 @@ export const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    firstName: '',
+    lastName: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +42,7 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', formData);
+      const response = await api.post('/auth/register', formData);
       const { data } = response;
       
       if (data.status === 'success' && data.data.token) {
@@ -51,11 +53,11 @@ export const Login: React.FC = () => {
         throw new Error('Invalid response from server');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('Registration error:', err);
       setError(
         err.response?.data?.message ||
         err.message ||
-        'Failed to connect to the server. Please try again.'
+        'Failed to register. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -85,10 +87,10 @@ export const Login: React.FC = () => {
             >
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <Typography variant="h4" component="h1" gutterBottom>
-                  Welcome Back
+                  Create Account
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Sign in to continue to PickleBall
+                  Sign up to join PickleBall
                 </Typography>
               </Box>
 
@@ -97,6 +99,26 @@ export const Login: React.FC = () => {
                   {error}
                 </Alert>
               )}
+
+              <TextField
+                label="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                fullWidth
+                required
+                autoComplete="given-name"
+              />
+
+              <TextField
+                label="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                fullWidth
+                required
+                autoComplete="family-name"
+              />
 
               <TextField
                 label="Email"
@@ -117,7 +139,7 @@ export const Login: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -139,18 +161,13 @@ export const Login: React.FC = () => {
                 disabled={loading}
                 sx={{ mt: 2 }}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Creating Account...' : 'Sign Up'}
               </Button>
 
-              <Grid container>
-                <Grid item xs>
-                  <Link href="/forgot-password" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
+              <Grid container justifyContent="center">
                 <Grid item>
-                  <Link href="/register" variant="body2">
-                    {"Don't have an account? Sign Up"}
+                  <Link href="/login" variant="body2">
+                    Already have an account? Sign in
                   </Link>
                 </Grid>
               </Grid>
@@ -160,4 +177,6 @@ export const Login: React.FC = () => {
       </Box>
     </Container>
   );
-}; 
+};
+
+export default Register; 

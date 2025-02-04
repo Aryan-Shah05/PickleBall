@@ -10,6 +10,9 @@ import MyBookings from './pages/MyBookings';
 import { Profile } from './pages/Profile';
 import { TestRunner } from './tests/components/TestRunner';
 import { PageWrapper, AccessibleAnimationWrapper } from './components/animations';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import Register from './pages/auth/Register';
 import './styles/globals.css';
 
 // Protected route wrapper
@@ -35,6 +38,30 @@ const App: React.FC = () => {
               element={
                 <PageWrapper>
                   <Login />
+                </PageWrapper>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PageWrapper>
+                  <Register />
+                </PageWrapper>
+              } 
+            />
+            <Route 
+              path="/forgot-password" 
+              element={
+                <PageWrapper>
+                  <ForgotPassword />
+                </PageWrapper>
+              } 
+            />
+            <Route 
+              path="/reset-password/:token" 
+              element={
+                <PageWrapper>
+                  <ResetPassword />
                 </PageWrapper>
               } 
             />

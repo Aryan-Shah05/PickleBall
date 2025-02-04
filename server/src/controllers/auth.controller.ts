@@ -199,74 +199,81 @@ export const authController = {
     }
   },
 
-  forgotPassword: async (
-    req: Request<unknown, unknown, ForgotPasswordInput>,
-    res: Response,
-    next: NextFunction
-  ) => {
+  forgotPassword: async (req: Request<unknown, unknown, ForgotPasswordInput>, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
-
+      
       // Check if user exists
       const user = await prisma.user.findUnique({
-        where: { email },
+        where: { email }
       });
 
       if (!user) {
-        // Don't reveal whether a user exists
-        res.status(200).json({
-          status: 'success',
-          message: 'If an account exists, a password reset email will be sent',
-        });
-        return;
+        throw new AppError(404, 'User not found', 'NOT_FOUND');
       }
 
       // Generate reset token
-      const resetToken = generateToken(user.id);
+      const resetToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '1h' }
+      );
 
-      // TODO: Send reset email
-      logger.info(`Reset token for ${email}: ${resetToken}`);
+      // Store reset token in database
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { resetToken }
+      });
 
-      res.status(200).json({
-        status: 'success',
-        message: 'If an account exists, a password reset email will be sent',
+      // In a real application, you would send an email here with the reset link
+      // For now, we'll just return the token in the response
+      res.json({
+        message: 'Password reset instructions sent',
+        resetToken // In production, remove this and send via email instead
       });
     } catch (error) {
       next(error);
     }
   },
 
-  resetPassword: async (
-    req: Request<unknown, unknown, ResetPasswordInput>,
-    res: Response,
-    next: NextFunction
-  ) => {
+  resetPassword: async (req: Request<unknown, unknown, ResetPasswordInput>, res: Response, next: NextFunction) => {
     try {
       const { token, password } = req.body;
 
-      const secret = process.env.JWT_SECRET;
-      if (!secret) {
-        throw new AppError(500, 'JWT secret not configured', 'SERVER_ERROR');
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
+      
+      // Find user with matching reset token
+      const user = await prisma.user.findFirst({
+        where: {
+          id: decoded.userId,
+          resetToken: token
+        }
+      });
+
+      if (!user) {
+        throw new AppError(400, 'Invalid or expired reset token', 'INVALID_TOKEN');
       }
 
-      try {
-        const decoded = jwt.verify(token, secret) as { userId: string };
-        const hashedPassword = await bcrypt.hash(password, 12);
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-        await prisma.user.update({
-          where: { id: decoded.userId },
-          data: { password: hashedPassword },
-        });
+      // Update password and clear reset token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          resetToken: null
+        }
+      });
 
-        res.status(200).json({
-          status: 'success',
-          message: 'Password has been reset successfully',
-        });
-      } catch (error) {
-        throw new AppError(401, 'Invalid or expired token', 'INVALID_TOKEN');
-      }
+      res.json({ message: 'Password reset successful' });
     } catch (error) {
-      next(error);
+      if (error instanceof jwt.JsonWebTokenError) {
+        next(new AppError(400, 'Invalid or expired reset token', 'INVALID_TOKEN'));
+      } else {
+        next(error);
+      }
     }
   },
 }; 
