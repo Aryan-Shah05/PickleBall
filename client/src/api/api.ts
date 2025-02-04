@@ -11,8 +11,11 @@ export const api = axios.create({
   baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
-  withCredentials: true // Enable credentials
+  withCredentials: true, // Enable credentials
+  timeout: 10000, // 10 second timeout
+  validateStatus: status => status < 500 // Only reject if status is 500 or greater
 });
 
 interface ErrorInfo {
@@ -24,6 +27,30 @@ interface ErrorInfo {
   message?: string;
   [key: string]: any;
 }
+
+// Retry logic for failed requests
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+const retryRequest = async (error: any, retryCount: number = 0): Promise<any> => {
+  const shouldRetry = retryCount < MAX_RETRIES && 
+    (error.code === 'ECONNABORTED' || 
+     error.response?.status === 502 || 
+     error.response?.status === 503 ||
+     error.response?.status === 504);
+
+  if (shouldRetry) {
+    console.log(`Retrying request (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)));
+    const config = error.config;
+    // Clear any existing Authorization header to prevent duplicate tokens
+    if (config.headers) {
+      delete config.headers.Authorization;
+    }
+    return api(config);
+  }
+  return Promise.reject(error);
+};
 
 // Add request interceptor to attach token and handle dates
 api.interceptors.request.use(
@@ -42,12 +69,11 @@ api.interceptors.request.use(
     
     // Convert dates to ISO strings for consistency
     if (config.data) {
-      if (config.data.startTime instanceof Date) {
-        config.data.startTime = config.data.startTime.toISOString();
-      }
-      if (config.data.endTime instanceof Date) {
-        config.data.endTime = config.data.endTime.toISOString();
-      }
+      Object.keys(config.data).forEach(key => {
+        if (config.data[key] instanceof Date) {
+          config.data[key] = config.data[key].toISOString();
+        }
+      });
     }
 
     // Clean up undefined values from params
@@ -59,16 +85,13 @@ api.interceptors.request.use(
       });
     }
     
-    // Log request details without undefined values
-    const requestInfo = {
+    console.log('Making request:', {
       url: `${config.baseURL}${config.url}`,
       method: config.method?.toUpperCase(),
       headers: config.headers,
-      ...(config.params && { params: config.params }),
-      ...(config.data && { data: config.data })
-    };
-    
-    console.log('Making request:', JSON.stringify(requestInfo, null, 2));
+      params: config.params,
+      data: config.data
+    });
     
     return config;
   },
@@ -81,19 +104,25 @@ api.interceptors.request.use(
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    // Log successful response without undefined values
-    const responseInfo = {
+    console.log('Response received:', {
       url: `${response.config.baseURL}${response.config.url}`,
       status: response.status,
       statusText: response.statusText,
       data: response.data
-    };
-    
-    console.log('Response received:', JSON.stringify(responseInfo, null, 2));
+    });
     return response;
   },
-  (error) => {
-    // Log error details without undefined values
+  async (error) => {
+    // Try to retry the request if applicable
+    if (error.config && !error.config.__isRetry) {
+      error.config.__isRetry = true;
+      try {
+        return await retryRequest(error);
+      } catch (retryError) {
+        error = retryError;
+      }
+    }
+
     const errorInfo: ErrorInfo = {
       url: error.config?.url ? `${error.config.baseURL}${error.config.url}` : undefined,
       method: error.config?.method?.toUpperCase(),
@@ -110,14 +139,12 @@ api.interceptors.response.use(
       }
     });
 
-    console.error('API Error:', JSON.stringify(errorInfo, null, 2));
+    console.error('API Error:', errorInfo);
 
     if (error.response?.status === 401) {
-      // Clear auth data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Only redirect if not already on login page and not a login request
       if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/login')) {
         console.log('Redirecting to login due to unauthorized access');
         window.location.href = '/login';

@@ -35,17 +35,40 @@ interface BookingSlot {
   courtId: string;
 }
 
+interface TimeSlot {
+  startTime: Date;
+  endTime: Date;
+  label: string;
+  isAvailable: boolean;
+}
+
 // Time slots from 6 AM to 10 PM (1-hour intervals)
-const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
-  const hour = i + 6; // Start from 6 AM
-  const date = new Date();
-  date.setHours(hour, 0, 0, 0);
-  return {
-    label: format(date, 'h:mm a'),
-    value: `${hour.toString().padStart(2, '0')}:00`,
-    hour: hour
-  };
-});
+const generateTimeSlots = (selectedDate: Date): TimeSlot[] => {
+  const slots: TimeSlot[] = [];
+  const startHour = 6; // 6 AM
+  const endHour = 22; // 10 PM
+
+  for (let hour = startHour; hour < endHour; hour++) {
+    const startTime = new Date(selectedDate);
+    startTime.setHours(hour, 0, 0, 0);
+    
+    const endTime = new Date(selectedDate);
+    endTime.setHours(hour + 1, 0, 0, 0);
+
+    // Don't show past time slots for today
+    if (isSameDay(selectedDate, new Date()) && isPast(startTime)) {
+      continue;
+    }
+
+    slots.push({
+      startTime,
+      endTime,
+      label: `${format(startTime, 'h:mm a')} - ${format(endTime, 'h:mm a')}`,
+      isAvailable: true
+    });
+  }
+  return slots;
+};
 
 const MAX_BOOKINGS_PER_DAY = 2; // Maximum bookings allowed per user per day
 
@@ -64,6 +87,7 @@ const BookCourt: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
   const [userBookings, setUserBookings] = useState<BookingSlot[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
 
   // Fetch courts and existing bookings
   useEffect(() => {
@@ -138,25 +162,26 @@ const BookCourt: React.FC = () => {
     fetchExistingBookings();
   }, [bookingDate, selectedCourt]);
 
-  const isTimeSlotBooked = (timeSlot: string): boolean => {
-    if (!bookingDate || !selectedCourt) return false;
-
-    const [hours] = timeSlot.split(':');
-    const startTime = new Date(bookingDate);
-    startTime.setHours(parseInt(hours), 0, 0, 0);
-    startTime.setMinutes(0, 0, 0);
+  // Update time slots when date or existing bookings change
+  useEffect(() => {
+    if (!bookingDate) return;
     
-    return existingBookings.some(booking => {
-      const bookingStart = new Date(booking.startTime);
-      return (
-        bookingStart.getFullYear() === startTime.getFullYear() &&
-        bookingStart.getMonth() === startTime.getMonth() &&
-        bookingStart.getDate() === startTime.getDate() &&
-        bookingStart.getHours() === startTime.getHours() &&
-        booking.courtId === selectedCourt
-      );
-    });
-  };
+    const slots = generateTimeSlots(bookingDate);
+    
+    // Mark booked slots as unavailable
+    const updatedSlots = slots.map(slot => ({
+      ...slot,
+      isAvailable: !existingBookings.some(booking => {
+        const bookingStart = new Date(booking.startTime);
+        return (
+          isSameDay(slot.startTime, bookingStart) &&
+          slot.startTime.getTime() === bookingStart.getTime()
+        );
+      })
+    }));
+
+    setTimeSlots(updatedSlots);
+  }, [bookingDate, existingBookings]);
 
   const getUserBookingsForDate = (date: Date): number => {
     return userBookings.filter(booking => 
@@ -197,9 +222,12 @@ const BookCourt: React.FC = () => {
     return true;
   };
 
-  const handleTimeSlotSelect = (value: string) => {
-    console.log('Selected time slot:', value);
-    setSelectedTimeSlot(value);
+  const handleTimeSlotSelect = (slot: TimeSlot) => {
+    if (!slot.isAvailable) {
+      setError('This time slot is already booked');
+      return;
+    }
+    setSelectedTimeSlot(format(slot.startTime, 'HH:mm'));
     setError(null);
   };
 
@@ -208,7 +236,6 @@ const BookCourt: React.FC = () => {
     setError(null);
     setSuccess(null);
 
-    // Validate required fields
     if (!selectedCourt) {
       setError('Please select a court');
       return;
@@ -222,102 +249,44 @@ const BookCourt: React.FC = () => {
       return;
     }
 
-    // Validate booking time
-    if (!validateBookingTime(bookingDate, selectedTimeSlot)) {
+    const selectedSlot = timeSlots.find(
+      slot => format(slot.startTime, 'HH:mm') === selectedTimeSlot
+    );
+
+    if (!selectedSlot) {
+      setError('Invalid time slot selected');
+      return;
+    }
+
+    if (!selectedSlot.isAvailable) {
+      setError('This time slot is no longer available');
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const [hours] = selectedTimeSlot.split(':');
-      const startTime = new Date(bookingDate);
-      startTime.setHours(parseInt(hours), 0, 0, 0);
-      startTime.setMinutes(0, 0, 0);
-      
-      const endTime = new Date(startTime);
-      endTime.setHours(startTime.getHours() + 1);
-      endTime.setMinutes(0, 0, 0);
-
       const bookingData = {
         courtId: selectedCourt,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString()
+        startTime: selectedSlot.startTime.toISOString(),
+        endTime: selectedSlot.endTime.toISOString()
       };
 
       console.log('Creating booking with:', bookingData);
 
-      // First check availability
-      const availabilityResponse = await api.get('/bookings/availability', {
-        params: {
-          courtId: selectedCourt,
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString()
-        }
-      });
-
-      console.log('Availability response:', availabilityResponse.data);
-
-      const existingBookings = availabilityResponse.data.data || [];
-      const isTimeSlotTaken = existingBookings.some((booking: BookingSlot) => {
-        const bookingStart = new Date(booking.startTime);
-        return (
-          bookingStart.getFullYear() === startTime.getFullYear() &&
-          bookingStart.getMonth() === startTime.getMonth() &&
-          bookingStart.getDate() === startTime.getDate() &&
-          bookingStart.getHours() === startTime.getHours() &&
-          booking.courtId === selectedCourt
-        );
-      });
-
-      if (isTimeSlotTaken) {
-        setError('This time slot has just been booked. Please select another time.');
-        return;
-      }
-
-      // Proceed with booking
       const response = await api.post('/bookings', bookingData);
-
-      console.log('Booking response:', response.data);
 
       if (response.data.success) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
-        // Refresh existing bookings
         await fetchExistingBookings();
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
-      } else {
-        throw new Error(response.data.message || 'Failed to create booking');
       }
     } catch (err: any) {
-      console.error('Booking error details:', {
-        error: err,
-        response: err.response,
-        data: err.response?.data,
-        status: err.response?.status
-      });
-
+      console.error('Booking error:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Failed to create booking';
-      
-      if (err.response?.status === 409) {
-        setError('This time slot is already booked. Please select a different time.');
-      } else if (err.response?.status === 403) {
-        setError('You are not authorized to make this booking. Please log in again.');
-        // Clear auth data and redirect to login
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
-      } else if (err.response?.status === 400) {
-        setError(errorMessage || 'Invalid booking request. Please check your selections.');
-      } else if (err.response?.status === 422) {
-        setError('Invalid booking time. Please select a different time slot.');
-      } else if (err.response?.status === 401) {
-        setError('Your session has expired. Please log in again.');
-        navigate('/login');
-      } else {
-        setError(`Booking failed: ${errorMessage}`);
-      }
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -334,159 +303,75 @@ const BookCourt: React.FC = () => {
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Book a Court
-      </Typography>
+    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
+      <Stack spacing={3}>
+        {error && <Alert severity="error">{error}</Alert>}
+        {success && <Alert severity="success">{success}</Alert>}
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
-          {success}
-        </Alert>
-      )}
+        <FormControl fullWidth>
+          <InputLabel>Select Court</InputLabel>
+          <Select
+            value={selectedCourt}
+            label="Select Court"
+            onChange={(e) => setSelectedCourt(e.target.value)}
+            disabled={submitting}
+            required
+          >
+            {courts.map((court) => (
+              <MenuItem key={court.id} value={court.id}>
+                {court.name} - ${court.hourlyRate}/hour
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <form onSubmit={handleSubmit}>
-                <Stack spacing={3}>
-                  <FormControl fullWidth error={!selectedCourt}>
-                    <InputLabel>Select Court</InputLabel>
-                    <Select
-                      value={selectedCourt}
-                      label="Select Court"
-                      onChange={(e) => {
-                        setSelectedCourt(e.target.value);
-                        setError(null);
-                      }}
-                      required
-                    >
-                      {courts.map((court) => (
-                        <MenuItem key={court.id} value={court.id}>
-                          {court.name} - {court.type} ({court.isIndoor ? 'Indoor' : 'Outdoor'})
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+        <DatePicker
+          label="Booking Date"
+          value={bookingDate}
+          onChange={(newValue) => setBookingDate(newValue)}
+          disabled={submitting}
+          minDate={new Date()}
+          maxDate={addDays(new Date(), 30)}
+        />
 
-                  <DatePicker
-                    label="Booking Date"
-                    value={bookingDate}
-                    onChange={(newValue) => {
-                      setBookingDate(newValue);
-                      setError(null);
-                    }}
-                    disablePast
-                    minDate={new Date()}
-                    maxDate={addDays(new Date(), 30)}
-                    slotProps={{ 
-                      textField: { 
-                        fullWidth: true, 
-                        required: true,
-                        error: !bookingDate 
-                      } 
-                    }}
-                  />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Select Time Slot
+        </Typography>
 
-                  <FormControl fullWidth error={!selectedTimeSlot}>
-                    <InputLabel>Select Time Slot</InputLabel>
-                    <Select
-                      value={selectedTimeSlot}
-                      label="Select Time Slot"
-                      onChange={(e) => handleTimeSlotSelect(e.target.value)}
-                      required
-                    >
-                      {TIME_SLOTS.map((slot) => {
-                        const isBooked = isTimeSlotBooked(slot.value);
-                        return (
-                          <Tooltip title={isBooked ? "This slot is already booked" : ""} key={slot.value}>
-                            <MenuItem 
-                              value={slot.value}
-                              disabled={isBooked}
-                              sx={isBooked ? { color: 'text.disabled' } : {}}
-                            >
-                              {slot.label} {isBooked ? '(Booked)' : ''}
-                            </MenuItem>
-                          </Tooltip>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    fullWidth
-                    disabled={submitting || !selectedCourt || !bookingDate || !selectedTimeSlot}
-                    onClick={handleSubmit}
-                  >
-                    {submitting ? <CircularProgress size={24} /> : 'Book Court'}
-                  </Button>
-                </Stack>
-              </form>
-            </CardContent>
-          </Card>
+        <Grid container spacing={2}>
+          {timeSlots.map((slot, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Tooltip title={slot.isAvailable ? 'Click to select this time slot' : 'This time slot is already booked'}>
+                <Button
+                  variant={selectedTimeSlot === format(slot.startTime, 'HH:mm') ? 'contained' : 'outlined'}
+                  color={slot.isAvailable ? 'primary' : 'error'}
+                  fullWidth
+                  onClick={() => handleTimeSlotSelect(slot)}
+                  disabled={!slot.isAvailable || submitting}
+                  sx={{
+                    height: '60px',
+                    whiteSpace: 'normal',
+                    textTransform: 'none'
+                  }}
+                >
+                  {slot.label}
+                </Button>
+              </Tooltip>
+            </Grid>
+          ))}
         </Grid>
 
-        {selectedCourtDetails && (
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Booking Summary
-                </Typography>
-                <Stack spacing={2}>
-                  <Box>
-                    <Typography color="textSecondary">Court</Typography>
-                    <Typography variant="h6">{selectedCourtDetails.name}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography color="textSecondary">Type</Typography>
-                    <Typography>
-                      {selectedCourtDetails.type} • {selectedCourtDetails.isIndoor ? 'Indoor' : 'Outdoor'}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography color="textSecondary">Date</Typography>
-                    <Typography>
-                      {bookingDate ? format(bookingDate, 'MMMM dd, yyyy') : '-'}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography color="textSecondary">Time</Typography>
-                    <Typography>
-                      {selectedTimeSlot ? format(setMinutes(setHours(new Date(), parseInt(selectedTimeSlot.split(':')[0])), 0), 'h:mm a') : '-'}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography color="textSecondary">Rate</Typography>
-                    <Typography variant="h6" color="primary">
-                      ${selectedCourtDetails.hourlyRate}/hour
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Peak hours: ${selectedCourtDetails.peakHourRate}/hour
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography color="textSecondary">Bookings Today</Typography>
-                    <Typography>
-                      {bookingDate ? `${getUserBookingsForDate(bookingDate)} of ${MAX_BOOKINGS_PER_DAY} allowed` : '-'}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
-      </Grid>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          disabled={submitting || !selectedTimeSlot}
+          sx={{ mt: 2 }}
+        >
+          {submitting ? <CircularProgress size={24} /> : 'Book Court'}
+        </Button>
+      </Stack>
     </Box>
   );
 };
