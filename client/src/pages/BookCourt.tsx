@@ -181,6 +181,12 @@ const BookCourt: React.FC = () => {
     return true;
   };
 
+  const handleTimeSlotSelect = (value: string) => {
+    console.log('Selected time slot:', value);
+    setSelectedTimeSlot(value);
+    setError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -215,33 +221,30 @@ const BookCourt: React.FC = () => {
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + 1);
 
-      const bookingData = {
+      console.log('Creating booking with:', {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString()
-      };
+      });
 
-      console.log('Sending booking request:', bookingData);
+      const response = await api.post('/bookings', {
+        courtId: selectedCourt,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+      });
 
-      const response = await api.post('/bookings', bookingData);
       console.log('Booking response:', response);
 
       if (response.data.success || response.status === 201) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
-        
-        // Update user bookings list
-        const userBookingsResponse = await api.get('/bookings/my-bookings');
-        setUserBookings(userBookingsResponse.data.data || []);
-        
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
       } else {
-        throw new Error(response.data.message || 'Booking creation failed');
+        throw new Error(response.data.message || 'Failed to create booking');
       }
     } catch (err: any) {
       console.error('Booking error:', err.response || err);
-      
       const errorMessage = err.response?.data?.message || err.message || 'Failed to create booking';
       
       if (err.response?.status === 409) {
@@ -336,10 +339,7 @@ const BookCourt: React.FC = () => {
                     <Select
                       value={selectedTimeSlot}
                       label="Select Time Slot"
-                      onChange={(e) => {
-                        setSelectedTimeSlot(e.target.value);
-                        setError(null);
-                      }}
+                      onChange={(e) => handleTimeSlotSelect(e.target.value)}
                       required
                     >
                       {TIME_SLOTS.map((slot) => {
@@ -362,9 +362,11 @@ const BookCourt: React.FC = () => {
                   <Button
                     type="submit"
                     variant="contained"
+                    color="primary"
                     size="large"
                     fullWidth
                     disabled={submitting || !selectedCourt || !bookingDate || !selectedTimeSlot}
+                    onClick={handleSubmit}
                   >
                     {submitting ? <CircularProgress size={24} /> : 'Book Court'}
                   </Button>
