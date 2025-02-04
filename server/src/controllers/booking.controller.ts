@@ -304,15 +304,6 @@ export const bookingController = {
         throw new AppError(400, 'Missing required fields', 'INVALID_INPUT');
       }
 
-      // First check if the court exists
-      const court = await prisma.court.findUnique({
-        where: { id: courtId as string }
-      });
-
-      if (!court) {
-        throw new AppError(404, 'Court not found', 'COURT_NOT_FOUND');
-      }
-
       const bookingStart = new Date(startTime as string);
       const bookingEnd = new Date(endTime as string);
 
@@ -350,13 +341,7 @@ export const bookingController = {
       res.json({
         status: 'success',
         data: {
-          courtId: court.id,
-          courtName: court.name,
           available: !existingBooking,
-          requestedTime: {
-            start: bookingStart,
-            end: bookingEnd
-          },
           existingBooking: existingBooking ? {
             startTime: existingBooking.startTime,
             endTime: existingBooking.endTime
