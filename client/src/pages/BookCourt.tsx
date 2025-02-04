@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  TextField,
   Button,
   Grid,
   FormControl,
@@ -73,7 +72,7 @@ const BookCourt: React.FC = () => {
 
     try {
       const endTime = addHours(startTime, duration);
-      const response = await api.post('/bookings', {
+      await api.post('/bookings', {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
