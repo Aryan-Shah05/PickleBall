@@ -138,45 +138,53 @@ const BookCourt: React.FC = () => {
     setSubmitting(true);
 
     try {
-      const [hours, minutes] = selectedTimeSlot.split(':');
-      const startTime = setMinutes(setHours(bookingDate, parseInt(hours)), parseInt(minutes));
-      const endTime = setMinutes(setHours(bookingDate, parseInt(hours) + 1), parseInt(minutes));
+      const [hours] = selectedTimeSlot.split(':');
+      const startTime = setMinutes(setHours(new Date(bookingDate), parseInt(hours)), 0);
+      const endTime = setMinutes(setHours(new Date(bookingDate), parseInt(hours) + 1), 0);
 
-      console.log('Submitting booking:', {
+      console.log('Booking details:', {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
+        selectedTimeSlot,
+        bookingDate: bookingDate.toISOString()
       });
 
-      const response = await api.post('/bookings', {
+      const bookingData = {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-      });
+        endTime: endTime.toISOString()
+      };
 
-      console.log('Booking response:', response.data);
+      console.log('Sending booking request:', bookingData);
 
-      // Check both possible success indicators
+      const response = await api.post('/bookings', bookingData);
+
+      console.log('Booking response:', response);
+
       if (response.data.success || response.status === 201) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
       } else {
-        throw new Error('Booking creation failed');
+        throw new Error(response.data.message || 'Booking creation failed');
       }
     } catch (err: any) {
-      console.error('Booking error:', err);
+      console.error('Booking error:', err.response || err);
       
-      // Handle different error scenarios
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to create booking';
+      
       if (err.response?.status === 409) {
         setError('This time slot is already booked. Please select a different time.');
       } else if (err.response?.status === 403) {
-        setError('You are not authorized to make this booking.');
+        setError('You are not authorized to make this booking. Please log in again.');
       } else if (err.response?.status === 400) {
-        setError(err.response.data.message || 'Invalid booking request. Please check your selections.');
+        setError(errorMessage || 'Invalid booking request. Please check your selections.');
+      } else if (err.response?.status === 422) {
+        setError('Invalid booking time. Please select a different time slot.');
       } else {
-        setError(err.message || err.response?.data?.message || 'Failed to create booking. Please try again later.');
+        setError(`Booking failed: ${errorMessage}`);
       }
     } finally {
       setSubmitting(false);
