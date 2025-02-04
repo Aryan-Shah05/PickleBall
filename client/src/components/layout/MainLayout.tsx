@@ -44,15 +44,31 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    // Debug log to check user data
-    console.log('Current user data:', user);
-    // Set loading to false after initial user check
-    setIsLoading(false);
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/users/me');
+        const data = response.data.data || response.data;
+        console.log('Fetched user data:', data);
+        setUserData(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchUserData();
+    } else {
+      setIsLoading(false);
+    }
   }, [user]);
 
   const handleDrawerToggle = () => {
@@ -69,6 +85,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      setIsLoading(true);
       await api.post('/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -78,6 +95,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       navigate('/login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,7 +136,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     );
   }
 
-  const userInitials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : '';
+  const userInitials = userData ? `${userData.firstName?.[0] || ''}${userData.lastName?.[0] || ''}` : '';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -127,6 +146,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
+          bgcolor: 'primary.main',
         }}
       >
         <Toolbar>
@@ -145,9 +165,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             size="large"
             edge="end"
             color="inherit"
+            sx={{
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
           >
-            {user ? (
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+            {userData ? (
+              <Avatar 
+                sx={{ 
+                  width: 32, 
+                  height: 32, 
+                  bgcolor: 'primary.light',
+                  color: 'white',
+                  fontWeight: 500,
+                }}
+              >
                 {userInitials}
               </Avatar>
             ) : (
@@ -161,23 +194,29 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             PaperProps={{
-              elevation: 0,
+              elevation: 3,
               sx: {
-                width: 220,
+                width: 250,
                 overflow: 'visible',
                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                 mt: 1.5,
+                '& .MuiAvatar-root': {
+                  width: 32,
+                  height: 32,
+                  ml: -0.5,
+                  mr: 1,
+                },
               },
             }}
           >
-            {user && (
+            {userData && (
               <>
-                <Box sx={{ px: 2, py: 1.5 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                <Box sx={{ px: 3, py: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                     Signed in as
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500, mt: 0.5 }}>
-                    {user.firstName} {user.lastName}
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                    {userData.firstName} {userData.lastName}
                   </Typography>
                   <Typography 
                     variant="body2" 
@@ -188,7 +227,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       fontSize: '0.875rem'
                     }}
                   >
-                    {user.email}
+                    {userData.email}
                   </Typography>
                 </Box>
                 <Divider />
@@ -197,13 +236,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <MenuItem 
               onClick={() => { handleClose(); handleLogout(); }}
               sx={{ 
-                py: 1,
+                py: 1.5,
+                px: 3,
                 '&:hover': {
                   backgroundColor: 'rgba(0, 0, 0, 0.04)'
                 }
               }}
             >
-              <ExitToApp sx={{ mr: 1 }} />
+              <ExitToApp sx={{ mr: 2 }} />
               Sign out
             </MenuItem>
           </Menu>
