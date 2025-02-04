@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Card,
-  CardContent,
   Typography,
   Button,
   Stack,
@@ -18,7 +16,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
-import { addDays, format, setHours, setMinutes, isPast, isAfter, isSameDay } from 'date-fns';
+import { addDays, format, isPast, isAfter, isSameDay } from 'date-fns';
 
 interface Court {
   id: string;
@@ -189,39 +187,6 @@ const BookCourt: React.FC = () => {
     ).length;
   };
 
-  const validateBookingTime = (date: Date, timeSlot: string): boolean => {
-    const [hours] = timeSlot.split(':');
-    const bookingTime = new Date(date);
-    bookingTime.setHours(parseInt(hours), 0, 0, 0);
-    
-    // Check if booking time is in the past
-    if (isPast(bookingTime)) {
-      setError('Cannot book a court for a past time');
-      return false;
-    }
-
-    // Check if booking is more than 30 days in advance
-    if (isAfter(bookingTime, addDays(new Date(), 30))) {
-      setError('Cannot book more than 30 days in advance');
-      return false;
-    }
-
-    // Check if time slot is already booked
-    if (isTimeSlotBooked(timeSlot)) {
-      setError('This time slot is already booked. Please select a different time.');
-      return false;
-    }
-
-    // Check if user has reached maximum bookings for the day
-    const bookingsForDay = getUserBookingsForDate(date);
-    if (bookingsForDay >= MAX_BOOKINGS_PER_DAY) {
-      setError(`You can only make ${MAX_BOOKINGS_PER_DAY} bookings per day. Please select a different date.`);
-      return false;
-    }
-
-    return true;
-  };
-
   const handleTimeSlotSelect = (slot: TimeSlot) => {
     if (!slot.isAvailable) {
       setError('This time slot is already booked');
@@ -249,6 +214,7 @@ const BookCourt: React.FC = () => {
       return;
     }
 
+    // Validate booking time
     const selectedSlot = timeSlots.find(
       slot => format(slot.startTime, 'HH:mm') === selectedTimeSlot
     );
@@ -260,6 +226,25 @@ const BookCourt: React.FC = () => {
 
     if (!selectedSlot.isAvailable) {
       setError('This time slot is no longer available');
+      return;
+    }
+
+    // Check if booking is in the past
+    if (isPast(selectedSlot.startTime)) {
+      setError('Cannot book a court for a past time');
+      return;
+    }
+
+    // Check if booking is more than 30 days in advance
+    if (isAfter(selectedSlot.startTime, addDays(new Date(), 30))) {
+      setError('Cannot book more than 30 days in advance');
+      return;
+    }
+
+    // Check if user has reached maximum bookings for the day
+    const bookingsForDay = getUserBookingsForDate(bookingDate);
+    if (bookingsForDay >= MAX_BOOKINGS_PER_DAY) {
+      setError(`You can only make ${MAX_BOOKINGS_PER_DAY} bookings per day. Please select a different date.`);
       return;
     }
 
@@ -291,8 +276,6 @@ const BookCourt: React.FC = () => {
       setSubmitting(false);
     }
   };
-
-  const selectedCourtDetails = courts.find(court => court.id === selectedCourt);
 
   if (loading) {
     return (
