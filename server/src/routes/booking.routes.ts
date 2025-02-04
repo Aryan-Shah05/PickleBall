@@ -26,4 +26,7 @@ router.patch('/:id', bookingController.updateBooking);
 // Cancel booking
 router.delete('/:id', bookingController.cancelBooking);
 
+// Add route to clear all bookings (admin only)
+router.delete('/clear-all', bookingController.clearAllBookings);
+
 export default router; 

@@ -67,11 +67,8 @@ export const restrictTo = (...roles: UserRole[]) => {
   };
 };
 
-export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
-    throw new AppError(403, 'Admin access required', 'FORBIDDEN');
-  }
-  next();
+export const isAdmin = (req: Request): boolean => {
+  return req.user?.role === 'ADMIN';
 };
 
 export const authorize = (...roles: UserRole[]) => {

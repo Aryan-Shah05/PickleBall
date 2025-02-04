@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { BookingStatus, PaymentStatus } from '@prisma/client';
+import { isAdmin } from '../middleware/auth';
 
 export const bookingController = {
   getMyBookings: async (req: Request, res: Response, next: NextFunction) => {
@@ -92,6 +93,27 @@ export const bookingController = {
       const { courtId, startTime, endTime } = req.body;
       const userId = req.user?.id;
 
+      if (!userId) {
+        throw new AppError(401, 'User not authenticated', 'UNAUTHORIZED');
+      }
+
+      // Validate input
+      if (!courtId || !startTime || !endTime) {
+        throw new AppError(400, 'Missing required fields', 'INVALID_INPUT');
+      }
+
+      // Check if the booking time is valid
+      const bookingStart = new Date(startTime);
+      const bookingEnd = new Date(endTime);
+
+      if (bookingStart >= bookingEnd) {
+        throw new AppError(400, 'Invalid booking time range', 'INVALID_TIME_RANGE');
+      }
+
+      if (bookingStart < new Date()) {
+        throw new AppError(400, 'Cannot book in the past', 'INVALID_TIME');
+      }
+
       // Check for existing bookings in the time slot
       const existingBooking = await prisma.booking.findFirst({
         where: {
@@ -100,14 +122,14 @@ export const bookingController = {
           OR: [
             {
               AND: [
-                { startTime: { lte: new Date(startTime) } },
-                { endTime: { gt: new Date(startTime) } },
+                { startTime: { lte: bookingStart } },
+                { endTime: { gt: bookingStart } },
               ],
             },
             {
               AND: [
-                { startTime: { lt: new Date(endTime) } },
-                { endTime: { gte: new Date(endTime) } },
+                { startTime: { lt: bookingEnd } },
+                { endTime: { gte: bookingEnd } },
               ],
             },
           ],
@@ -115,10 +137,10 @@ export const bookingController = {
       });
 
       if (existingBooking) {
-        throw new AppError(400, 'Time slot is already booked', 'SLOT_UNAVAILABLE');
+        throw new AppError(409, 'Time slot is already booked', 'SLOT_UNAVAILABLE');
       }
 
-      // Calculate total amount
+      // Get court details
       const court = await prisma.court.findUnique({
         where: { id: courtId },
       });
@@ -127,9 +149,9 @@ export const bookingController = {
         throw new AppError(404, 'Court not found', 'COURT_NOT_FOUND');
       }
 
+      // Calculate booking duration and amount
       const hours = Math.ceil(
-        (new Date(endTime).getTime() - new Date(startTime).getTime()) /
-          (1000 * 60 * 60)
+        (bookingEnd.getTime() - bookingStart.getTime()) / (1000 * 60 * 60)
       );
       const totalAmount = hours * court.hourlyRate;
 
@@ -137,20 +159,29 @@ export const bookingController = {
       const booking = await prisma.booking.create({
         data: {
           courtId,
-          userId: userId!,
-          startTime: new Date(startTime),
-          endTime: new Date(endTime),
-          status: BookingStatus.PENDING,
+          userId,
+          startTime: bookingStart,
+          endTime: bookingEnd,
+          status: BookingStatus.CONFIRMED,
           paymentStatus: PaymentStatus.PENDING,
           totalAmount,
         },
         include: {
           court: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
       });
 
       res.status(201).json({
-        status: 'success',
+        success: true,
+        message: 'Booking created successfully',
         data: booking,
       });
     } catch (error) {
@@ -233,6 +264,23 @@ export const bookingController = {
       res.json({
         status: 'success',
         data: cancelledBooking,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  clearAllBookings: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!isAdmin(req)) {
+        throw new AppError(403, 'Admin access required', 'FORBIDDEN');
+      }
+
+      await prisma.booking.deleteMany({});
+
+      res.status(200).json({
+        success: true,
+        message: 'All bookings have been cleared successfully'
       });
     } catch (error) {
       next(error);
