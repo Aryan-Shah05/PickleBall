@@ -19,8 +19,20 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token');
+    
+    // Log request details
+    console.log('Making request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      params: config.params,
+      headers: config.headers
+    });
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn('No auth token found in localStorage');
     }
     
     // Convert dates to ISO strings for consistency
@@ -33,11 +45,6 @@ api.interceptors.request.use(
       }
     }
     
-    // Safe access to URL components with fallbacks
-    const baseURL = config.baseURL || '';
-    const url = config.url || '';
-    console.log('Making request to:', baseURL + url, 'with data:', config.data);
-    
     return config;
   },
   (error) => {
@@ -49,31 +56,44 @@ api.interceptors.request.use(
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    console.log('Response:', {
+    // Log successful response
+    console.log('Response received:', {
+      url: response.config.url,
       status: response.status,
-      data: response.data,
-      config: response.config
+      data: response.data
     });
     return response;
   },
   (error) => {
+    // Log error details
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+
     if (error.response?.status === 401) {
       // Clear auth data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Only redirect if not already on login page
-      if (!window.location.pathname.includes('/login')) {
+      // Only redirect if not already on login page and not a login request
+      if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/login')) {
+        console.log('Redirecting to login due to unauthorized access');
         window.location.href = '/login';
       }
     }
-    console.error('API Error:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      config: error.config
-    });
+
     return Promise.reject(error);
   }
 );
+
+// Add a method to check if the user is authenticated
+export const isAuthenticated = () => {
+  const token = localStorage.getItem('token');
+  return !!token;
+};
 
 export default api; 

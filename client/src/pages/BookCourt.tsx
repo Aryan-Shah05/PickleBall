@@ -229,22 +229,65 @@ const BookCourt: React.FC = () => {
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + 1);
 
-      console.log('Creating booking with:', {
+      const bookingData = {
         courtId: selectedCourt,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString()
+      };
+
+      console.log('Creating booking with:', bookingData);
+
+      // First check availability
+      const availabilityResponse = await api.get('/bookings/availability', {
+        params: {
+          courtId: selectedCourt,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString()
+        }
       });
 
-      const response = await api.post('/bookings', {
-        courtId: selectedCourt,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString()
-      });
+      console.log('Availability response:', availabilityResponse.data);
 
-      console.log('Booking response:', response);
+      const existingBookings = availabilityResponse.data.data || [];
+      const isTimeSlotTaken = existingBookings.some((booking: BookingSlot) => 
+        new Date(booking.startTime).getTime() === startTime.getTime()
+      );
 
-      if (response.data.success || response.status === 201) {
+      if (isTimeSlotTaken) {
+        setError('This time slot has just been booked. Please select another time.');
+        return;
+      }
+
+      // Proceed with booking
+      const response = await api.post('/bookings', bookingData);
+
+      console.log('Booking response:', response.data);
+
+      if (response.data.success) {
         setSuccess('Booking created successfully! Redirecting to your bookings...');
+        // Refresh existing bookings
+        const fetchBookings = async () => {
+          if (!bookingDate || !selectedCourt) return;
+          try {
+            const startOfDay = new Date(bookingDate);
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const endOfDay = new Date(bookingDate);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const response = await api.get('/bookings/availability', {
+              params: {
+                courtId: selectedCourt,
+                startTime: startOfDay.toISOString(),
+                endTime: endOfDay.toISOString()
+              }
+            });
+            setExistingBookings(response.data.data || []);
+          } catch (err) {
+            console.error('Error fetching existing bookings:', err);
+          }
+        };
+        await fetchBookings();
         setTimeout(() => {
           navigate('/bookings');
         }, 2000);
@@ -252,17 +295,30 @@ const BookCourt: React.FC = () => {
         throw new Error(response.data.message || 'Failed to create booking');
       }
     } catch (err: any) {
-      console.error('Booking error:', err.response || err);
+      console.error('Booking error details:', {
+        error: err,
+        response: err.response,
+        data: err.response?.data,
+        status: err.response?.status
+      });
+
       const errorMessage = err.response?.data?.message || err.message || 'Failed to create booking';
       
       if (err.response?.status === 409) {
         setError('This time slot is already booked. Please select a different time.');
       } else if (err.response?.status === 403) {
         setError('You are not authorized to make this booking. Please log in again.');
+        // Clear auth data and redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
       } else if (err.response?.status === 400) {
         setError(errorMessage || 'Invalid booking request. Please check your selections.');
       } else if (err.response?.status === 422) {
         setError('Invalid booking time. Please select a different time slot.');
+      } else if (err.response?.status === 401) {
+        setError('Your session has expired. Please log in again.');
+        navigate('/login');
       } else {
         setError(`Booking failed: ${errorMessage}`);
       }
