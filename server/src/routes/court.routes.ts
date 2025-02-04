@@ -1,26 +1,25 @@
 import { Router } from 'express';
 import { courtController } from '../controllers/court.controller';
-import { validateRequest } from '../middleware/validateRequest';
 import { protect } from '../middleware/auth';
 
 const router = Router();
 
 // Get all courts
-router.get('/', courtController.getAllCourts);
+router.get('/', protect, courtController.getAllCourts);
+
+// Get available courts
+router.get('/available', protect, courtController.getAvailableCourts);
 
 // Get single court
-router.get('/:id', courtController.getCourtById);
+router.get('/:id', protect, courtController.getCourtById);
 
 // Protected routes
-router.use(protect);
-
-// Create court (Admin only)
-router.post('/', courtController.createCourt);
+router.post('/', protect, courtController.createCourt);
 
 // Update court (Admin only)
-router.patch('/:id', courtController.updateCourt);
+router.put('/:id', protect, courtController.updateCourt);
 
 // Delete court (Admin only)
-router.delete('/:id', courtController.deleteCourt);
+router.delete('/:id', protect, courtController.deleteCourt);
 
 export default router; 
