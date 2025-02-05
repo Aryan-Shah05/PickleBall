@@ -10,6 +10,7 @@ import {
   Select,
   MenuItem,
   Card,
+  Typography,
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
@@ -308,15 +309,22 @@ const BookCourt: React.FC = () => {
           p: 3, 
           bgcolor: 'white',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 1,
+          borderRadius: 2,
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          border: `1px solid ${pickleballColors.court.main}20`,
           '&:hover': { 
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            border: `1px solid ${pickleballColors.court.main}40`,
           }
         }}>
           <FormControl fullWidth>
-            <InputLabel>Select Court</InputLabel>
+            <InputLabel sx={{ 
+              color: pickleballColors.court.main,
+              '&.Mui-focused': {
+                color: pickleballColors.court.main,
+              }
+            }}>Select Court</InputLabel>
             <Select
               value={selectedCourt}
               label="Select Court"
@@ -325,9 +333,10 @@ const BookCourt: React.FC = () => {
               required
               sx={{
                 bgcolor: 'white',
-                borderRadius: 1,
+                borderRadius: 2,
                 '& .MuiOutlinedInput-notchedOutline': {
                   borderColor: pickleballColors.court.main + '40',
+                  borderWidth: '2px',
                 },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                   borderColor: pickleballColors.court.main,
@@ -338,12 +347,45 @@ const BookCourt: React.FC = () => {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
                   transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                },
+                '& .MuiSelect-select': {
+                  padding: '12px 16px',
+                },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: 2,
+                    mt: 1,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    '& .MuiMenuItem-root': {
+                      padding: '12px 16px',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        backgroundColor: `${pickleballColors.court.main}15`,
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: `${pickleballColors.court.main}20`,
+                        '&:hover': {
+                          backgroundColor: `${pickleballColors.court.main}30`,
+                        },
+                      },
+                    },
+                  },
                 },
               }}
             >
               {courts.map((court) => (
                 <MenuItem key={court.id} value={court.id}>
-                  {court.name} - ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
+                  <Stack spacing={0.5}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: pickleballColors.court.main }}>
+                      {court.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
+                    </Typography>
+                  </Stack>
                 </MenuItem>
               ))}
             </Select>
@@ -354,11 +396,13 @@ const BookCourt: React.FC = () => {
           p: 3, 
           bgcolor: 'white',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 1,
+          borderRadius: 2,
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          border: `1px solid ${pickleballColors.court.main}20`,
           '&:hover': { 
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            border: `1px solid ${pickleballColors.court.main}40`,
           }
         }}>
           <BookingCalendar
@@ -384,8 +428,9 @@ const BookCourt: React.FC = () => {
           sx={{ 
             mt: 2,
             bgcolor: pickleballColors.court.main,
-            borderRadius: 1,
+            borderRadius: 2,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            padding: '12px 32px',
             '&:hover': {
               bgcolor: pickleballColors.court.dark,
               transform: 'translateY(-2px)',

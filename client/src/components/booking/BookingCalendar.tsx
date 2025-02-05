@@ -65,14 +65,16 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
           p: 2,
           mb: 3,
           background: 'white',
-          borderRadius: 1,
+          borderRadius: 2,
           position: 'relative',
           overflow: 'hidden',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          border: `1px solid ${pickleballColors.court.main}20`,
           '&:hover': { 
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            border: `1px solid ${pickleballColors.court.main}40`,
           },
           '&::before': {
             content: '""',
@@ -131,7 +133,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                   p: 1.5,
                   textAlign: 'center',
                   cursor: 'pointer',
-                  borderRadius: 1,
+                  borderRadius: 2,
                   backgroundColor: isSameDay(date, selectedDate)
                     ? pickleballColors.court.main
                     : 'white',
@@ -140,9 +142,11 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                     : pickleballColors.court.main,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                  border: `1px solid ${isSameDay(date, selectedDate) ? 'transparent' : pickleballColors.court.main + '20'}`,
                   '&:hover': {
                     transform: 'translateY(-2px)',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    border: `1px solid ${pickleballColors.court.main}40`,
                     backgroundColor: isSameDay(date, selectedDate)
                       ? pickleballColors.court.main
                       : `${pickleballColors.court.main}10`,
@@ -181,7 +185,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                       p: 2,
                       textAlign: 'center',
                       cursor: slot.isAvailable ? 'pointer' : 'not-allowed',
-                      borderRadius: 1,
+                      borderRadius: 2,
                       backgroundColor: slot.isAvailable
                         ? selectedTimeSlot === slot.time
                           ? pickleballColors.court.main
@@ -191,10 +195,12 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                       opacity: slot.isAvailable ? 1 : 0.5,
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                      border: `1px solid ${selectedTimeSlot === slot.time ? 'transparent' : pickleballColors.court.main + '20'}`,
                       '&:hover': slot.isAvailable
                         ? {
                             transform: 'translateY(-4px)',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                            border: `1px solid ${pickleballColors.court.main}40`,
                             backgroundColor:
                               selectedTimeSlot === slot.time
                                 ? pickleballColors.court.main

@@ -246,15 +246,17 @@ export const Dashboard: React.FC = () => {
             
             <Grid container spacing={2}>
               {dashboardData.courts.available.map((court) => (
-                <Grid item xs={12} sm={12} md={12} key={court.id}>
+                <Grid item xs={12} sm={6} md={4} key={court.id}>
                   <Card 
                     variant="outlined"
                     sx={{ 
-                      borderRadius: 1,
+                      borderRadius: 2,
                       transition: 'all 0.2s ease-in-out',
+                      border: `1px solid ${pickleballTheme.court}20`,
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        border: `1px solid ${pickleballTheme.court}`,
                       }
                     }}
                   >
@@ -278,9 +280,11 @@ export const Dashboard: React.FC = () => {
                           sx={{
                             color: pickleballTheme.court,
                             borderColor: pickleballTheme.court,
+                            borderRadius: 2,
                             '&:hover': {
                               borderColor: pickleballTheme.paddle,
                               color: pickleballTheme.paddle,
+                              transform: 'translateY(-2px)',
                             },
                           }}
                           onClick={() => navigate(`/book?courtId=${court.id}`)}
