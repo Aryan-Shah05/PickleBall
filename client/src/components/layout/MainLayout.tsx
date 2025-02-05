@@ -126,7 +126,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
             selected={!item.external && location.pathname === item.path}
             sx={{
-              borderRadius: 1,
+              borderRadius: '2px',
               mx: 1,
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
@@ -176,13 +176,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         elevation={0}
         sx={{
           ml: { sm: `${drawerWidth}px` },
-          bgcolor: pickleballColors.background.paper,
-          backdropFilter: 'blur(10px)',
-          borderRadius: { xs: 0, sm: 3 },
+          bgcolor: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '2px',
           m: { xs: 0, sm: 2 },
           width: { xs: '100%', sm: `calc(100% - 32px)` },
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-          border: `1px solid ${pickleballColors.court.main}20`,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
           '& .MuiToolbar-root': {
             borderRadius: 'inherit',
           },
@@ -271,7 +270,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
                         color: location.pathname === item.path ? pickleballColors.court.main : pickleballColors.court.main,
-                        borderRadius: 1,
+                        borderRadius: '2px',
                         px: 2,
                         py: 1,
                         transition: 'all 0.3s ease-in-out',
@@ -346,10 +345,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     overflow: 'visible',
                     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
                     mt: 1.5,
-                    borderRadius: 2,
+                    borderRadius: '2px',
                     minWidth: 180,
-                    bgcolor: pickleballColors.background.paper,
-                    backdropFilter: 'blur(10px)',
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(8px)',
                     '&::before': {
                       content: '""',
                       position: 'absolute',
@@ -357,7 +356,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       right: 14,
                       width: 10,
                       height: 10,
-                      bgcolor: pickleballColors.background.paper,
+                      bgcolor: 'rgba(255, 255, 255, 0.8)',
                       transform: 'translateY(-50%) rotate(45deg)',
                       zIndex: 0,
                     },
@@ -372,7 +371,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
-                    borderRadius: 1,
+                    borderRadius: '2px',
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
                       backgroundColor: `${pickleballColors.accent.main}15`,
@@ -403,10 +402,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: 'none',
-              boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
-              background: pickleballColors.background.paper,
-              backdropFilter: 'blur(10px)',
-              borderRadius: { xs: 0, sm: '0 24px 24px 0' },
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: { xs: 0, sm: '0 2px 2px 0' },
             },
           }}
         >
