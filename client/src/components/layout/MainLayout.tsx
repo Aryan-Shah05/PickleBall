@@ -16,6 +16,9 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Stack,
+  Button,
+  Fade,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -39,7 +42,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user } = useAuthStore();
   
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,7 +83,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const drawer = (
     <div>
       <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 600 }}>
           PickleBall
         </Typography>
       </Toolbar>
@@ -90,8 +93,29 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             key={item.text}
             onClick={() => navigate(item.path)}
             selected={location.pathname === item.path}
+            sx={{
+              borderRadius: 1,
+              mx: 1,
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: 'primary.light',
+                transform: 'translateX(4px)',
+                '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                  color: 'white',
+                },
+              },
+              '&.Mui-selected': {
+                backgroundColor: 'primary.main',
+                '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                  color: 'white',
+                },
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+            }}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItemButton>
         ))}
@@ -106,42 +130,95 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <CssBaseline />
       <AppBar
         position="fixed"
+        elevation={1}
         sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
-          bgcolor: 'primary.main',
+          width: '100%',
+          bgcolor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Box sx={{ flexGrow: 1 }} />
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {isMobile ? (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ color: 'text.primary' }}
+            >
+              <MenuIcon />
+            </IconButton>
+          ) : (
+            <Typography variant="h6" component="div" sx={{ 
+              color: 'primary.main', 
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}>
+              <SportsTennis /> PickleBall
+            </Typography>
+          )}
+
+          {!isMobile && (
+            <Stack direction="row" spacing={1} sx={{ ml: 4 }}>
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.text}
+                  startIcon={item.icon}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    color: location.pathname === item.path ? 'primary.main' : 'text.primary',
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1,
+                    transition: 'all 0.2s ease-in-out',
+                    position: 'relative',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                      width: location.pathname === item.path ? '100%' : '0%',
+                      height: '2px',
+                      bgcolor: 'primary.main',
+                      transition: 'all 0.2s ease-in-out',
+                      transform: 'translateX(-50%)',
+                    },
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      '&::after': {
+                        width: '100%',
+                      },
+                    },
+                  }}
+                >
+                  {item.text}
+                </Button>
+              ))}
+            </Stack>
+          )}
+
           <IconButton
             onClick={handleMenu}
-            size="large"
-            edge="end"
-            color="inherit"
+            size="small"
             sx={{
+              transition: 'transform 0.2s ease-in-out',
               '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                transform: 'scale(1.05)',
               },
             }}
           >
             {user ? (
               <Avatar 
                 sx={{ 
-                  width: 32, 
-                  height: 32, 
-                  bgcolor: 'primary.light',
+                  width: 35, 
+                  height: 35, 
+                  bgcolor: 'primary.main',
                   color: 'white',
-                  fontWeight: 500,
+                  fontWeight: 600,
+                  boxShadow: 2,
                 }}
               >
                 {userInitials}
@@ -154,14 +231,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleClose}
+            TransitionComponent={Fade}
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             PaperProps={{
-              elevation: 3,
+              elevation: 2,
               sx: {
                 overflow: 'visible',
-                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
                 mt: 1.5,
+                borderRadius: 2,
+                minWidth: 180,
               },
             }}
           >
@@ -172,23 +252,26 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 px: 2,
                 display: 'flex',
                 alignItems: 'center',
+                gap: 1.5,
+                borderRadius: 1,
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                  backgroundColor: 'error.lighter',
+                  color: 'error.main',
+                  transform: 'translateX(4px)',
                 }
               }}
             >
-              <ExitToApp sx={{ mr: 1.5 }} />
+              <ExitToApp />
               Sign out
             </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      >
+
+      {isMobile && (
         <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
+          variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
@@ -198,21 +281,24 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              borderRight: '1px solid',
+              borderColor: 'divider',
             },
           }}
         >
           {drawer}
         </Drawer>
-      </Box>
+      )}
+
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
+          width: '100%',
+          mt: 8,
         }}
       >
-        <Toolbar />
         {children}
       </Box>
     </Box>
