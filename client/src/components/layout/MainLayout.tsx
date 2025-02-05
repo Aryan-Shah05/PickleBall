@@ -176,12 +176,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         elevation={0}
         sx={{
           ml: { sm: `${drawerWidth}px` },
-          bgcolor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(8px)',
+          bgcolor: 'rgba(255, 255, 255, 0.5)',
+          backdropFilter: 'blur(12px)',
           borderRadius: '2px',
           m: { xs: 0, sm: 2 },
           width: { xs: '100%', sm: `calc(100% - 32px)` },
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
           '& .MuiToolbar-root': {
             borderRadius: 'inherit',
           },
@@ -402,9 +403,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: 'none',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-              background: 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)',
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(12px)',
               borderRadius: { xs: 0, sm: '0 2px 2px 0' },
             },
           }}

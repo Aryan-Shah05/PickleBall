@@ -104,7 +104,7 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 2,
   },
   components: {
     MuiCssBaseline: {
@@ -118,7 +118,7 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 2,
           padding: '10px 24px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
@@ -143,11 +143,11 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
+          borderRadius: 2,
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            transform: 'translateY(-4px) rotate(0.5deg)',
+            transform: 'translateY(-4px)',
             boxShadow: '0 12px 24px rgba(0, 0, 0, 0.12)',
           },
         },
@@ -157,6 +157,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
               transform: 'translateY(-2px)',
@@ -174,19 +175,9 @@ export const theme = createTheme({
         root: {
           backgroundImage: 'none',
           backdropFilter: 'blur(8px)',
-          backgroundColor: alpha(pickleballColors.background.paper, 0.8),
-          borderBottom: `2px solid ${alpha(pickleballColors.court.main, 0.1)}`,
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `linear-gradient(90deg, ${alpha(pickleballColors.court.main, 0.05)} 1px, transparent 1px)`,
-            backgroundSize: '20px 100%',
-            pointerEvents: 'none',
-          },
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          borderBottom: `1px solid rgba(0, 0, 0, 0.1)`,
+          borderRadius: 2,
         },
       },
     },
@@ -195,7 +186,7 @@ export const theme = createTheme({
         tooltip: {
           backgroundColor: alpha(pickleballColors.court.dark, 0.95),
           backdropFilter: 'blur(4px)',
-          borderRadius: 8,
+          borderRadius: 2,
           padding: '8px 12px',
           fontSize: '0.875rem',
         },
@@ -207,7 +198,7 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 2,
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'scale(1.05)',
@@ -218,7 +209,7 @@ export const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: 16,
+          borderRadius: 2,
           backgroundImage: `linear-gradient(135deg, ${alpha(pickleballColors.background.paper, 0.98)}, ${alpha(pickleballColors.background.paper, 0.95)})`,
           backdropFilter: 'blur(8px)',
         },

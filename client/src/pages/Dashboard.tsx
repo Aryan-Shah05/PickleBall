@@ -127,7 +127,7 @@ export const Dashboard: React.FC = () => {
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 1,
+            borderRadius: '2px',
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -149,7 +149,7 @@ export const Dashboard: React.FC = () => {
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 1,
+            borderRadius: '2px',
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -171,7 +171,7 @@ export const Dashboard: React.FC = () => {
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 1,
+            borderRadius: '2px',
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -193,7 +193,7 @@ export const Dashboard: React.FC = () => {
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 1,
+            borderRadius: '2px',
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -217,8 +217,9 @@ export const Dashboard: React.FC = () => {
         <Card sx={{ 
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          borderRadius: 1,
+          borderRadius: '2px',
           mb: 4,
+          height: '100%',
           '&:hover': { 
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
@@ -233,7 +234,7 @@ export const Dashboard: React.FC = () => {
                 variant="contained"
                 sx={{
                   bgcolor: pickleballTheme.court,
-                  borderRadius: 1,
+                  borderRadius: '2px',
                   '&:hover': {
                     bgcolor: pickleballTheme.paddle,
                   },
@@ -250,7 +251,7 @@ export const Dashboard: React.FC = () => {
                   <Card 
                     variant="outlined"
                     sx={{ 
-                      borderRadius: 2,
+                      borderRadius: '2px',
                       transition: 'all 0.2s ease-in-out',
                       border: `1px solid ${pickleballTheme.court}20`,
                       '&:hover': {
@@ -280,7 +281,7 @@ export const Dashboard: React.FC = () => {
                           sx={{
                             color: pickleballTheme.court,
                             borderColor: pickleballTheme.court,
-                            borderRadius: 2,
+                            borderRadius: '2px',
                             '&:hover': {
                               borderColor: pickleballTheme.paddle,
                               color: pickleballTheme.paddle,
@@ -306,7 +307,7 @@ export const Dashboard: React.FC = () => {
         <Card sx={{ 
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          borderRadius: 3,
+          borderRadius: '2px',
           '&:hover': { 
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
@@ -340,6 +341,7 @@ export const Dashboard: React.FC = () => {
                     <Card 
                       variant="outlined"
                       sx={{ 
+                        borderRadius: '2px',
                         transition: 'all 0.2s ease-in-out',
                         '&:hover': {
                           transform: 'translateY(-4px)',
