@@ -101,7 +101,10 @@ const BookCourt: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
   const [userBookings, setUserBookings] = useState<BookingSlot[]>([]);
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(() => {
+    // Initialize with current date's time slots
+    return generateTimeSlots(new Date());
+  });
 
   // Fetch courts and existing bookings
   useEffect(() => {
@@ -178,7 +181,10 @@ const BookCourt: React.FC = () => {
 
   // Update time slots when date or existing bookings change
   useEffect(() => {
-    if (!bookingDate) return;
+    if (!bookingDate) {
+      setBookingDate(new Date()); // Set to current date if null
+      return;
+    }
     
     const slots = generateTimeSlots(bookingDate);
     
@@ -204,6 +210,7 @@ const BookCourt: React.FC = () => {
       };
     });
 
+    console.log('Updated time slots:', updatedSlots); // Debug log
     setTimeSlots(updatedSlots);
   }, [bookingDate, existingBookings, courts, selectedCourt]);
 
@@ -322,10 +329,11 @@ const BookCourt: React.FC = () => {
     );
   }
 
-  if (!timeSlots.length) {
+  // Only show no slots message if we have a selected court and date but no slots
+  if (selectedCourt && bookingDate && (!timeSlots || timeSlots.length === 0)) {
     return (
       <Box p={3}>
-        <Alert severity="info">No time slots available</Alert>
+        <Alert severity="info">No time slots available for the selected date. Please try another date.</Alert>
       </Box>
     );
   }
