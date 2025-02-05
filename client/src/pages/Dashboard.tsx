@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Typography,
-  CircularProgress,
   Alert,
   Stack,
   Button,
@@ -13,6 +12,7 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 // Import theme colors from MainLayout
 const pickleballTheme = {
@@ -81,11 +81,7 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress sx={{ color: pickleballTheme.court }} />
-      </Box>
-    );
+    return <LoadingSpinner message="Loading dashboard..." />;
   }
 
   if (error) {

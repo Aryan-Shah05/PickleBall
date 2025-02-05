@@ -8,7 +8,6 @@ import {
   Chip,
   Button,
   Stack,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -19,6 +18,7 @@ import { CalendarToday, AccessTime, SportsTennis } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { api } from '../api/api';
 import { pickleballColors } from '@/styles/theme';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 interface Booking {
   id: string;
@@ -82,11 +82,7 @@ const MyBookings: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress sx={{ color: '#34495E' }} />
-      </Box>
-    );
+    return <LoadingSpinner message="Loading your bookings..." />;
   }
 
   return (

@@ -19,6 +19,7 @@ import { api } from '../api/api';
 import { addDays, format, isPast, isAfter, isSameDay } from 'date-fns';
 import { BookingCalendar } from '../components/booking/BookingCalendar';
 import { SportsTennis } from '@mui/icons-material';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 interface Court {
   id: string;
@@ -100,11 +101,6 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
-const bounce = keyframes`
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(180deg); }
-`;
-
 const slideIn = keyframes`
   from {
     opacity: 0;
@@ -115,57 +111,6 @@ const slideIn = keyframes`
     transform: translateY(0);
   }
 `;
-
-const LoadingSpinner: React.FC = () => (
-  <Box 
-    display="flex" 
-    flexDirection="column" 
-    alignItems="center" 
-    justifyContent="center" 
-    minHeight="80vh"
-    gap={2}
-  >
-    <Box
-      sx={{
-        position: 'relative',
-        width: 60,
-        height: 60,
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          border: '3px solid',
-          borderColor: '#2C528220',
-          borderTopColor: '#2C5282',
-          animation: `${spin} 1s linear infinite`,
-        },
-      }}
-    >
-      <SportsTennis 
-        sx={{ 
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#F6E05E',
-          fontSize: 30,
-          animation: `${bounce} 2s ease-in-out infinite`,
-        }} 
-      />
-    </Box>
-    <Typography 
-      variant="body1" 
-      sx={{ 
-        color: '#2C5282',
-        animation: `${slideIn} 0.5s ease-out`,
-      }}
-    >
-      Loading courts...
-    </Typography>
-  </Box>
-);
 
 const BookCourt: React.FC = () => {
   const navigate = useNavigate();
@@ -395,7 +340,7 @@ const BookCourt: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner message="Loading courts..." />;
   }
 
   if (error) {
