@@ -108,7 +108,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             '@keyframes bounce': {
               '0%, 100%': { transform: 'rotate(0deg)' },
               '50%': { transform: 'rotate(180deg)' },
-            }
+            },
+            color: '#F6E05E',
           }} />
           PickleBall
         </Typography>
@@ -130,31 +131,31 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               mx: 1,
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: `${pickleballColors.accent.main}20`,
+                backgroundColor: `#F6E05E20`,
                 transform: 'translateX(4px)',
                 '& .MuiListItemIcon-root': {
-                  color: pickleballColors.accent.main,
+                  color: '#F6E05E',
                 },
                 '& .MuiListItemText-root': {
-                  color: pickleballColors.accent.main,
+                  color: '#F6E05E',
                 },
               },
               '&.Mui-selected': {
-                backgroundColor: `${pickleballColors.accent.main}20`,
+                backgroundColor: `#F6E05E20`,
                 '& .MuiListItemIcon-root': {
-                  color: '#34495E',
+                  color: '#F6E05E',
                 },
                 '& .MuiListItemText-root': {
-                  color: '#34495E',
+                  color: '#F6E05E',
                 },
                 '&:hover': {
-                  backgroundColor: `${pickleballColors.accent.main}30`,
+                  backgroundColor: `#F6E05E30`,
                 },
               },
             }}
           >
             <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? '#34495E' : 'inherit',
+              color: location.pathname === item.path ? '#F6E05E' : 'inherit',
               transition: 'color 0.2s ease-in-out',
             }}>
               {item.icon}
@@ -162,7 +163,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <ListItemText 
               primary={item.text}
               sx={{
-                color: location.pathname === item.path ? '#34495E' : 'inherit',
+                color: location.pathname === item.path ? '#F6E05E' : 'inherit',
                 transition: 'color 0.2s ease-in-out',
               }}
             />
@@ -236,7 +237,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   letterSpacing: '0.05em',
                   cursor: 'pointer',
                   '&:hover': {
-                    color: pickleballColors.accent.main,
+                    color: '#F6E05E',
                   },
                 }}
               >
@@ -248,7 +249,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     '50%': { transform: 'rotate(180deg) scale(1.1)' },
                   },
                   '&:hover': {
-                    color: pickleballColors.accent.main,
+                    color: '#F6E05E',
                   },
                 }} />
                 PickleBall
@@ -276,7 +277,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       key={item.text}
                       startIcon={
                         <Box sx={{ 
-                          color: location.pathname === item.path ? pickleballColors.ball.main : pickleballColors.court.main,
+                          color: location.pathname === item.path ? '#F6E05E' : '#34495E',
                           transition: 'all 0.3s ease-in-out',
                           transform: location.pathname === item.path ? 'scale(1.1)' : 'scale(1)',
                         }}>
@@ -285,7 +286,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       }
                       onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
-                        color: location.pathname === item.path ? pickleballColors.accent.main : pickleballColors.court.main,
+                        color: location.pathname === item.path ? '#F6E05E' : '#34495E',
                         borderRadius: '12px',
                         px: 2,
                         py: 1,
@@ -299,15 +300,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           left: '50%',
                           width: location.pathname === item.path ? '100%' : '0%',
                           height: '2px',
-                          background: `linear-gradient(90deg, ${pickleballColors.accent.main} 0%, ${pickleballColors.accent.light} 100%)`,
+                          background: `linear-gradient(90deg, #F6E05E 0%, #F6E05E80 100%)`,
                           transition: 'all 0.3s ease-in-out',
                           transform: 'translateX(-50%)',
                           borderRadius: '12px',
                         },
                         '&:hover': {
-                          backgroundColor: `${pickleballColors.accent.main}10`,
+                          backgroundColor: `#F6E05E10`,
                           transform: 'translateY(-2px)',
-                          color: pickleballColors.accent.main,
+                          color: '#F6E05E',
                           '&::after': {
                             width: '100%',
                           },
@@ -391,8 +392,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     borderRadius: '2px',
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
-                      backgroundColor: `${pickleballColors.accent.main}15`,
-                      color: pickleballColors.accent.main,
+                      backgroundColor: `#F6E05E15`,
+                      color: '#F6E05E',
                       transform: 'translateX(4px)',
                     }
                   }}
