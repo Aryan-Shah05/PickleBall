@@ -136,7 +136,7 @@ const MyBookings: React.FC = () => {
                   <Box>
                     <Typography color="textSecondary">Total Amount</Typography>
                     <Typography variant="h6" color="primary">
-                      ${booking.totalAmount}
+                      ₹{booking.totalAmount}
                     </Typography>
                   </Box>
 

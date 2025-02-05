@@ -67,7 +67,7 @@ const Home: React.FC = () => {
                   Type: {court.type}
                 </Typography>
                 <Typography color="textSecondary">
-                  Rate: ${court.hourlyRate}/hour
+                  Rate: ₹{court.hourlyRate}/hour
                 </Typography>
                 <Button
                   variant="contained"
