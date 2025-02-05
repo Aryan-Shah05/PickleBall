@@ -290,14 +290,6 @@ const BookCourt: React.FC = () => {
       : courts.find(c => c.id === selectedCourt)?.hourlyRate || 0
   }));
 
-  const courtAvailability = courts.reduce((acc, court) => ({
-    ...acc,
-    [court.id]: !existingBookings.some(booking => 
-      booking.courtId === court.id && 
-      isSameDay(new Date(booking.startTime), bookingDate || new Date())
-    )
-  }), {});
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -365,7 +357,6 @@ const BookCourt: React.FC = () => {
                 handleTimeSlotSelect(slot);
               }
             }}
-            courtAvailability={{}}
           />
         </Card>
 
