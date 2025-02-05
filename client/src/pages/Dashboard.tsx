@@ -13,7 +13,6 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
-import useAuthStore from '@/store/auth';
 
 // Import theme colors from MainLayout
 const pickleballTheme = {
@@ -65,7 +64,6 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const { user } = useAuthStore();
 
   useEffect(() => {
     const fetchDashboardData = async () => {

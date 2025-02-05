@@ -28,17 +28,6 @@ const pulse = keyframes`
   }
 `;
 
-const slideIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
 interface TimeSlot {
   time: string;
   isAvailable: boolean;
