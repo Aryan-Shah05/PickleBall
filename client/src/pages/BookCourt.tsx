@@ -39,6 +39,15 @@ interface TimeSlot {
   label: string;
   isAvailable: boolean;
   isPeakHour: boolean;
+  time: string;
+  price: number;
+}
+
+interface CalendarTimeSlot {
+  time: string;
+  isAvailable: boolean;
+  isPeakHour: boolean;
+  price: number;
 }
 
 // Time slots from 6 AM to 10 PM (1-hour intervals)
@@ -67,7 +76,9 @@ const generateTimeSlots = (selectedDate: Date): TimeSlot[] => {
       endTime,
       label: `${format(startTime, 'h:mm a')} - ${format(endTime, 'h:mm a')}`,
       isAvailable: true,
-      isPeakHour
+      isPeakHour,
+      time: format(startTime, 'h:mm a'),
+      price: 0
     });
   }
   return slots;
@@ -171,20 +182,30 @@ const BookCourt: React.FC = () => {
     
     const slots = generateTimeSlots(bookingDate);
     
-    // Mark booked slots as unavailable
-    const updatedSlots = slots.map(slot => ({
-      ...slot,
-      isAvailable: !existingBookings.some(booking => {
+    // Mark booked slots as unavailable and set prices
+    const updatedSlots = slots.map(slot => {
+      const isBooked = existingBookings.some(booking => {
         const bookingStart = new Date(booking.startTime);
         return (
           isSameDay(slot.startTime, bookingStart) &&
           slot.startTime.getTime() === bookingStart.getTime()
         );
-      })
-    }));
+      });
+
+      const selectedCourtData = courts.find(c => c.id === selectedCourt);
+      const price = slot.isPeakHour 
+        ? selectedCourtData?.peakHourRate || 0
+        : selectedCourtData?.hourlyRate || 0;
+
+      return {
+        ...slot,
+        isAvailable: !isBooked,
+        price
+      };
+    });
 
     setTimeSlots(updatedSlots);
-  }, [bookingDate, existingBookings]);
+  }, [bookingDate, existingBookings, courts, selectedCourt]);
 
   const getUserBookingsForDate = (date: Date): number => {
     return userBookings.filter(booking => 
@@ -192,7 +213,10 @@ const BookCourt: React.FC = () => {
     ).length;
   };
 
-  const handleTimeSlotSelect = (slot: TimeSlot) => {
+  const handleTimeSlotSelect = (time: string) => {
+    const slot = timeSlots.find(s => s.time === time);
+    if (!slot) return;
+    
     if (!slot.isAvailable) {
       setError('This time slot is already booked');
       return;
@@ -282,15 +306,6 @@ const BookCourt: React.FC = () => {
     }
   };
 
-  const formattedTimeSlots = timeSlots.map(slot => ({
-    time: format(slot.startTime, 'h:mm a'),
-    isAvailable: slot.isAvailable,
-    isPeakHour: slot.isPeakHour,
-    price: slot.isPeakHour 
-      ? courts.find(c => c.id === selectedCourt)?.peakHourRate || 0
-      : courts.find(c => c.id === selectedCourt)?.hourlyRate || 0
-  }));
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -307,7 +322,7 @@ const BookCourt: React.FC = () => {
     );
   }
 
-  if (!formattedTimeSlots.length) {
+  if (!timeSlots.length) {
     return (
       <Box p={3}>
         <Alert severity="info">No time slots available</Alert>
@@ -385,21 +400,15 @@ const BookCourt: React.FC = () => {
 
           <BookingCalendar
             selectedDate={bookingDate || new Date()}
-            onDateChange={setBookingDate}
-            timeSlots={timeSlots}
+            onDateChange={(date: Date) => setBookingDate(date)}
+            timeSlots={timeSlots.map(slot => ({
+              time: slot.time,
+              isAvailable: slot.isAvailable,
+              isPeakHour: slot.isPeakHour,
+              price: slot.price
+            } as CalendarTimeSlot))}
             selectedTimeSlot={selectedTimeSlot}
             onTimeSlotSelect={handleTimeSlotSelect}
-            sx={{
-              '& .MuiButton-root': {
-                color: '#34495E',
-                '&:hover': {
-                  color: pickleballColors.accent.main,
-                },
-              },
-              '& .MuiTypography-root': {
-                color: '#34495E',
-              },
-            }}
           />
 
           <Button
