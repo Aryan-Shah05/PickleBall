@@ -294,156 +294,160 @@ const BookCourt: React.FC = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress />
+        <CircularProgress sx={{ color: '#34495E' }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
+  if (!formattedTimeSlots.length) {
+    return (
+      <Box p={3}>
+        <Alert severity="info">No time slots available</Alert>
       </Box>
     );
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-      <Stack spacing={3}>
-        {error && <Alert severity="error">{error}</Alert>}
-        {success && <Alert severity="success">{success}</Alert>}
+    <Box p={3}>
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          color: '#34495E',
+          fontWeight: 600,
+          mb: 4,
+        }}
+      >
+        Book a Court
+      </Typography>
 
-        <Card sx={{ 
-          p: 3, 
-          bgcolor: 'white',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 2,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          border: `1px solid ${pickleballColors.court.main}20`,
-          '&:hover': { 
-            transform: 'translateY(-4px)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            border: `1px solid ${pickleballColors.court.main}40`,
-          }
-        }}>
+      <Card sx={{ 
+        p: 3,
+        mb: 3,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        borderRadius: '12px',
+        '&:hover': {
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        }
+      }}>
+        <Stack spacing={3}>
           <FormControl fullWidth>
-            <InputLabel sx={{ 
-              color: pickleballColors.court.main,
-              '&.Mui-focused': {
-                color: pickleballColors.court.main,
-              }
-            }}>Select Court</InputLabel>
+            <InputLabel id="court-select-label" sx={{ color: '#34495E' }}>Select Court</InputLabel>
             <Select
+              labelId="court-select-label"
               value={selectedCourt}
               label="Select Court"
               onChange={(e) => setSelectedCourt(e.target.value)}
-              disabled={submitting}
-              required
               sx={{
-                bgcolor: 'white',
-                borderRadius: 2,
                 '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: pickleballColors.court.main + '40',
-                  borderWidth: '2px',
+                  borderColor: '#34495E40',
                 },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: pickleballColors.court.main,
+                  borderColor: pickleballColors.accent.main,
                 },
                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: pickleballColors.court.main,
+                  borderColor: pickleballColors.accent.main,
                 },
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                },
-                '& .MuiSelect-select': {
-                  padding: '12px 16px',
-                },
-              }}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    borderRadius: 2,
-                    mt: 1,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                    '& .MuiMenuItem-root': {
-                      padding: '12px 16px',
-                      transition: 'all 0.2s ease-in-out',
-                      '&:hover': {
-                        backgroundColor: `${pickleballColors.court.main}15`,
-                      },
-                      '&.Mui-selected': {
-                        backgroundColor: `${pickleballColors.court.main}20`,
-                        '&:hover': {
-                          backgroundColor: `${pickleballColors.court.main}30`,
-                        },
-                      },
-                    },
-                  },
-                },
+                color: '#34495E',
               }}
             >
               {courts.map((court) => (
-                <MenuItem key={court.id} value={court.id}>
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: pickleballColors.court.main }}>
-                      {court.name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
-                    </Typography>
-                  </Stack>
+                <MenuItem 
+                  key={court.id} 
+                  value={court.id}
+                  sx={{
+                    color: '#34495E',
+                    '&:hover': {
+                      color: pickleballColors.accent.main,
+                      backgroundColor: `${pickleballColors.accent.main}10`,
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: `${pickleballColors.accent.main}20`,
+                      '&:hover': {
+                        backgroundColor: `${pickleballColors.accent.main}30`,
+                      },
+                    },
+                  }}
+                >
+                  {court.name} - ₹{court.hourlyRate}/hour
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Card>
 
-        <Card sx={{ 
-          p: 3, 
-          bgcolor: 'white',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 2,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          border: `1px solid ${pickleballColors.court.main}20`,
-          '&:hover': { 
-            transform: 'translateY(-4px)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            border: `1px solid ${pickleballColors.court.main}40`,
-          }
-        }}>
           <BookingCalendar
             selectedDate={bookingDate || new Date()}
             onDateChange={setBookingDate}
-            timeSlots={formattedTimeSlots}
+            timeSlots={timeSlots}
             selectedTimeSlot={selectedTimeSlot}
-            onTimeSlotSelect={time => {
-              const slot = timeSlots.find(s => format(s.startTime, 'h:mm a') === time);
-              if (slot) {
-                handleTimeSlotSelect(slot);
-              }
+            onTimeSlotSelect={handleTimeSlotSelect}
+            sx={{
+              '& .MuiButton-root': {
+                color: '#34495E',
+                '&:hover': {
+                  color: pickleballColors.accent.main,
+                },
+              },
+              '& .MuiTypography-root': {
+                color: '#34495E',
+              },
             }}
           />
-        </Card>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          disabled={submitting || !selectedTimeSlot}
-          sx={{ 
-            mt: 2,
-            bgcolor: pickleballColors.court.main,
-            borderRadius: 2,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            padding: '12px 32px',
-            '&:hover': {
-              bgcolor: pickleballColors.court.dark,
-              transform: 'translateY(-2px)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            },
-            '&.Mui-disabled': {
-              bgcolor: pickleballColors.court.main + '80',
-            },
-          }}
-        >
-          {submitting ? <CircularProgress size={24} /> : 'Book Court'}
-        </Button>
-      </Stack>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={submitting}
+            sx={{
+              bgcolor: '#34495E',
+              color: 'white',
+              py: 1.5,
+              '&:hover': {
+                bgcolor: pickleballColors.accent.main,
+              },
+              '&:disabled': {
+                bgcolor: '#34495E80',
+              },
+            }}
+          >
+            {submitting ? 'Booking...' : 'Book Court'}
+          </Button>
+
+          {error && (
+            <Alert 
+              severity="error"
+              sx={{
+                '& .MuiAlert-icon': {
+                  color: pickleballColors.accent.main,
+                },
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert 
+              severity="success"
+              sx={{
+                '& .MuiAlert-icon': {
+                  color: pickleballColors.accent.main,
+                },
+              }}
+            >
+              {success}
+            </Alert>
+          )}
+        </Stack>
+      </Card>
     </Box>
   );
 };

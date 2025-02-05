@@ -93,7 +93,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <Box>
       <Toolbar 
         sx={{ 
-          background: `linear-gradient(135deg, ${pickleballColors.court.main} 0%, ${pickleballColors.court.dark} 100%)`,
+          background: `linear-gradient(135deg, #34495E 0%, #2c3e50 100%)`,
           color: 'white',
         }}
       >
@@ -130,30 +130,42 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               mx: 1,
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: `${pickleballColors.court.main}20`,
+                backgroundColor: `${pickleballColors.accent.main}20`,
                 transform: 'translateX(4px)',
                 '& .MuiListItemIcon-root': {
-                  color: pickleballColors.court.main,
+                  color: pickleballColors.accent.main,
+                },
+                '& .MuiListItemText-root': {
+                  color: pickleballColors.accent.main,
                 },
               },
               '&.Mui-selected': {
-                backgroundColor: `${pickleballColors.court.main}40`,
+                backgroundColor: `${pickleballColors.accent.main}20`,
                 '& .MuiListItemIcon-root': {
-                  color: pickleballColors.court.main,
+                  color: '#34495E',
+                },
+                '& .MuiListItemText-root': {
+                  color: '#34495E',
                 },
                 '&:hover': {
-                  backgroundColor: `${pickleballColors.court.main}50`,
+                  backgroundColor: `${pickleballColors.accent.main}30`,
                 },
               },
             }}
           >
             <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? pickleballColors.court.main : 'inherit',
+              color: location.pathname === item.path ? '#34495E' : 'inherit',
               transition: 'color 0.2s ease-in-out',
             }}>
               {item.icon}
             </ListItemIcon>
-            <ListItemText primary={item.text} />
+            <ListItemText 
+              primary={item.text}
+              sx={{
+                color: location.pathname === item.path ? '#34495E' : 'inherit',
+                transition: 'color 0.2s ease-in-out',
+              }}
+            />
           </ListItemButton>
         ))}
       </List>
@@ -178,7 +190,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           ml: { sm: `${drawerWidth}px` },
           bgcolor: 'rgba(255, 255, 255, 0.5)',
           backdropFilter: 'blur(12px)',
-          borderRadius: '2px',
+          borderRadius: '12px',
           m: { xs: 0, sm: 2 },
           width: { xs: '100%', sm: `calc(100% - 32px)` },
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)',
@@ -205,7 +217,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   aria-label="open drawer"
                   edge="start"
                   onClick={handleDrawerToggle}
-                  sx={{ mr: 2, color: pickleballColors.court.main }}
+                  sx={{ mr: 2, color: '#34495E' }}
                 >
                   <MenuIcon />
                 </IconButton>
@@ -215,7 +227,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 component={Box}
                 onClick={() => navigate('/dashboard')}
                 sx={{ 
-                  color: pickleballColors.court.main, 
+                  color: '#34495E', 
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
@@ -229,12 +241,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 }}
               >
                 <SportsTennis sx={{ 
-                  color: pickleballColors.ball.main,
+                  color: '#34495E',
                   animation: 'bounce 2s infinite',
                   '@keyframes bounce': {
                     '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
                     '50%': { transform: 'rotate(180deg) scale(1.1)' },
-                  }
+                  },
+                  '&:hover': {
+                    color: pickleballColors.accent.main,
+                  },
                 }} />
                 PickleBall
               </Typography>
@@ -270,8 +285,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       }
                       onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
-                        color: location.pathname === item.path ? pickleballColors.court.main : pickleballColors.court.main,
-                        borderRadius: '2px',
+                        color: location.pathname === item.path ? pickleballColors.accent.main : pickleballColors.court.main,
+                        borderRadius: '12px',
                         px: 2,
                         py: 1,
                         transition: 'all 0.3s ease-in-out',
@@ -284,14 +299,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           left: '50%',
                           width: location.pathname === item.path ? '100%' : '0%',
                           height: '2px',
-                          background: `linear-gradient(90deg, ${pickleballColors.court.main} 0%, ${pickleballColors.ball.main} 100%)`,
+                          background: `linear-gradient(90deg, ${pickleballColors.accent.main} 0%, ${pickleballColors.accent.light} 100%)`,
                           transition: 'all 0.3s ease-in-out',
                           transform: 'translateX(-50%)',
-                          borderRadius: '2px',
+                          borderRadius: '12px',
                         },
                         '&:hover': {
-                          backgroundColor: `${pickleballColors.court.main}10`,
+                          backgroundColor: `${pickleballColors.accent.main}10`,
                           transform: 'translateY(-2px)',
+                          color: pickleballColors.accent.main,
                           '&::after': {
                             width: '100%',
                           },
