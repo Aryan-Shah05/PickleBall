@@ -104,7 +104,7 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 2,
+    borderRadius: 8,
   },
   components: {
     MuiCssBaseline: {
@@ -118,7 +118,7 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
+          borderRadius: 8,
           padding: '10px 24px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
@@ -143,7 +143,7 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
+          borderRadius: 12,
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
@@ -157,7 +157,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 2,
+            borderRadius: 8,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
               transform: 'translateY(-2px)',
@@ -177,7 +177,7 @@ export const theme = createTheme({
           backdropFilter: 'blur(8px)',
           backgroundColor: 'rgba(255, 255, 255, 0.7)',
           borderBottom: `1px solid rgba(0, 0, 0, 0.1)`,
-          borderRadius: 2,
+          borderRadius: 12,
         },
       },
     },
@@ -186,7 +186,7 @@ export const theme = createTheme({
         tooltip: {
           backgroundColor: alpha(pickleballColors.court.dark, 0.95),
           backdropFilter: 'blur(4px)',
-          borderRadius: 2,
+          borderRadius: 8,
           padding: '8px 12px',
           fontSize: '0.875rem',
         },
@@ -198,7 +198,7 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
+          borderRadius: 8,
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'scale(1.05)',
@@ -209,7 +209,7 @@ export const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: 2,
+          borderRadius: 12,
           backgroundImage: `linear-gradient(135deg, ${alpha(pickleballColors.background.paper, 0.98)}, ${alpha(pickleballColors.background.paper, 0.95)})`,
           backdropFilter: 'blur(8px)',
         },
