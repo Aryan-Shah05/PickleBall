@@ -188,8 +188,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 1, sm: 2 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Toolbar sx={{ 
+            justifyContent: 'space-between', 
+            px: { xs: 1, sm: 2 },
+            minHeight: '64px',
+          }}>
+            {/* Left side - Logo */}
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              flexShrink: 0,
+            }}>
               {isMobile && (
                 <IconButton
                   aria-label="open drawer"
@@ -200,15 +209,24 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <MenuIcon />
                 </IconButton>
               )}
-              <Typography variant="h6" component="div" sx={{ 
-                color: pickleballTheme.paddle, 
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}>
+              <Typography 
+                variant="h6" 
+                component={Box}
+                onClick={() => navigate('/dashboard')}
+                sx={{ 
+                  color: pickleballTheme.paddle, 
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    color: pickleballTheme.court,
+                  },
+                }}
+              >
                 <SportsTennis sx={{ 
                   color: pickleballTheme.ball,
                   animation: 'bounce 2s infinite',
@@ -221,143 +239,152 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </Typography>
             </Box>
 
-            {!isMobile && (
-              <Stack 
-                direction="row" 
-                spacing={2} 
-                sx={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                {navigationItems.map((item) => (
-                  <Button
-                    key={item.text}
-                    startIcon={
-                      <Box sx={{ 
-                        color: location.pathname === item.path ? pickleballTheme.ball : pickleballTheme.paddle,
-                        transition: 'all 0.3s ease-in-out',
-                        transform: location.pathname === item.path ? 'scale(1.1)' : 'scale(1)',
-                      }}>
-                        {item.icon}
-                      </Box>
-                    }
-                    onClick={() => navigate(item.path)}
-                    sx={{
-                      color: location.pathname === item.path ? pickleballTheme.court : pickleballTheme.paddle,
-                      borderRadius: 2,
-                      px: 3,
-                      py: 1,
-                      transition: 'all 0.3s ease-in-out',
-                      position: 'relative',
-                      fontWeight: 600,
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        left: '50%',
-                        width: location.pathname === item.path ? '100%' : '0%',
-                        height: '3px',
-                        background: `linear-gradient(90deg, ${pickleballTheme.court} 0%, ${pickleballTheme.ball} 100%)`,
-                        transition: 'all 0.3s ease-in-out',
-                        transform: 'translateX(-50%)',
-                        borderRadius: '4px',
-                      },
-                      '&:hover': {
-                        backgroundColor: `${pickleballTheme.court}15`,
-                        transform: 'translateY(-2px)',
-                        '&::after': {
-                          width: '100%',
-                        },
-                      },
-                    }}
-                  >
-                    {item.text}
-                  </Button>
-                ))}
-              </Stack>
-            )}
-
-            <IconButton
-              onClick={handleMenu}
-              size="small"
-              sx={{
-                transition: 'all 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'scale(1.1) rotate(5deg)',
-                },
-              }}
-            >
-              {user ? (
-                <Avatar 
+            {/* Right side - Navigation and Profile */}
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              gap: 2,
+              ml: 'auto'
+            }}>
+              {!isMobile && (
+                <Stack 
+                  direction="row" 
+                  spacing={1}
                   sx={{ 
-                    width: 38, 
-                    height: 38, 
-                    background: `linear-gradient(135deg, ${pickleballTheme.court} 0%, ${pickleballTheme.paddle} 100%)`,
-                    color: 'white',
-                    fontWeight: 600,
-                    boxShadow: `0 2px 12px ${pickleballTheme.court}40`,
-                    border: `2px solid ${pickleballTheme.background}`,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
-                  {userInitials}
-                </Avatar>
-              ) : (
-                <AccountCircle sx={{ color: pickleballTheme.paddle, fontSize: 32 }} />
+                  {navigationItems.map((item) => (
+                    <Button
+                      key={item.text}
+                      startIcon={
+                        <Box sx={{ 
+                          color: location.pathname === item.path ? pickleballTheme.ball : pickleballTheme.paddle,
+                          transition: 'all 0.3s ease-in-out',
+                          transform: location.pathname === item.path ? 'scale(1.1)' : 'scale(1)',
+                        }}>
+                          {item.icon}
+                        </Box>
+                      }
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        color: location.pathname === item.path ? pickleballTheme.court : pickleballTheme.paddle,
+                        borderRadius: 2,
+                        px: 2,
+                        py: 1,
+                        transition: 'all 0.3s ease-in-out',
+                        position: 'relative',
+                        fontWeight: 600,
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: '50%',
+                          width: location.pathname === item.path ? '100%' : '0%',
+                          height: '3px',
+                          background: `linear-gradient(90deg, ${pickleballTheme.court} 0%, ${pickleballTheme.ball} 100%)`,
+                          transition: 'all 0.3s ease-in-out',
+                          transform: 'translateX(-50%)',
+                          borderRadius: '4px',
+                        },
+                        '&:hover': {
+                          backgroundColor: `${pickleballTheme.court}15`,
+                          transform: 'translateY(-2px)',
+                          '&::after': {
+                            width: '100%',
+                          },
+                        },
+                      }}
+                    >
+                      {item.text}
+                    </Button>
+                  ))}
+                </Stack>
               )}
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              TransitionComponent={Fade}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              PaperProps={{
-                elevation: 2,
-                sx: {
-                  overflow: 'visible',
-                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
-                  mt: 1.5,
-                  borderRadius: 2,
-                  minWidth: 180,
-                  bgcolor: pickleballTheme.background,
-                  backdropFilter: 'blur(10px)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    right: 14,
-                    width: 10,
-                    height: 10,
-                    bgcolor: pickleballTheme.background,
-                    transform: 'translateY(-50%) rotate(45deg)',
-                    zIndex: 0,
-                  },
-                },
-              }}
-            >
-              <MenuItem 
-                onClick={() => { handleClose(); handleLogout(); }}
-                sx={{ 
-                  py: 1.5,
-                  px: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1.5,
-                  borderRadius: 1,
+
+              <IconButton
+                onClick={handleMenu}
+                size="small"
+                sx={{
                   transition: 'all 0.3s ease-in-out',
                   '&:hover': {
-                    backgroundColor: `${pickleballTheme.accent}15`,
-                    color: pickleballTheme.accent,
-                    transform: 'translateX(4px)',
-                  }
+                    transform: 'scale(1.1) rotate(5deg)',
+                  },
                 }}
               >
-                <ExitToApp />
-                Sign out
-              </MenuItem>
-            </Menu>
+                {user ? (
+                  <Avatar 
+                    sx={{ 
+                      width: 38, 
+                      height: 38, 
+                      background: `linear-gradient(135deg, ${pickleballTheme.court} 0%, ${pickleballTheme.paddle} 100%)`,
+                      color: 'white',
+                      fontWeight: 600,
+                      boxShadow: `0 2px 12px ${pickleballTheme.court}40`,
+                      border: `2px solid ${pickleballTheme.background}`,
+                    }}
+                  >
+                    {userInitials}
+                  </Avatar>
+                ) : (
+                  <AccountCircle sx={{ color: pickleballTheme.paddle, fontSize: 32 }} />
+                )}
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                TransitionComponent={Fade}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                PaperProps={{
+                  elevation: 2,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+                    mt: 1.5,
+                    borderRadius: 2,
+                    minWidth: 180,
+                    bgcolor: pickleballTheme.background,
+                    backdropFilter: 'blur(10px)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: pickleballTheme.background,
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                }}
+              >
+                <MenuItem 
+                  onClick={() => { handleClose(); handleLogout(); }}
+                  sx={{ 
+                    py: 1.5,
+                    px: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    borderRadius: 1,
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: `${pickleballTheme.accent}15`,
+                      color: pickleballTheme.accent,
+                      transform: 'translateX(4px)',
+                    }
+                  }}
+                >
+                  <ExitToApp />
+                  Sign out
+                </MenuItem>
+              </Menu>
+            </Box>
           </Toolbar>
         </Container>
       </AppBar>
