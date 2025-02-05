@@ -4,7 +4,6 @@ import {
   Button,
   Stack,
   Alert,
-  CircularProgress,
   FormControl,
   InputLabel,
   Select,
@@ -19,7 +18,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import { addDays, format, isPast, isAfter, isSameDay } from 'date-fns';
 import { BookingCalendar } from '../components/booking/BookingCalendar';
-import { pickleballColors } from '@/styles/theme';
 import { SportsTennis } from '@mui/icons-material';
 
 interface Court {
