@@ -28,7 +28,6 @@ import {
   EventNote,
   ExitToApp,
   AccountCircle,
-  CurrencyRupee,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../api/api';
