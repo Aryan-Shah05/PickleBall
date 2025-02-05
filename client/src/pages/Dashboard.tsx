@@ -115,110 +115,215 @@ export const Dashboard: React.FC = () => {
           color: pickleballTheme.paddle,
           fontWeight: 600,
           mb: 4,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
         }}
       >
-        Hi, {user?.firstName || 'Player'}! 👋
+        Hi, {user?.firstName || 'Player'}! <Box component="span" sx={{ fontSize: '1.5em' }}>👋</Box>
       </Typography>
 
-      <Grid container spacing={3}>
-        {/* Statistics Cards */}
-        <Grid item xs={12} md={3}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Statistics Cards - Now in 2x2 grid on smaller screens */}
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 3,
+            height: '100%',
+            '&:hover': { 
+              transform: 'translateY(-4px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            }
           }}>
             <CardContent>
-              <Typography color={pickleballTheme.paddle} gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom variant="subtitle2">
                 Total Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
+              <Typography variant="h4" sx={{ color: pickleballTheme.court, fontWeight: 600 }}>
                 {dashboardData.statistics.totalBookings}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 3,
+            height: '100%',
+            '&:hover': { 
+              transform: 'translateY(-4px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            }
           }}>
             <CardContent>
-              <Typography color={pickleballTheme.paddle} gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom variant="subtitle2">
                 Available Courts
               </Typography>
-              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
+              <Typography variant="h4" sx={{ color: pickleballTheme.court, fontWeight: 600 }}>
                 {dashboardData.statistics.availableCourts} / {dashboardData.statistics.totalCourts}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 3,
+            height: '100%',
+            '&:hover': { 
+              transform: 'translateY(-4px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            }
           }}>
             <CardContent>
-              <Typography color={pickleballTheme.paddle} gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom variant="subtitle2">
                 Cancelled Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
+              <Typography variant="h4" sx={{ color: pickleballTheme.court, fontWeight: 600 }}>
                 {dashboardData.statistics.cancelledBookings}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 3,
+            height: '100%',
+            '&:hover': { 
+              transform: 'translateY(-4px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            }
           }}>
             <CardContent>
-              <Typography color={pickleballTheme.paddle} gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom variant="subtitle2">
                 Total Spent
               </Typography>
-              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
+              <Typography variant="h4" sx={{ color: pickleballTheme.court, fontWeight: 600 }}>
                 ₹{dashboardData.statistics.totalSpent}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
+      </Grid>
 
-        {/* Available Courts */}
-        <Grid item xs={12}>
-          <Card sx={{ 
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
-                  Available Courts ({dashboardData.courts.available.length})
-                </Typography>
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: pickleballTheme.court,
-                    '&:hover': {
-                      bgcolor: pickleballTheme.paddle,
-                    },
-                  }}
-                  onClick={() => navigate('/book')}
-                >
-                  Book a Court
-                </Button>
-              </Box>
-              
+      {/* Available Courts */}
+      <Grid item xs={12}>
+        <Card sx={{ 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          transition: 'transform 0.2s ease-in-out',
+          '&:hover': { transform: 'translateY(-4px)' }
+        }}>
+          <CardContent>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
+                Available Courts ({dashboardData.courts.available.length})
+              </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: pickleballTheme.court,
+                  '&:hover': {
+                    bgcolor: pickleballTheme.paddle,
+                  },
+                }}
+                onClick={() => navigate('/book')}
+              >
+                Book a Court
+              </Button>
+            </Box>
+            
+            <Grid container spacing={2}>
+              {dashboardData.courts.available.map((court) => (
+                <Grid item xs={12} sm={6} md={4} key={court.id}>
+                  <Card 
+                    variant="outlined"
+                    sx={{ 
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      }
+                    }}
+                  >
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom sx={{ color: pickleballTheme.paddle }}>
+                        {court.name}
+                      </Typography>
+                      <Stack spacing={1}>
+                        <Typography color="textSecondary">
+                          Type: {court.type} • {court.isIndoor ? 'Indoor' : 'Outdoor'}
+                        </Typography>
+                        <Typography color="textSecondary">
+                          Rate: ₹{court.hourlyRate}/hour
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          Peak Rate: ₹{court.peakHourRate}/hour
+                        </Typography>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            color: pickleballTheme.court,
+                            borderColor: pickleballTheme.court,
+                            '&:hover': {
+                              borderColor: pickleballTheme.paddle,
+                              color: pickleballTheme.paddle,
+                            },
+                          }}
+                          onClick={() => navigate(`/book?courtId=${court.id}`)}
+                        >
+                          Book Now
+                        </Button>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Upcoming Bookings */}
+      <Grid item xs={12}>
+        <Card sx={{ 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          transition: 'transform 0.2s ease-in-out',
+          '&:hover': { transform: 'translateY(-4px)' }
+        }}>
+          <CardContent>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
+                Upcoming Bookings
+              </Typography>
+              <Button
+                variant="outlined"
+                sx={{
+                  color: pickleballTheme.court,
+                  borderColor: pickleballTheme.court,
+                  '&:hover': {
+                    borderColor: pickleballTheme.paddle,
+                    color: pickleballTheme.paddle,
+                  },
+                }}
+                onClick={() => navigate('/bookings')}
+              >
+                View All Bookings
+              </Button>
+            </Box>
+            
+            {dashboardData.upcomingBookings.length > 0 ? (
               <Grid container spacing={2}>
-                {dashboardData.courts.available.map((court) => (
-                  <Grid item xs={12} sm={6} md={4} key={court.id}>
+                {dashboardData.upcomingBookings.map((booking) => (
+                  <Grid item xs={12} sm={6} md={4} key={booking.id}>
                     <Card 
                       variant="outlined"
                       sx={{ 
@@ -231,120 +336,38 @@ export const Dashboard: React.FC = () => {
                     >
                       <CardContent>
                         <Typography variant="h6" gutterBottom sx={{ color: pickleballTheme.paddle }}>
-                          {court.name}
+                          {booking.court.name}
                         </Typography>
                         <Stack spacing={1}>
-                          <Typography color="textSecondary">
-                            Type: {court.type} • {court.isIndoor ? 'Indoor' : 'Outdoor'}
+                          <Typography>
+                            Date: {format(new Date(booking.startTime), 'MMM dd, yyyy')}
+                          </Typography>
+                          <Typography>
+                            Time: {format(new Date(booking.startTime), 'h:mm a')} - {format(new Date(booking.endTime), 'h:mm a')}
                           </Typography>
                           <Typography color="textSecondary">
-                            Rate: ₹{court.hourlyRate}/hour
+                            Amount: ₹{booking.totalAmount}
                           </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            Peak Rate: ₹{court.peakHourRate}/hour
-                          </Typography>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                              color: pickleballTheme.court,
-                              borderColor: pickleballTheme.court,
-                              '&:hover': {
-                                borderColor: pickleballTheme.paddle,
-                                color: pickleballTheme.paddle,
-                              },
-                            }}
-                            onClick={() => navigate(`/book?courtId=${court.id}`)}
-                          >
-                            Book Now
-                          </Button>
                         </Stack>
                       </CardContent>
                     </Card>
                   </Grid>
                 ))}
               </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Upcoming Bookings */}
-        <Grid item xs={12}>
-          <Card sx={{ 
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
-                  Upcoming Bookings
-                </Typography>
-                <Button
-                  variant="outlined"
-                  sx={{
-                    color: pickleballTheme.court,
-                    borderColor: pickleballTheme.court,
-                    '&:hover': {
-                      borderColor: pickleballTheme.paddle,
-                      color: pickleballTheme.paddle,
-                    },
-                  }}
-                  onClick={() => navigate('/bookings')}
-                >
-                  View All Bookings
-                </Button>
-              </Box>
-              
-              {dashboardData.upcomingBookings.length > 0 ? (
-                <Grid container spacing={2}>
-                  {dashboardData.upcomingBookings.map((booking) => (
-                    <Grid item xs={12} sm={6} md={4} key={booking.id}>
-                      <Card 
-                        variant="outlined"
-                        sx={{ 
-                          transition: 'all 0.2s ease-in-out',
-                          '&:hover': {
-                            transform: 'translateY(-4px)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                          }
-                        }}
-                      >
-                        <CardContent>
-                          <Typography variant="h6" gutterBottom sx={{ color: pickleballTheme.paddle }}>
-                            {booking.court.name}
-                          </Typography>
-                          <Stack spacing={1}>
-                            <Typography>
-                              Date: {format(new Date(booking.startTime), 'MMM dd, yyyy')}
-                            </Typography>
-                            <Typography>
-                              Time: {format(new Date(booking.startTime), 'h:mm a')} - {format(new Date(booking.endTime), 'h:mm a')}
-                            </Typography>
-                            <Typography color="textSecondary">
-                              Amount: ₹{booking.totalAmount}
-                            </Typography>
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Alert 
-                  severity="info"
-                  sx={{
-                    '& .MuiAlert-icon': {
-                      color: pickleballTheme.ball,
-                    },
-                  }}
-                >
-                  No upcoming bookings
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+            ) : (
+              <Alert 
+                severity="info"
+                sx={{
+                  '& .MuiAlert-icon': {
+                    color: pickleballTheme.ball,
+                  },
+                }}
+              >
+                No upcoming bookings
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </Grid>
     </Box>
   );

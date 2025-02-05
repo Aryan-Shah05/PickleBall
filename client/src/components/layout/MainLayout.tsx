@@ -32,18 +32,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../api/api';
 import useAuthStore from '@/store/auth';
-
-// Pickleball theme colors
-const pickleballTheme = {
-  court: '#2ecc71', // Pickleball court green
-  courtLight: '#a8e6cf', // Light court color
-  ball: '#f39c12',  // Pickleball yellow/orange
-  paddle: '#8e44ad', // Paddle purple
-  net: '#2c3e50',   // Net dark blue
-  accent: '#e74c3c', // Energetic red accent
-  background: 'rgba(255, 255, 255, 0.9)', // Translucent white
-  backgroundDark: 'rgba(44, 62, 80, 0.95)', // Translucent dark
-};
+import { pickleballColors } from '@/styles/theme';
 
 const drawerWidth = 240;
 
@@ -97,7 +86,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <Box>
       <Toolbar 
         sx={{ 
-          background: `linear-gradient(135deg, ${pickleballTheme.court} 0%, ${pickleballTheme.net} 100%)`,
+          background: `linear-gradient(135deg, ${pickleballColors.court.main} 0%, ${pickleballColors.court.dark} 100%)`,
           color: 'white',
         }}
       >
@@ -134,25 +123,25 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               mx: 1,
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: `${pickleballTheme.court}20`,
+                backgroundColor: `${pickleballColors.court.main}20`,
                 transform: 'translateX(4px)',
                 '& .MuiListItemIcon-root': {
-                  color: pickleballTheme.court,
+                  color: pickleballColors.court.main,
                 },
               },
               '&.Mui-selected': {
-                backgroundColor: `${pickleballTheme.court}40`,
+                backgroundColor: `${pickleballColors.court.main}40`,
                 '& .MuiListItemIcon-root': {
-                  color: pickleballTheme.court,
+                  color: pickleballColors.court.main,
                 },
                 '&:hover': {
-                  backgroundColor: `${pickleballTheme.court}50`,
+                  backgroundColor: `${pickleballColors.court.main}50`,
                 },
               },
             }}
           >
             <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? pickleballTheme.court : 'inherit',
+              color: location.pathname === item.path ? pickleballColors.court.main : 'inherit',
               transition: 'color 0.2s ease-in-out',
             }}>
               {item.icon}
@@ -171,20 +160,25 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       display: 'flex', 
       flexDirection: 'column', 
       minHeight: '100vh',
-      bgcolor: pickleballTheme.courtLight,
-      backgroundImage: 'linear-gradient(120deg, rgba(168, 230, 207, 0.2) 0%, rgba(46, 204, 113, 0.1) 100%)',
+      bgcolor: pickleballColors.background.default,
+      backgroundImage: pickleballColors.background.pattern,
     }}>
       <CssBaseline />
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          width: '100%',
-          bgcolor: pickleballTheme.background,
+          ml: { sm: `${drawerWidth}px` },
+          bgcolor: pickleballColors.background.paper,
           backdropFilter: 'blur(10px)',
-          borderBottom: '2px solid',
-          borderColor: pickleballTheme.court,
-          boxShadow: `0 4px 20px ${pickleballTheme.court}20`,
+          borderRadius: { xs: 0, sm: 3 },
+          m: { xs: 0, sm: 2 },
+          width: { xs: '100%', sm: `calc(100% - 32px)` },
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+          border: `1px solid ${pickleballColors.court.main}20`,
+          '& .MuiToolbar-root': {
+            borderRadius: 'inherit',
+          },
         }}
       >
         <Container maxWidth="xl">
@@ -204,7 +198,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   aria-label="open drawer"
                   edge="start"
                   onClick={handleDrawerToggle}
-                  sx={{ mr: 2, color: pickleballTheme.paddle }}
+                  sx={{ mr: 2, color: pickleballColors.court.main }}
                 >
                   <MenuIcon />
                 </IconButton>
@@ -214,7 +208,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 component={Box}
                 onClick={() => navigate('/dashboard')}
                 sx={{ 
-                  color: pickleballTheme.paddle, 
+                  color: pickleballColors.court.main, 
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
@@ -223,12 +217,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   letterSpacing: '0.05em',
                   cursor: 'pointer',
                   '&:hover': {
-                    color: pickleballTheme.court,
+                    color: pickleballColors.accent.main,
                   },
                 }}
               >
                 <SportsTennis sx={{ 
-                  color: pickleballTheme.ball,
+                  color: pickleballColors.ball.main,
                   animation: 'bounce 2s infinite',
                   '@keyframes bounce': {
                     '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
@@ -260,7 +254,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       key={item.text}
                       startIcon={
                         <Box sx={{ 
-                          color: location.pathname === item.path ? pickleballTheme.ball : pickleballTheme.paddle,
+                          color: location.pathname === item.path ? pickleballColors.ball.main : pickleballColors.court.main,
                           transition: 'all 0.3s ease-in-out',
                           transform: location.pathname === item.path ? 'scale(1.1)' : 'scale(1)',
                         }}>
@@ -269,7 +263,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       }
                       onClick={() => navigate(item.path)}
                       sx={{
-                        color: location.pathname === item.path ? pickleballTheme.court : pickleballTheme.paddle,
+                        color: location.pathname === item.path ? pickleballColors.court.main : pickleballColors.court.main,
                         borderRadius: 2,
                         px: 2,
                         py: 1,
@@ -283,13 +277,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           left: '50%',
                           width: location.pathname === item.path ? '100%' : '0%',
                           height: '3px',
-                          background: `linear-gradient(90deg, ${pickleballTheme.court} 0%, ${pickleballTheme.ball} 100%)`,
+                          background: `linear-gradient(90deg, ${pickleballColors.court.main} 0%, ${pickleballColors.ball.main} 100%)`,
                           transition: 'all 0.3s ease-in-out',
                           transform: 'translateX(-50%)',
                           borderRadius: '4px',
                         },
                         '&:hover': {
-                          backgroundColor: `${pickleballTheme.court}15`,
+                          backgroundColor: `${pickleballColors.court.main}15`,
                           transform: 'translateY(-2px)',
                           '&::after': {
                             width: '100%',
@@ -318,17 +312,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     sx={{ 
                       width: 38, 
                       height: 38, 
-                      background: `linear-gradient(135deg, ${pickleballTheme.court} 0%, ${pickleballTheme.paddle} 100%)`,
+                      background: `linear-gradient(135deg, ${pickleballColors.court.main} 0%, ${pickleballColors.accent.main} 100%)`,
                       color: 'white',
                       fontWeight: 600,
-                      boxShadow: `0 2px 12px ${pickleballTheme.court}40`,
-                      border: `2px solid ${pickleballTheme.background}`,
+                      boxShadow: `0 2px 12px ${pickleballColors.court.main}40`,
+                      border: `2px solid ${pickleballColors.background.paper}`,
                     }}
                   >
                     {userInitials}
                   </Avatar>
                 ) : (
-                  <AccountCircle sx={{ color: pickleballTheme.paddle, fontSize: 32 }} />
+                  <AccountCircle sx={{ color: pickleballColors.court.main, fontSize: 32 }} />
                 )}
               </IconButton>
 
@@ -347,7 +341,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     mt: 1.5,
                     borderRadius: 2,
                     minWidth: 180,
-                    bgcolor: pickleballTheme.background,
+                    bgcolor: pickleballColors.background.paper,
                     backdropFilter: 'blur(10px)',
                     '&::before': {
                       content: '""',
@@ -356,7 +350,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       right: 14,
                       width: 10,
                       height: 10,
-                      bgcolor: pickleballTheme.background,
+                      bgcolor: pickleballColors.background.paper,
                       transform: 'translateY(-50%) rotate(45deg)',
                       zIndex: 0,
                     },
@@ -374,8 +368,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     borderRadius: 1,
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
-                      backgroundColor: `${pickleballTheme.accent}15`,
-                      color: pickleballTheme.accent,
+                      backgroundColor: `${pickleballColors.accent.main}15`,
+                      color: pickleballColors.accent.main,
                       transform: 'translateX(4px)',
                     }
                   }}
@@ -402,9 +396,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: 'none',
-              boxShadow: '4px 0 20px rgba(0,0,0,0.1)',
-              background: pickleballTheme.background,
+              boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
+              background: pickleballColors.background.paper,
               backdropFilter: 'blur(10px)',
+              borderRadius: { xs: 0, sm: '0 24px 24px 0' },
             },
           }}
         >
@@ -418,7 +413,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           flexGrow: 1,
           p: 3,
           width: '100%',
-          mt: 8,
+          mt: { xs: 7, sm: 9 },
           minHeight: '100vh',
           position: 'relative',
           '&::before': {
@@ -429,8 +424,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             right: 0,
             bottom: 0,
             backgroundImage: `
-              radial-gradient(circle at 20% 20%, ${pickleballTheme.court}10 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, ${pickleballTheme.ball}10 0%, transparent 50%)
+              radial-gradient(circle at 20% 20%, ${pickleballColors.court.main}10 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, ${pickleballColors.ball.main}10 0%, transparent 50%)
             `,
             pointerEvents: 'none',
           }
