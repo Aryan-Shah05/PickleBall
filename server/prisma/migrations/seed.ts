@@ -7,12 +7,12 @@ async function main() {
   const courts = [
     {
       id: '1',
-      name: 'Court A',
+      name: 'Smash Haven',
       type: 'Professional',
       isIndoor: true,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 40,
-      peakHourRate: 60,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         monday: '6:00-7:00',
         thursday: '6:00-7:00'
@@ -20,12 +20,12 @@ async function main() {
     },
     {
       id: '2',
-      name: 'Court B',
+      name: 'Dink Dynasty',
       type: 'Professional',
       isIndoor: true,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 40,
-      peakHourRate: 60,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         tuesday: '6:00-7:00',
         friday: '6:00-7:00'
@@ -33,12 +33,12 @@ async function main() {
     },
     {
       id: '3',
-      name: 'Court C',
-      type: 'Amateur',
+      name: 'Rally Royale',
+      type: 'Professional',
       isIndoor: false,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 30,
-      peakHourRate: 45,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         wednesday: '6:00-7:00',
         saturday: '6:00-7:00'
@@ -46,12 +46,12 @@ async function main() {
     },
     {
       id: '4',
-      name: 'Court D',
-      type: 'Amateur',
+      name: 'Volley Vista',
+      type: 'Professional',
       isIndoor: false,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 30,
-      peakHourRate: 45,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         monday: '14:00-15:00',
         thursday: '14:00-15:00'
@@ -59,12 +59,12 @@ async function main() {
     },
     {
       id: '5',
-      name: 'Court E',
-      type: 'Training',
+      name: 'Paddle Paradise',
+      type: 'Professional',
       isIndoor: true,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 25,
-      peakHourRate: 35,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         tuesday: '14:00-15:00',
         friday: '14:00-15:00'
@@ -72,12 +72,12 @@ async function main() {
     },
     {
       id: '6',
-      name: 'Court F',
-      type: 'Training',
+      name: 'Spin Sanctuary',
+      type: 'Professional',
       isIndoor: false,
       status: CourtStatus.AVAILABLE,
-      hourlyRate: 25,
-      peakHourRate: 35,
+      hourlyRate: 500,
+      peakHourRate: 800,
       maintenanceSchedule: JSON.stringify({
         wednesday: '14:00-15:00',
         saturday: '14:00-15:00'

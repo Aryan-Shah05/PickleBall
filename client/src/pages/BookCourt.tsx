@@ -38,6 +38,7 @@ interface TimeSlot {
   endTime: Date;
   label: string;
   isAvailable: boolean;
+  isPeakHour: boolean;
 }
 
 // Time slots from 6 AM to 10 PM (1-hour intervals)
@@ -45,6 +46,7 @@ const generateTimeSlots = (selectedDate: Date): TimeSlot[] => {
   const slots: TimeSlot[] = [];
   const startHour = 6; // 6 AM
   const endHour = 22; // 10 PM
+  const peakHourStart = 17; // 5 PM
 
   for (let hour = startHour; hour < endHour; hour++) {
     const startTime = new Date(selectedDate);
@@ -58,11 +60,14 @@ const generateTimeSlots = (selectedDate: Date): TimeSlot[] => {
       continue;
     }
 
+    const isPeakHour = hour >= peakHourStart;
+
     slots.push({
       startTime,
       endTime,
       label: `${format(startTime, 'h:mm a')} - ${format(endTime, 'h:mm a')}`,
-      isAvailable: true
+      isAvailable: true,
+      isPeakHour
     });
   }
   return slots;
@@ -302,7 +307,7 @@ const BookCourt: React.FC = () => {
           >
             {courts.map((court) => (
               <MenuItem key={court.id} value={court.id}>
-                {court.name} - ${court.hourlyRate}/hour
+                {court.name} - ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
               </MenuItem>
             ))}
           </Select>
@@ -322,26 +327,48 @@ const BookCourt: React.FC = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          {timeSlots.map((slot, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Tooltip title={slot.isAvailable ? 'Click to select this time slot' : 'This time slot is already booked'}>
-                <Button
-                  variant={selectedTimeSlot === format(slot.startTime, 'HH:mm') ? 'contained' : 'outlined'}
-                  color={slot.isAvailable ? 'primary' : 'error'}
-                  fullWidth
-                  onClick={() => handleTimeSlotSelect(slot)}
-                  disabled={!slot.isAvailable || submitting}
-                  sx={{
-                    height: '60px',
-                    whiteSpace: 'normal',
-                    textTransform: 'none'
-                  }}
-                >
-                  {slot.label}
-                </Button>
-              </Tooltip>
-            </Grid>
-          ))}
+          {timeSlots.map((slot, index) => {
+            const currentCourt = courts.find(c => c.id === selectedCourt);
+            const rate = slot.isPeakHour ? currentCourt?.peakHourRate : currentCourt?.hourlyRate;
+            
+            return (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Tooltip title={
+                  slot.isAvailable 
+                    ? `Rate: ₹${rate} ${slot.isPeakHour ? '(Peak Hour)' : ''}`
+                    : 'This time slot is already booked'
+                }>
+                  <Button
+                    variant={selectedTimeSlot === format(slot.startTime, 'HH:mm') ? 'contained' : 'outlined'}
+                    color={slot.isAvailable ? 'primary' : 'error'}
+                    fullWidth
+                    onClick={() => handleTimeSlotSelect(slot)}
+                    disabled={!slot.isAvailable || submitting}
+                    sx={{
+                      height: '60px',
+                      whiteSpace: 'normal',
+                      textTransform: 'none',
+                      position: 'relative',
+                      '&::after': slot.isPeakHour ? {
+                        content: '"Peak"',
+                        position: 'absolute',
+                        top: 2,
+                        right: 2,
+                        fontSize: '0.6rem',
+                        backgroundColor: 'warning.main',
+                        color: 'warning.contrastText',
+                        padding: '2px 4px',
+                        borderRadius: '4px',
+                        opacity: 0.9
+                      } : {}
+                    }}
+                  >
+                    {slot.label}
+                  </Button>
+                </Tooltip>
+              </Grid>
+            );
+          })}
         </Grid>
 
         <Button
