@@ -1,86 +1,141 @@
-import { createTheme } from '@mui/material/styles';
-import { alpha } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material';
 
-declare module '@mui/material/styles' {
-  interface Palette {
-    tertiary: Palette['primary'];
-  }
-  interface PaletteOptions {
-    tertiary?: PaletteOptions['primary'];
-  }
-}
+// Custom theme colors
+export const pickleballColors = {
+  court: {
+    main: '#2C5282', // Court blue
+    light: '#4299E1',
+    dark: '#2A4365',
+    contrastText: '#FFFFFF',
+  },
+  ball: {
+    main: '#F6E05E', // Ball yellow
+    light: '#FAF089',
+    dark: '#D69E2E',
+    contrastText: '#1A202C',
+  },
+  accent: {
+    main: '#48BB78', // Fresh green
+    light: '#9AE6B4',
+    dark: '#2F855A',
+    contrastText: '#FFFFFF',
+  },
+  background: {
+    default: '#F7FAFC',
+    paper: '#FFFFFF',
+    pattern: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0C13.4315 0 0 13.4315 0 30C0 46.5685 13.4315 60 30 60C46.5685 60 60 46.5685 60 30C60 13.4315 46.5685 0 30 0ZM30 45C21.7157 45 15 38.2843 15 30C15 21.7157 21.7157 15 30 15C38.2843 15 45 21.7157 45 30C45 38.2843 38.2843 45 30 45Z' fill='%232C5282' fill-opacity='0.05'/%3E%3C/svg%3E")`,
+  },
+};
 
-export const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#3B82F6',
-      light: '#60A5FA',
-      dark: '#2563EB',
-      contrastText: '#FFFFFF',
+// Animation keyframes
+export const pickleballAnimations = {
+  bounce: {
+    '0%, 100%': {
+      transform: 'translateY(0)',
     },
-    secondary: {
-      main: '#10B981',
-      light: '#34D399',
-      dark: '#059669',
-      contrastText: '#FFFFFF',
-    },
-    tertiary: {
-      main: '#F59E0B',
-      light: '#FBBF24',
-      dark: '#D97706',
-      contrastText: '#FFFFFF',
-    },
-    text: {
-      primary: '#1E293B',
-      secondary: '#64748B',
-    },
-    background: {
-      default: '#F8FAFC',
-      paper: '#FFFFFF',
+    '50%': {
+      transform: 'translateY(-10px)',
     },
   },
+  spin: {
+    '0%': {
+      transform: 'rotate(0deg)',
+    },
+    '100%': {
+      transform: 'rotate(360deg)',
+    },
+  },
+  pulse: {
+    '0%, 100%': {
+      opacity: 1,
+      transform: 'scale(1)',
+    },
+    '50%': {
+      opacity: 0.8,
+      transform: 'scale(0.95)',
+    },
+  },
+  slideUp: {
+    '0%': {
+      opacity: 0,
+      transform: 'translateY(20px)',
+    },
+    '100%': {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
+};
+
+// Create theme
+export const theme = createTheme({
+  palette: {
+    primary: pickleballColors.court,
+    secondary: pickleballColors.ball,
+    success: pickleballColors.accent,
+    background: pickleballColors.background,
+  },
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
+    fontFamily: '"Inter", "system-ui", "-apple-system", sans-serif',
     h1: {
-      fontFamily: '"Clash Display", Inter, system-ui, sans-serif',
-      fontWeight: 600,
-      fontSize: 'clamp(2rem, 5vw, 4rem)',
-      lineHeight: 1.1,
+      fontWeight: 700,
+      letterSpacing: '-0.025em',
     },
     h2: {
-      fontFamily: '"Clash Display", Inter, system-ui, sans-serif',
       fontWeight: 600,
-      fontSize: 'clamp(1.5rem, 4vw, 3rem)',
-      lineHeight: 1.2,
+      letterSpacing: '-0.025em',
     },
     h3: {
-      fontFamily: '"Clash Display", Inter, system-ui, sans-serif',
       fontWeight: 600,
-      fontSize: 'clamp(1.25rem, 3vw, 2.25rem)',
-      lineHeight: 1.3,
+      letterSpacing: '-0.025em',
     },
-    body1: {
-      fontSize: 'clamp(1rem, 2vw, 1.125rem)',
-      lineHeight: 1.6,
+    h4: {
+      fontWeight: 600,
+    },
+    h5: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 600,
     },
     button: {
-      fontWeight: 500,
+      fontWeight: 600,
       textTransform: 'none',
     },
   },
+  shape: {
+    borderRadius: 12,
+  },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundImage: pickleballColors.background.pattern,
+          backgroundAttachment: 'fixed',
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 8,
           padding: '10px 24px',
-          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'translateY(-2px)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           },
           '&:active': {
-            transform: 'translateY(0px)',
+            transform: 'translateY(0)',
+          },
+        },
+        contained: {
+          backgroundImage: `linear-gradient(135deg, ${pickleballColors.court.main}, ${pickleballColors.court.dark})`,
+        },
+        outlined: {
+          borderWidth: 2,
+          '&:hover': {
+            borderWidth: 2,
           },
         },
       },
@@ -88,28 +143,29 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 16,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'translateY(-4px) rotate(0.5deg)',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.12)',
           },
         },
       },
     },
-    MuiPaper: {
+    MuiTextField: {
       styleOverrides: {
         root: {
-          backgroundImage: 'linear-gradient(to bottom, #F8FAFC, #F1F5F9)',
-        },
-        elevation1: {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-        },
-        elevation2: {
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-        },
-        elevation4: {
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          '& .MuiOutlinedInput-root': {
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+            },
+            '&.Mui-focused': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+            },
+          },
         },
       },
     },
@@ -118,12 +174,55 @@ export const theme = createTheme({
         root: {
           backgroundImage: 'none',
           backdropFilter: 'blur(8px)',
-          backgroundColor: alpha('#FFFFFF', 0.8),
+          backgroundColor: alpha(pickleballColors.background.paper, 0.8),
+          borderBottom: `2px solid ${alpha(pickleballColors.court.main, 0.1)}`,
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `linear-gradient(90deg, ${alpha(pickleballColors.court.main, 0.05)} 1px, transparent 1px)`,
+            backgroundSize: '20px 100%',
+            pointerEvents: 'none',
+          },
         },
       },
     },
-  },
-  shape: {
-    borderRadius: 8,
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: alpha(pickleballColors.court.dark, 0.95),
+          backdropFilter: 'blur(4px)',
+          borderRadius: 8,
+          padding: '8px 12px',
+          fontSize: '0.875rem',
+        },
+        arrow: {
+          color: alpha(pickleballColors.court.dark, 0.95),
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            transform: 'scale(1.05)',
+          },
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 16,
+          backgroundImage: `linear-gradient(135deg, ${alpha(pickleballColors.background.paper, 0.98)}, ${alpha(pickleballColors.background.paper, 0.95)})`,
+          backdropFilter: 'blur(8px)',
+        },
+      },
+    },
   },
 }); 
