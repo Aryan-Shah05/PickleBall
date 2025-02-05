@@ -13,6 +13,19 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
+import useAuthStore from '@/store/auth';
+
+// Import theme colors from MainLayout
+const pickleballTheme = {
+  court: '#2ecc71', // Pickleball court green
+  courtLight: '#a8e6cf', // Light court color
+  ball: '#f39c12',  // Pickleball yellow/orange
+  paddle: '#8e44ad', // Paddle purple
+  net: '#2c3e50',   // Net dark blue
+  accent: '#e74c3c', // Energetic red accent
+  background: 'rgba(255, 255, 255, 0.9)', // Translucent white
+  backgroundDark: 'rgba(44, 62, 80, 0.95)', // Translucent dark
+};
 
 interface Court {
   id: string;
@@ -52,6 +65,7 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -71,7 +85,7 @@ export const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress />
+        <CircularProgress sx={{ color: pickleballTheme.court }} />
       </Box>
     );
   }
@@ -94,19 +108,31 @@ export const Dashboard: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          color: pickleballTheme.paddle,
+          fontWeight: 600,
+          mb: 4,
+        }}
+      >
+        Hi, {user?.firstName || 'Player'}! 👋
       </Typography>
 
       <Grid container spacing={3}>
         {/* Statistics Cards */}
         <Grid item xs={12} md={3}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom>
                 Total Bookings
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
                 {dashboardData.statistics.totalBookings}
               </Typography>
             </CardContent>
@@ -114,12 +140,16 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom>
                 Available Courts
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
                 {dashboardData.statistics.availableCourts} / {dashboardData.statistics.totalCourts}
               </Typography>
             </CardContent>
@@ -127,12 +157,16 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom>
                 Cancelled Bookings
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
                 {dashboardData.statistics.cancelledBookings}
               </Typography>
             </CardContent>
@@ -140,13 +174,17 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+              <Typography color={pickleballTheme.paddle} gutterBottom>
                 Total Spent
               </Typography>
-              <Typography variant="h4">
-                ${dashboardData.statistics.totalSpent}
+              <Typography variant="h4" sx={{ color: pickleballTheme.court }}>
+                ₹{dashboardData.statistics.totalSpent}
               </Typography>
             </CardContent>
           </Card>
@@ -154,15 +192,24 @@ export const Dashboard: React.FC = () => {
 
         {/* Available Courts */}
         <Grid item xs={12}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
+                <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
                   Available Courts ({dashboardData.courts.available.length})
                 </Typography>
                 <Button
                   variant="contained"
-                  color="primary"
+                  sx={{
+                    bgcolor: pickleballTheme.court,
+                    '&:hover': {
+                      bgcolor: pickleballTheme.paddle,
+                    },
+                  }}
                   onClick={() => navigate('/book')}
                 >
                   Book a Court
@@ -172,9 +219,18 @@ export const Dashboard: React.FC = () => {
               <Grid container spacing={2}>
                 {dashboardData.courts.available.map((court) => (
                   <Grid item xs={12} sm={6} md={4} key={court.id}>
-                    <Card variant="outlined">
+                    <Card 
+                      variant="outlined"
+                      sx={{ 
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        }
+                      }}
+                    >
                       <CardContent>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ color: pickleballTheme.paddle }}>
                           {court.name}
                         </Typography>
                         <Stack spacing={1}>
@@ -182,14 +238,22 @@ export const Dashboard: React.FC = () => {
                             Type: {court.type} • {court.isIndoor ? 'Indoor' : 'Outdoor'}
                           </Typography>
                           <Typography color="textSecondary">
-                            Rate: ${court.hourlyRate}/hour
+                            Rate: ₹{court.hourlyRate}/hour
                           </Typography>
                           <Typography variant="caption" color="textSecondary">
-                            Peak Rate: ${court.peakHourRate}/hour
+                            Peak Rate: ₹{court.peakHourRate}/hour
                           </Typography>
                           <Button
                             variant="outlined"
                             size="small"
+                            sx={{
+                              color: pickleballTheme.court,
+                              borderColor: pickleballTheme.court,
+                              '&:hover': {
+                                borderColor: pickleballTheme.paddle,
+                                color: pickleballTheme.paddle,
+                              },
+                            }}
                             onClick={() => navigate(`/book?courtId=${court.id}`)}
                           >
                             Book Now
@@ -206,14 +270,26 @@ export const Dashboard: React.FC = () => {
 
         {/* Upcoming Bookings */}
         <Grid item xs={12}>
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
+                <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
                   Upcoming Bookings
                 </Typography>
                 <Button
                   variant="outlined"
+                  sx={{
+                    color: pickleballTheme.court,
+                    borderColor: pickleballTheme.court,
+                    '&:hover': {
+                      borderColor: pickleballTheme.paddle,
+                      color: pickleballTheme.paddle,
+                    },
+                  }}
                   onClick={() => navigate('/bookings')}
                 >
                   View All Bookings
@@ -224,9 +300,18 @@ export const Dashboard: React.FC = () => {
                 <Grid container spacing={2}>
                   {dashboardData.upcomingBookings.map((booking) => (
                     <Grid item xs={12} sm={6} md={4} key={booking.id}>
-                      <Card variant="outlined">
+                      <Card 
+                        variant="outlined"
+                        sx={{ 
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          }
+                        }}
+                      >
                         <CardContent>
-                          <Typography variant="h6" gutterBottom>
+                          <Typography variant="h6" gutterBottom sx={{ color: pickleballTheme.paddle }}>
                             {booking.court.name}
                           </Typography>
                           <Stack spacing={1}>
@@ -237,7 +322,7 @@ export const Dashboard: React.FC = () => {
                               Time: {format(new Date(booking.startTime), 'h:mm a')} - {format(new Date(booking.endTime), 'h:mm a')}
                             </Typography>
                             <Typography color="textSecondary">
-                              Amount: ${booking.totalAmount}
+                              Amount: ₹{booking.totalAmount}
                             </Typography>
                           </Stack>
                         </CardContent>
@@ -246,7 +331,16 @@ export const Dashboard: React.FC = () => {
                   ))}
                 </Grid>
               ) : (
-                <Alert severity="info">No upcoming bookings</Alert>
+                <Alert 
+                  severity="info"
+                  sx={{
+                    '& .MuiAlert-icon': {
+                      color: pickleballTheme.ball,
+                    },
+                  }}
+                >
+                  No upcoming bookings
+                </Alert>
               )}
             </CardContent>
           </Card>

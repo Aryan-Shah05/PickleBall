@@ -17,6 +17,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import { addDays, format, isPast, isAfter, isSameDay } from 'date-fns';
+import { BookingCalendar } from '../components/booking/BookingCalendar';
 
 interface Court {
   id: string;
@@ -282,6 +283,23 @@ const BookCourt: React.FC = () => {
     }
   };
 
+  const formattedTimeSlots = timeSlots.map(slot => ({
+    time: format(slot.startTime, 'h:mm a'),
+    isAvailable: slot.isAvailable,
+    isPeakHour: slot.isPeakHour,
+    price: slot.isPeakHour 
+      ? courts.find(c => c.id === selectedCourt)?.peakHourRate || 0
+      : courts.find(c => c.id === selectedCourt)?.hourlyRate || 0
+  }));
+
+  const courtAvailability = courts.reduce((acc, court) => ({
+    ...acc,
+    [court.id]: !existingBookings.some(booking => 
+      booking.courtId === court.id && 
+      isSameDay(new Date(booking.startTime), bookingDate || new Date())
+    )
+  }), {});
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -291,7 +309,7 @@ const BookCourt: React.FC = () => {
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
+    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
       <Stack spacing={3}>
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
@@ -313,63 +331,19 @@ const BookCourt: React.FC = () => {
           </Select>
         </FormControl>
 
-        <DatePicker
-          label="Booking Date"
-          value={bookingDate}
-          onChange={(newValue) => setBookingDate(newValue)}
-          disabled={submitting}
-          minDate={new Date()}
-          maxDate={addDays(new Date(), 30)}
+        <BookingCalendar
+          selectedDate={bookingDate || new Date()}
+          onDateChange={setBookingDate}
+          timeSlots={formattedTimeSlots}
+          selectedTimeSlot={selectedTimeSlot}
+          onTimeSlotSelect={time => {
+            const slot = timeSlots.find(s => format(s.startTime, 'h:mm a') === time);
+            if (slot) {
+              handleTimeSlotSelect(slot);
+            }
+          }}
+          courtAvailability={courtAvailability}
         />
-
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Select Time Slot
-        </Typography>
-
-        <Grid container spacing={2}>
-          {timeSlots.map((slot, index) => {
-            const currentCourt = courts.find(c => c.id === selectedCourt);
-            const rate = slot.isPeakHour ? currentCourt?.peakHourRate : currentCourt?.hourlyRate;
-            
-            return (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Tooltip title={
-                  slot.isAvailable 
-                    ? `Rate: ₹${rate} ${slot.isPeakHour ? '(Peak Hour)' : ''}`
-                    : 'This time slot is already booked'
-                }>
-                  <Button
-                    variant={selectedTimeSlot === format(slot.startTime, 'HH:mm') ? 'contained' : 'outlined'}
-                    color={slot.isAvailable ? 'primary' : 'error'}
-                    fullWidth
-                    onClick={() => handleTimeSlotSelect(slot)}
-                    disabled={!slot.isAvailable || submitting}
-                    sx={{
-                      height: '60px',
-                      whiteSpace: 'normal',
-                      textTransform: 'none',
-                      position: 'relative',
-                      '&::after': slot.isPeakHour ? {
-                        content: '"Peak"',
-                        position: 'absolute',
-                        top: 2,
-                        right: 2,
-                        fontSize: '0.6rem',
-                        backgroundColor: 'warning.main',
-                        color: 'warning.contrastText',
-                        padding: '2px 4px',
-                        borderRadius: '4px',
-                        opacity: 0.9
-                      } : {}
-                    }}
-                  >
-                    {slot.label}
-                  </Button>
-                </Tooltip>
-              </Grid>
-            );
-          })}
-        </Grid>
 
         <Button
           type="submit"
