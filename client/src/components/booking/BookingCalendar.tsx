@@ -75,10 +75,16 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
         sx={{
           p: 2,
           mb: 3,
-          background: `linear-gradient(135deg, ${pickleballColors.court.main}10, ${pickleballColors.ball.main}10)`,
-          borderRadius: 2,
+          background: 'white',
+          borderRadius: 1,
           position: 'relative',
           overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': { 
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          },
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -101,13 +107,27 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
           <IconButton
             onClick={() => onDateChange(addDays(selectedDate, -1))}
             disabled={isSameDay(selectedDate, new Date())}
+            sx={{
+              color: pickleballColors.court.main,
+              '&:hover': {
+                backgroundColor: `${pickleballColors.court.main}10`,
+              },
+            }}
           >
             <ChevronLeft />
           </IconButton>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: pickleballColors.court.main }}>
             {format(selectedDate, 'MMMM yyyy')}
           </Typography>
-          <IconButton onClick={() => onDateChange(addDays(selectedDate, 1))}>
+          <IconButton 
+            onClick={() => onDateChange(addDays(selectedDate, 1))}
+            sx={{
+              color: pickleballColors.court.main,
+              '&:hover': {
+                backgroundColor: `${pickleballColors.court.main}10`,
+              },
+            }}
+          >
             <ChevronRight />
           </IconButton>
         </Box>
@@ -122,26 +142,30 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                   p: 1.5,
                   textAlign: 'center',
                   cursor: 'pointer',
+                  borderRadius: 1,
                   backgroundColor: isSameDay(date, selectedDate)
                     ? pickleballColors.court.main
-                    : 'transparent',
+                    : 'white',
                   color: isSameDay(date, selectedDate)
                     ? 'white'
-                    : 'inherit',
+                    : pickleballColors.court.main,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: 'perspective(1000px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                   '&:hover': {
-                    transform: 'perspective(1000px) rotateX(10deg) scale(1.05)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     backgroundColor: isSameDay(date, selectedDate)
                       ? pickleballColors.court.main
-                      : pickleballColors.court.light + '20',
+                      : `${pickleballColors.court.main}10`,
                   },
                 }}
               >
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>
                   {format(date, 'EEE')}
                 </Typography>
-                <Typography variant="h6">{format(date, 'd')}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {format(date, 'd')}
+                </Typography>
               </Paper>
             </Grid>
           ))}
@@ -150,11 +174,11 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
 
       {/* Time Slots Grid */}
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" gutterBottom>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ color: pickleballColors.court.main }}>
             Available Time Slots
           </Typography>
-          <Grid container spacing={1}>
+          <Grid container spacing={2}>
             {timeSlots.map((slot) => (
               <Grid item xs={12} sm={6} md={4} key={slot.time}>
                 <Tooltip
@@ -168,26 +192,24 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                       p: 2,
                       textAlign: 'center',
                       cursor: slot.isAvailable ? 'pointer' : 'not-allowed',
+                      borderRadius: 1,
                       backgroundColor: slot.isAvailable
                         ? selectedTimeSlot === slot.time
-                          ? pickleballColors.accent.main
+                          ? pickleballColors.court.main
                           : 'white'
                         : '#f5f5f5',
                       color: selectedTimeSlot === slot.time ? 'white' : 'inherit',
                       opacity: slot.isAvailable ? 1 : 0.5,
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      animation: slot.isAvailable
-                        ? `${slideIn} 0.3s ease-out`
-                        : 'none',
-                      transform: 'perspective(1000px)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                       '&:hover': slot.isAvailable
                         ? {
-                            transform:
-                              'perspective(1000px) rotateX(10deg) scale(1.02)',
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             backgroundColor:
                               selectedTimeSlot === slot.time
-                                ? pickleballColors.accent.main
-                                : pickleballColors.accent.light + '20',
+                                ? pickleballColors.court.main
+                                : `${pickleballColors.court.main}10`,
                           }
                         : {},
                       display: 'flex',
@@ -204,7 +226,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                           : pickleballColors.court.main,
                       }}
                     />
-                    <Typography>{slot.time}</Typography>
+                    <Typography sx={{ fontWeight: 500 }}>{slot.time}</Typography>
                     {slot.isPeakHour && (
                       <Box
                         sx={{

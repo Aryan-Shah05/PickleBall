@@ -308,7 +308,12 @@ const BookCourt: React.FC = () => {
           p: 3, 
           bgcolor: 'white',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 3,
+          borderRadius: 1,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': { 
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }
         }}>
           <FormControl fullWidth>
             <InputLabel>Select Court</InputLabel>
@@ -320,6 +325,7 @@ const BookCourt: React.FC = () => {
               required
               sx={{
                 bgcolor: 'white',
+                borderRadius: 1,
                 '& .MuiOutlinedInput-notchedOutline': {
                   borderColor: pickleballColors.court.main + '40',
                 },
@@ -328,6 +334,10 @@ const BookCourt: React.FC = () => {
                 },
                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                   borderColor: pickleballColors.court.main,
+                },
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
                 },
               }}
             >
@@ -344,7 +354,12 @@ const BookCourt: React.FC = () => {
           p: 3, 
           bgcolor: 'white',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: 3,
+          borderRadius: 1,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': { 
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }
         }}>
           <BookingCalendar
             selectedDate={bookingDate || new Date()}
@@ -369,8 +384,12 @@ const BookCourt: React.FC = () => {
           sx={{ 
             mt: 2,
             bgcolor: pickleballColors.court.main,
+            borderRadius: 1,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
               bgcolor: pickleballColors.court.dark,
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             },
             '&.Mui-disabled': {
               bgcolor: pickleballColors.court.main + '80',

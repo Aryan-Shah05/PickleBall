@@ -250,7 +250,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               {!isMobile && (
                 <Stack 
                   direction="row" 
-                  spacing={1}
+                  spacing={2}
                   sx={{ 
                     display: 'flex',
                     alignItems: 'center',
@@ -271,7 +271,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
                         color: location.pathname === item.path ? pickleballColors.court.main : pickleballColors.court.main,
-                        borderRadius: 2,
+                        borderRadius: 1,
                         px: 2,
                         py: 1,
                         transition: 'all 0.3s ease-in-out',
@@ -283,14 +283,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           bottom: 0,
                           left: '50%',
                           width: location.pathname === item.path ? '100%' : '0%',
-                          height: '3px',
+                          height: '2px',
                           background: `linear-gradient(90deg, ${pickleballColors.court.main} 0%, ${pickleballColors.ball.main} 100%)`,
                           transition: 'all 0.3s ease-in-out',
                           transform: 'translateX(-50%)',
-                          borderRadius: '4px',
+                          borderRadius: '2px',
                         },
                         '&:hover': {
-                          backgroundColor: `${pickleballColors.court.main}15`,
+                          backgroundColor: `${pickleballColors.court.main}10`,
                           transform: 'translateY(-2px)',
                           '&::after': {
                             width: '100%',

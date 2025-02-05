@@ -120,16 +120,16 @@ export const Dashboard: React.FC = () => {
           gap: 1,
         }}
       >
-        Hi, {user?.firstName || 'Player'}! <Box component="span" sx={{ fontSize: '1.5em' }}>👋</Box>
+        Hi, Pickler! <Box component="span" sx={{ fontSize: '1.5em' }}>👋</Box>
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Statistics Cards - Now in 2x2 grid on smaller screens */}
-        <Grid item xs={12} sm={6} md={3}>
+        {/* Statistics Cards - 2x2 grid on mobile */}
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 3,
+            borderRadius: 1,
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -147,11 +147,11 @@ export const Dashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 3,
+            borderRadius: 1,
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -169,11 +169,11 @@ export const Dashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 3,
+            borderRadius: 1,
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -191,11 +191,11 @@ export const Dashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: 3,
+            borderRadius: 1,
             height: '100%',
             '&:hover': { 
               transform: 'translateY(-4px)',
@@ -219,7 +219,7 @@ export const Dashboard: React.FC = () => {
         <Card sx={{ 
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          borderRadius: 3,
+          borderRadius: 1,
           mb: 4,
           '&:hover': { 
             transform: 'translateY(-4px)',
@@ -235,6 +235,7 @@ export const Dashboard: React.FC = () => {
                 variant="contained"
                 sx={{
                   bgcolor: pickleballTheme.court,
+                  borderRadius: 1,
                   '&:hover': {
                     bgcolor: pickleballTheme.paddle,
                   },
@@ -247,10 +248,11 @@ export const Dashboard: React.FC = () => {
             
             <Grid container spacing={2}>
               {dashboardData.courts.available.map((court) => (
-                <Grid item xs={6} sm={6} md={4} key={court.id}>
+                <Grid item xs={12} sm={12} md={12} key={court.id}>
                   <Card 
                     variant="outlined"
                     sx={{ 
+                      borderRadius: 1,
                       transition: 'all 0.2s ease-in-out',
                       '&:hover': {
                         transform: 'translateY(-4px)',
