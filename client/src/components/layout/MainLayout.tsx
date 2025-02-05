@@ -28,6 +28,7 @@ import {
   EventNote,
   ExitToApp,
   AccountCircle,
+  LocationOn,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../api/api';
@@ -80,6 +81,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { text: 'Book Court', icon: <SportsTennis />, path: '/book' },
     { text: 'My Bookings', icon: <EventNote />, path: '/bookings' },
+    { 
+      text: 'Location', 
+      icon: <LocationOn />, 
+      path: 'https://www.google.com/maps/place/PicklPark/@21.1555839,72.7798215,14z/data=!4m6!3m5!1s0x3be053efda7e1361:0x70b85a550cb5d1c3!8m2!3d21.1444004!4d72.7840529!16s%2Fg%2F11lnkhjkrq?entry=tts&g_ep=EgoyMDI1MDEyOS4xIPu8ASoASAFQAw%3D%3D',
+      external: true 
+    },
   ];
 
   const drawer = (
@@ -116,8 +123,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {navigationItems.map((item) => (
           <ListItemButton
             key={item.text}
-            onClick={() => navigate(item.path)}
-            selected={location.pathname === item.path}
+            onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
+            selected={!item.external && location.pathname === item.path}
             sx={{
               borderRadius: 1,
               mx: 1,
@@ -261,7 +268,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           {item.icon}
                         </Box>
                       }
-                      onClick={() => navigate(item.path)}
+                      onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
                         color: location.pathname === item.path ? pickleballColors.court.main : pickleballColors.court.main,
                         borderRadius: 2,

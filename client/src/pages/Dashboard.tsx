@@ -218,11 +218,16 @@ export const Dashboard: React.FC = () => {
       <Grid item xs={12}>
         <Card sx={{ 
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          transition: 'transform 0.2s ease-in-out',
-          '&:hover': { transform: 'translateY(-4px)' }
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          borderRadius: 3,
+          mb: 4,
+          '&:hover': { 
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }
         }}>
           <CardContent>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
               <Typography variant="h6" sx={{ color: pickleballTheme.paddle }}>
                 Available Courts ({dashboardData.courts.available.length})
               </Typography>
@@ -242,7 +247,7 @@ export const Dashboard: React.FC = () => {
             
             <Grid container spacing={2}>
               {dashboardData.courts.available.map((court) => (
-                <Grid item xs={12} sm={6} md={4} key={court.id}>
+                <Grid item xs={6} sm={6} md={4} key={court.id}>
                   <Card 
                     variant="outlined"
                     sx={{ 
@@ -296,8 +301,12 @@ export const Dashboard: React.FC = () => {
       <Grid item xs={12}>
         <Card sx={{ 
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          transition: 'transform 0.2s ease-in-out',
-          '&:hover': { transform: 'translateY(-4px)' }
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          borderRadius: 3,
+          '&:hover': { 
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }
         }}>
           <CardContent>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

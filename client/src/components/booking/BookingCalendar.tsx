@@ -52,7 +52,7 @@ interface BookingCalendarProps {
   timeSlots: TimeSlot[];
   selectedTimeSlot?: string;
   onTimeSlotSelect: (time: string) => void;
-  courtAvailability: {
+  courtAvailability?: {
     [key: string]: boolean;
   };
 }
@@ -227,25 +227,27 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
         </Grid>
 
         {/* Mini Court Diagram */}
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" gutterBottom>
-            Court Availability
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            {Object.entries(courtAvailability).map(([courtId, isAvailable]) => (
-              <Box key={courtId} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Court {courtId}
-                </Typography>
-                <CourtDiagram
-                  isAvailable={isAvailable}
-                  width="100%"
-                  height={100}
-                />
-              </Box>
-            ))}
-          </Box>
-        </Grid>
+        {courtAvailability && Object.keys(courtAvailability).length > 0 && (
+          <Grid item xs={12} md={4}>
+            <Typography variant="h6" gutterBottom>
+              Court Availability
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              {Object.entries(courtAvailability).map(([courtId, isAvailable]) => (
+                <Box key={courtId} sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Court {courtId}
+                  </Typography>
+                  <CourtDiagram
+                    isAvailable={isAvailable}
+                    width="100%"
+                    height={100}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

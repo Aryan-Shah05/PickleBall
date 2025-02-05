@@ -9,11 +9,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Card,
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import { addDays, format, isPast, isAfter, isSameDay } from 'date-fns';
 import { BookingCalendar } from '../components/booking/BookingCalendar';
+import { pickleballColors } from '@/styles/theme';
 
 interface Court {
   id: string;
@@ -310,36 +312,62 @@ const BookCourt: React.FC = () => {
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
 
-        <FormControl fullWidth>
-          <InputLabel>Select Court</InputLabel>
-          <Select
-            value={selectedCourt}
-            label="Select Court"
-            onChange={(e) => setSelectedCourt(e.target.value)}
-            disabled={submitting}
-            required
-          >
-            {courts.map((court) => (
-              <MenuItem key={court.id} value={court.id}>
-                {court.name} - ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Card sx={{ 
+          p: 3, 
+          bgcolor: 'white',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          borderRadius: 3,
+        }}>
+          <FormControl fullWidth>
+            <InputLabel>Select Court</InputLabel>
+            <Select
+              value={selectedCourt}
+              label="Select Court"
+              onChange={(e) => setSelectedCourt(e.target.value)}
+              disabled={submitting}
+              required
+              sx={{
+                bgcolor: 'white',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: pickleballColors.court.main + '40',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: pickleballColors.court.main,
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: pickleballColors.court.main,
+                },
+              }}
+            >
+              {courts.map((court) => (
+                <MenuItem key={court.id} value={court.id}>
+                  {court.name} - ₹{court.hourlyRate}/hour (Peak: ₹{court.peakHourRate}/hour after 5 PM)
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Card>
 
-        <BookingCalendar
-          selectedDate={bookingDate || new Date()}
-          onDateChange={setBookingDate}
-          timeSlots={formattedTimeSlots}
-          selectedTimeSlot={selectedTimeSlot}
-          onTimeSlotSelect={time => {
-            const slot = timeSlots.find(s => format(s.startTime, 'h:mm a') === time);
-            if (slot) {
-              handleTimeSlotSelect(slot);
-            }
-          }}
-          courtAvailability={courtAvailability}
-        />
+        <Card sx={{ 
+          p: 3, 
+          bgcolor: 'white',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          borderRadius: 3,
+        }}>
+          <BookingCalendar
+            selectedDate={bookingDate || new Date()}
+            onDateChange={setBookingDate}
+            timeSlots={formattedTimeSlots}
+            selectedTimeSlot={selectedTimeSlot}
+            onTimeSlotSelect={time => {
+              const slot = timeSlots.find(s => format(s.startTime, 'h:mm a') === time);
+              if (slot) {
+                handleTimeSlotSelect(slot);
+              }
+            }}
+            courtAvailability={{}}
+          />
+        </Card>
 
         <Button
           type="submit"
@@ -347,7 +375,16 @@ const BookCourt: React.FC = () => {
           color="primary"
           size="large"
           disabled={submitting || !selectedTimeSlot}
-          sx={{ mt: 2 }}
+          sx={{ 
+            mt: 2,
+            bgcolor: pickleballColors.court.main,
+            '&:hover': {
+              bgcolor: pickleballColors.court.dark,
+            },
+            '&.Mui-disabled': {
+              bgcolor: pickleballColors.court.main + '80',
+            },
+          }}
         >
           {submitting ? <CircularProgress size={24} /> : 'Book Court'}
         </Button>
