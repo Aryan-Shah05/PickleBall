@@ -110,7 +110,7 @@ export const Dashboard: React.FC = () => {
         variant="h4" 
         gutterBottom 
         sx={{ 
-          color: '#8e44ad',
+          color: '#34495E',
           fontWeight: 600,
           mb: 4,
           display: 'flex',
@@ -132,13 +132,16 @@ export const Dashboard: React.FC = () => {
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              '& .MuiTypography-root': {
+                color: pickleballTheme.accent,
+              },
             }
           }}>
             <CardContent>
-              <Typography color="#8e44ad" gutterBottom variant="subtitle2">
+              <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Total Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: '#8e44ad', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
                 {dashboardData.statistics.totalBookings}
               </Typography>
             </CardContent>
@@ -154,13 +157,16 @@ export const Dashboard: React.FC = () => {
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              '& .MuiTypography-root': {
+                color: pickleballTheme.accent,
+              },
             }
           }}>
             <CardContent>
-              <Typography color="#8e44ad" gutterBottom variant="subtitle2">
+              <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Available Courts
               </Typography>
-              <Typography variant="h4" sx={{ color: '#8e44ad', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
                 {dashboardData.statistics.availableCourts} / {dashboardData.statistics.totalCourts}
               </Typography>
             </CardContent>
@@ -176,13 +182,16 @@ export const Dashboard: React.FC = () => {
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              '& .MuiTypography-root': {
+                color: pickleballTheme.accent,
+              },
             }
           }}>
             <CardContent>
-              <Typography color="#8e44ad" gutterBottom variant="subtitle2">
+              <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Cancelled Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: '#8e44ad', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
                 {dashboardData.statistics.cancelledBookings}
               </Typography>
             </CardContent>
@@ -198,13 +207,16 @@ export const Dashboard: React.FC = () => {
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              '& .MuiTypography-root': {
+                color: pickleballTheme.accent,
+              },
             }
           }}>
             <CardContent>
-              <Typography color="#8e44ad" gutterBottom variant="subtitle2">
+              <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Total Spent
               </Typography>
-              <Typography variant="h4" sx={{ color: '#8e44ad', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
                 ₹{dashboardData.statistics.totalSpent}
               </Typography>
             </CardContent>
@@ -227,16 +239,16 @@ export const Dashboard: React.FC = () => {
         }}>
           <CardContent>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Typography variant="h6" sx={{ color: '#8e44ad' }}>
+              <Typography variant="h6" sx={{ color: '#34495E' }}>
                 Available Courts ({dashboardData.courts.available.length})
               </Typography>
               <Button
                 variant="contained"
                 sx={{
-                  bgcolor: pickleballTheme.court,
+                  bgcolor: '#34495E',
                   borderRadius: '12px',
                   '&:hover': {
-                    bgcolor: pickleballTheme.paddle,
+                    bgcolor: pickleballTheme.accent,
                   },
                 }}
                 onClick={() => navigate('/book')}
@@ -253,16 +265,19 @@ export const Dashboard: React.FC = () => {
                     sx={{ 
                       borderRadius: '8px',
                       transition: 'all 0.2s ease-in-out',
-                      border: `1px solid ${pickleballTheme.paddle}20`,
+                      border: `1px solid #34495E20`,
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        border: `1px solid #8e44ad`,
+                        border: `1px solid ${pickleballTheme.accent}`,
+                        '& .MuiTypography-root': {
+                          color: pickleballTheme.accent,
+                        },
                       }
                     }}
                   >
                     <CardContent>
-                      <Typography variant="h6" gutterBottom sx={{ color: '#8e44ad' }}>
+                      <Typography variant="h6" gutterBottom sx={{ color: '#34495E' }}>
                         {court.name}
                       </Typography>
                       <Stack spacing={1}>
@@ -279,12 +294,12 @@ export const Dashboard: React.FC = () => {
                           variant="outlined"
                           size="small"
                           sx={{
-                            color: '#8e44ad',
-                            borderColor: '#8e44ad',
+                            color: '#34495E',
+                            borderColor: '#34495E',
                             borderRadius: '8px',
                             '&:hover': {
-                              borderColor: '#8e44ad',
-                              color: '#8e44ad',
+                              borderColor: pickleballTheme.accent,
+                              color: pickleballTheme.accent,
                               transform: 'translateY(-2px)',
                             },
                           }}
@@ -315,17 +330,17 @@ export const Dashboard: React.FC = () => {
         }}>
           <CardContent>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="h6" sx={{ color: '#8e44ad' }}>
+              <Typography variant="h6" sx={{ color: '#34495E' }}>
                 Upcoming Bookings
               </Typography>
               <Button
                 variant="outlined"
                 sx={{
-                  color: pickleballTheme.court,
-                  borderColor: pickleballTheme.court,
+                  color: '#34495E',
+                  borderColor: '#34495E',
                   '&:hover': {
-                    borderColor: pickleballTheme.paddle,
-                    color: pickleballTheme.paddle,
+                    borderColor: pickleballTheme.accent,
+                    color: pickleballTheme.accent,
                   },
                 }}
                 onClick={() => navigate('/bookings')}
@@ -346,18 +361,21 @@ export const Dashboard: React.FC = () => {
                         '&:hover': {
                           transform: 'translateY(-4px)',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          '& .MuiTypography-root': {
+                            color: pickleballTheme.accent,
+                          },
                         }
                       }}
                     >
                       <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ color: '#8e44ad' }}>
+                        <Typography variant="h6" gutterBottom sx={{ color: '#34495E' }}>
                           {booking.court.name}
                         </Typography>
                         <Stack spacing={1}>
-                          <Typography>
+                          <Typography color="textSecondary">
                             Date: {format(new Date(booking.startTime), 'MMM dd, yyyy')}
                           </Typography>
-                          <Typography>
+                          <Typography color="textSecondary">
                             Time: {format(new Date(booking.startTime), 'h:mm a')} - {format(new Date(booking.endTime), 'h:mm a')}
                           </Typography>
                           <Typography color="textSecondary">
@@ -374,7 +392,7 @@ export const Dashboard: React.FC = () => {
                 severity="info"
                 sx={{
                   '& .MuiAlert-icon': {
-                    color: pickleballTheme.ball,
+                    color: pickleballTheme.accent,
                   },
                 }}
               >
