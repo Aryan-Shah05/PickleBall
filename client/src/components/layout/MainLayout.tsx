@@ -389,7 +389,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
-                    borderRadius: '2px',
+                    borderRadius: '12px',
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
                       backgroundColor: `#48BB7815`,
