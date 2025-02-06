@@ -242,7 +242,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 }}
               >
                 <SportsTennis sx={{ 
-                  color: '#2C5282',
+                  color: '#48BB78',
                   animation: 'bounce 2s infinite',
                   '@keyframes bounce': {
                     '0%, 100%': { transform: 'rotate(0deg) scale(1)' },

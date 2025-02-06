@@ -386,13 +386,6 @@ const BookCourt: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          '&::after': {
-            content: '""',
-            flex: 1,
-            height: '2px',
-            background: `linear-gradient(90deg, #2C5282 0%, #48BB78 100%)`,
-            borderRadius: '2px',
-          },
         }}
       >
         Book a Court
