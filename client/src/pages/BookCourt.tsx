@@ -346,9 +346,7 @@ const BookCourt: React.FC = () => {
   if (error) {
     return (
       <Box p={3}>
-        <Fade in timeout={500}>
-          <Alert severity="error">{error}</Alert>
-        </Fade>
+        <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
@@ -356,9 +354,7 @@ const BookCourt: React.FC = () => {
   if (selectedCourt && bookingDate && (!timeSlots || timeSlots.length === 0)) {
     return (
       <Box p={3}>
-        <Fade in timeout={500}>
-          <Alert severity="info">No time slots available for the selected date. Please try another date.</Alert>
-        </Fade>
+        <Alert severity="info">No time slots available for the selected date. Please try another date.</Alert>
       </Box>
     );
   }
@@ -382,235 +378,220 @@ const BookCourt: React.FC = () => {
         },
       }}
     >
-      <Slide direction="down" in mountOnEnter unmountOnExit timeout={500}>
-        <Typography 
-          variant="h4" 
-          gutterBottom 
-          sx={{ 
-            color: '#2C5282',
-            fontWeight: 600,
-            mb: 4,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          color: '#2C5282',
+          fontWeight: 600,
+          mb: 4,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          '&::after': {
+            content: '""',
+            flex: 1,
+            height: '2px',
+            background: `linear-gradient(90deg, #2C5282 0%, #48BB78 100%)`,
+            borderRadius: '2px',
+          },
+        }}
+      >
+        Book a Court
+      </Typography>
+
+      <Card sx={{ 
+        p: 3,
+        mb: 3,
+        boxShadow: '0 4px 12px rgba(44, 82, 130, 0.1)',
+        borderRadius: '12px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(8px)',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '3px',
+          background: `linear-gradient(90deg, #2C5282, #F6E05E, #48BB78)`,
+        },
+        '&:hover': {
+          boxShadow: '0 8px 24px rgba(44, 82, 130, 0.15)',
+          transform: 'translateY(-2px)',
+          transition: 'all 0.3s ease',
+        }
+      }}>
+        <Stack spacing={3}>
+          <FormControl fullWidth>
+            <InputLabel id="court-select-label" sx={{ color: '#2C5282' }}>Select Court</InputLabel>
+            <Select
+              labelId="court-select-label"
+              value={selectedCourt}
+              label="Select Court"
+              onChange={(e) => setSelectedCourt(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#2C528240',
+                  borderWidth: '2px',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#48BB78',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#48BB78',
+                },
+                color: '#2C5282',
+                '& .MuiSvgIcon-root': {
+                  color: '#2C5282',
+                },
+              }}
+            >
+              {courts.map((court) => (
+                <MenuItem 
+                  key={court.id} 
+                  value={court.id}
+                  sx={{
+                    color: '#2C5282',
+                    '&:hover': {
+                      color: '#48BB78',
+                      backgroundColor: `#48BB7810`,
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: `#48BB7820`,
+                      color: '#48BB78',
+                      '&:hover': {
+                        backgroundColor: `#48BB7830`,
+                      },
+                    },
+                  }}
+                >
+                  {court.name} - ₹{court.hourlyRate}/hour
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Box sx={{ 
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: -16,
+              left: -16,
+              right: -16,
+              height: '1px',
+              background: `linear-gradient(90deg, transparent, #2C528220, transparent)`,
+            },
             '&::after': {
               content: '""',
-              flex: 1,
-              height: '2px',
-              background: `linear-gradient(90deg, #2C5282 0%, #48BB78 100%)`,
-              borderRadius: '2px',
+              position: 'absolute',
+              bottom: -16,
+              left: -16,
+              right: -16,
+              height: '1px',
+              background: `linear-gradient(90deg, transparent, #2C528220, transparent)`,
             },
-          }}
-        >
-          Book a Court
-        </Typography>
-      </Slide>
+          }}>
+            <BookingCalendar
+              selectedDate={bookingDate || new Date()}
+              onDateChange={(date: Date) => setBookingDate(date)}
+              timeSlots={timeSlots.map(slot => ({
+                time: slot.time,
+                isAvailable: slot.isAvailable,
+                isPeakHour: slot.isPeakHour,
+                price: slot.price
+              } as CalendarTimeSlot))}
+              selectedTimeSlot={selectedTimeSlot}
+              onTimeSlotSelect={handleTimeSlotSelect}
+            />
+          </Box>
 
-      <Fade in timeout={800}>
-        <Card sx={{ 
-          p: 3,
-          mb: 3,
-          boxShadow: '0 4px 12px rgba(44, 82, 130, 0.1)',
-          borderRadius: '12px',
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(8px)',
-          position: 'relative',
-          overflow: 'hidden',
-          animation: `${slideIn} 0.5s ease-out`,
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '3px',
-            background: `linear-gradient(90deg, #2C5282, #F6E05E, #48BB78)`,
-          },
-          '&:hover': {
-            boxShadow: '0 8px 24px rgba(44, 82, 130, 0.15)',
-            transform: 'translateY(-2px)',
-            transition: 'all 0.3s ease',
-          }
-        }}>
-          <Stack spacing={3}>
-            <Slide direction="right" in mountOnEnter unmountOnExit timeout={500}>
-              <FormControl fullWidth>
-                <InputLabel id="court-select-label" sx={{ color: '#2C5282' }}>Select Court</InputLabel>
-                <Select
-                  labelId="court-select-label"
-                  value={selectedCourt}
-                  label="Select Court"
-                  onChange={(e) => setSelectedCourt(e.target.value)}
-                  sx={{
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2C528240',
-                      borderWidth: '2px',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#48BB78',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#48BB78',
-                    },
-                    color: '#2C5282',
-                    '& .MuiSvgIcon-root': {
-                      color: '#2C5282',
-                    },
-                  }}
-                >
-                  {courts.map((court) => (
-                    <MenuItem 
-                      key={court.id} 
-                      value={court.id}
-                      sx={{
-                        color: '#2C5282',
-                        '&:hover': {
-                          color: '#48BB78',
-                          backgroundColor: `#48BB7810`,
-                        },
-                        '&.Mui-selected': {
-                          backgroundColor: `#48BB7820`,
-                          color: '#48BB78',
-                          '&:hover': {
-                            backgroundColor: `#48BB7830`,
-                          },
-                        },
-                      }}
-                    >
-                      {court.name} - ₹{court.hourlyRate}/hour
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Slide>
-
-            <Slide direction="left" in mountOnEnter unmountOnExit timeout={700}>
-              <Box sx={{ 
-                position: 'relative',
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={submitting}
+            sx={{
+              bgcolor: '#2C5282',
+              color: 'white',
+              py: 1.5,
+              borderRadius: '8px',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: `linear-gradient(45deg, #48BB78, #2C5282)`,
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+              },
+              '&:hover': {
+                bgcolor: '#2C5282',
                 '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: -16,
-                  left: -16,
-                  right: -16,
-                  height: '1px',
-                  background: `linear-gradient(90deg, transparent, #2C528220, transparent)`,
+                  opacity: 1,
                 },
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  bottom: -16,
-                  left: -16,
-                  right: -16,
-                  height: '1px',
-                  background: `linear-gradient(90deg, transparent, #2C528220, transparent)`,
-                },
-              }}>
-                <BookingCalendar
-                  selectedDate={bookingDate || new Date()}
-                  onDateChange={(date: Date) => setBookingDate(date)}
-                  timeSlots={timeSlots.map(slot => ({
-                    time: slot.time,
-                    isAvailable: slot.isAvailable,
-                    isPeakHour: slot.isPeakHour,
-                    price: slot.price
-                  } as CalendarTimeSlot))}
-                  selectedTimeSlot={selectedTimeSlot}
-                  onTimeSlotSelect={handleTimeSlotSelect}
+              },
+              '&:disabled': {
+                bgcolor: '#2C528280',
+              },
+              '& .MuiButton-label': {
+                position: 'relative',
+                zIndex: 1,
+              },
+            }}
+          >
+            {submitting ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <SportsTennis 
+                  sx={{ 
+                    animation: `${spin} 1s linear infinite`,
+                    fontSize: 20,
+                  }} 
                 />
+                Booking...
               </Box>
-            </Slide>
-
-            <Slide direction="up" in mountOnEnter unmountOnExit timeout={900}>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={submitting}
-                sx={{
-                  bgcolor: '#2C5282',
-                  color: 'white',
-                  py: 1.5,
-                  borderRadius: '8px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: `linear-gradient(45deg, #48BB78, #2C5282)`,
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover': {
-                    bgcolor: '#2C5282',
-                    '&::before': {
-                      opacity: 1,
-                    },
-                  },
-                  '&:disabled': {
-                    bgcolor: '#2C528280',
-                  },
-                  '& .MuiButton-label': {
-                    position: 'relative',
-                    zIndex: 1,
-                  },
-                }}
-              >
-                {submitting ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <SportsTennis 
-                      sx={{ 
-                        animation: `${spin} 1s linear infinite`,
-                        fontSize: 20,
-                      }} 
-                    />
-                    Booking...
-                  </Box>
-                ) : (
-                  'Book Court'
-                )}
-              </Button>
-            </Slide>
-
-            {error && (
-              <Fade in timeout={500}>
-                <Alert 
-                  severity="error"
-                  sx={{
-                    borderRadius: '8px',
-                    animation: `${slideIn} 0.3s ease-out`,
-                    '& .MuiAlert-icon': {
-                      color: '#F6E05E',
-                    },
-                  }}
-                >
-                  {error}
-                </Alert>
-              </Fade>
+            ) : (
+              'Book Court'
             )}
+          </Button>
 
-            {success && (
-              <Fade in timeout={500}>
-                <Alert 
-                  severity="success"
-                  sx={{
-                    borderRadius: '8px',
-                    animation: `${slideIn} 0.3s ease-out`,
-                    '& .MuiAlert-icon': {
-                      color: '#48BB78',
-                    },
-                  }}
-                >
-                  {success}
-                </Alert>
-              </Fade>
-            )}
-          </Stack>
-        </Card>
-      </Fade>
+          {error && (
+            <Alert 
+              severity="error"
+              sx={{
+                borderRadius: '8px',
+                animation: `${slideIn} 0.3s ease-out`,
+                '& .MuiAlert-icon': {
+                  color: '#F6E05E',
+                },
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert 
+              severity="success"
+              sx={{
+                borderRadius: '8px',
+                animation: `${slideIn} 0.3s ease-out`,
+                '& .MuiAlert-icon': {
+                  color: '#48BB78',
+                },
+              }}
+            >
+              {success}
+            </Alert>
+          )}
+        </Stack>
+      </Card>
     </Box>
   );
 };

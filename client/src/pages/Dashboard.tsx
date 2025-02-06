@@ -14,18 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
-// Import theme colors from MainLayout
-const pickleballTheme = {
-  court: '#2ecc71', // Pickleball court green
-  courtLight: '#a8e6cf', // Light court color
-  ball: '#f39c12',  // Pickleball yellow/orange
-  paddle: '#8e44ad', // Paddle purple
-  net: '#2c3e50',   // Net dark blue
-  accent: '#e74c3c', // Energetic red accent
-  background: 'rgba(255, 255, 255, 0.9)', // Translucent white
-  backgroundDark: 'rgba(44, 62, 80, 0.95)', // Translucent dark
-};
-
 interface Court {
   id: string;
   name: string;
@@ -106,7 +94,7 @@ export const Dashboard: React.FC = () => {
         variant="h4" 
         gutterBottom 
         sx={{ 
-          color: '#34495E',
+          color: '#2C5282',
           fontWeight: 600,
           mb: 4,
           display: 'flex',
@@ -129,7 +117,7 @@ export const Dashboard: React.FC = () => {
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               '& .MuiTypography-root': {
-                color: pickleballTheme.accent,
+                color: '#48BB78',
               },
             }
           }}>
@@ -154,7 +142,7 @@ export const Dashboard: React.FC = () => {
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               '& .MuiTypography-root': {
-                color: pickleballTheme.accent,
+                color: '#48BB78',
               },
             }
           }}>
@@ -179,7 +167,7 @@ export const Dashboard: React.FC = () => {
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               '& .MuiTypography-root': {
-                color: pickleballTheme.accent,
+                color: '#48BB78',
               },
             }
           }}>
@@ -204,7 +192,7 @@ export const Dashboard: React.FC = () => {
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               '& .MuiTypography-root': {
-                color: pickleballTheme.accent,
+                color: '#48BB78',
               },
             }
           }}>
@@ -241,10 +229,10 @@ export const Dashboard: React.FC = () => {
               <Button
                 variant="contained"
                 sx={{
-                  bgcolor: '#34495E',
+                  bgcolor: '#2C5282',
                   borderRadius: '12px',
                   '&:hover': {
-                    bgcolor: pickleballTheme.accent,
+                    bgcolor: '#48BB78',
                   },
                 }}
                 onClick={() => navigate('/book')}
@@ -261,13 +249,13 @@ export const Dashboard: React.FC = () => {
                     sx={{ 
                       borderRadius: '8px',
                       transition: 'all 0.2s ease-in-out',
-                      border: `1px solid #34495E20`,
+                      border: `1px solid #2C528220`,
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        border: `1px solid ${pickleballTheme.accent}`,
+                        border: `1px solid #48BB78`,
                         '& .MuiTypography-root': {
-                          color: pickleballTheme.accent,
+                          color: '#48BB78',
                         },
                       }
                     }}
@@ -290,12 +278,12 @@ export const Dashboard: React.FC = () => {
                           variant="outlined"
                           size="small"
                           sx={{
-                            color: '#34495E',
-                            borderColor: '#34495E',
+                            color: '#2C5282',
+                            borderColor: '#2C5282',
                             borderRadius: '8px',
                             '&:hover': {
-                              borderColor: pickleballTheme.accent,
-                              color: pickleballTheme.accent,
+                              borderColor: '#48BB78',
+                              color: '#48BB78',
                               transform: 'translateY(-2px)',
                             },
                           }}
@@ -332,11 +320,11 @@ export const Dashboard: React.FC = () => {
               <Button
                 variant="outlined"
                 sx={{
-                  color: '#34495E',
-                  borderColor: '#34495E',
+                  color: '#2C5282',
+                  borderColor: '#2C5282',
                   '&:hover': {
-                    borderColor: pickleballTheme.accent,
-                    color: pickleballTheme.accent,
+                    borderColor: '#48BB78',
+                    color: '#48BB78',
                   },
                 }}
                 onClick={() => navigate('/bookings')}
@@ -358,7 +346,7 @@ export const Dashboard: React.FC = () => {
                           transform: 'translateY(-4px)',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                           '& .MuiTypography-root': {
-                            color: pickleballTheme.accent,
+                            color: '#48BB78',
                           },
                         }
                       }}
@@ -388,7 +376,7 @@ export const Dashboard: React.FC = () => {
                 severity="info"
                 sx={{
                   '& .MuiAlert-icon': {
-                    color: pickleballTheme.accent,
+                    color: '#48BB78',
                   },
                 }}
               >
