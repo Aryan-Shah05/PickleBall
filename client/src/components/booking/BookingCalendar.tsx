@@ -75,16 +75,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
             transform: 'translateY(-4px)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             border: `1px solid ${pickleballColors.court.main}40`,
-          },
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2px',
-            background: `linear-gradient(90deg, ${pickleballColors.court.main}, ${pickleballColors.ball.main})`,
-          },
+          }
         }}
       >
         <Box
@@ -156,7 +147,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
                 <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>
                   {format(date, 'EEE')}
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 600,
+                    color: isSameDay(date, selectedDate) ? 'white' : pickleballColors.court.main
+                  }}
+                >
                   {format(date, 'd')}
                 </Typography>
               </Paper>
@@ -173,7 +170,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
           </Typography>
           <Grid container spacing={2}>
             {timeSlots.map((slot) => (
-              <Grid item xs={12} sm={6} md={4} key={slot.time}>
+              <Grid item xs={6} sm={6} md={4} key={slot.time}>
                 <Tooltip
                   title={`${slot.isPeakHour ? 'Peak Hour - ' : ''}₹${slot.price}`}
                   arrow

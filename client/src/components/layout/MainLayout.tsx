@@ -90,10 +90,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   ];
 
   const drawer = (
-    <Box>
+    <Box sx={{ 
+      height: '100%',
+      background: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(12px)',
+    }}>
       <Toolbar 
         sx={{ 
-          background: `linear-gradient(135deg, #34495E 0%, #2c3e50 100%)`,
+          background: 'rgba(52, 73, 94, 0.8)',
+          backdropFilter: 'blur(12px)',
           color: 'white',
         }}
       >
@@ -115,10 +120,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </Typography>
       </Toolbar>
       <List sx={{ 
-        background: '#f8f9fa',
         height: '100%',
         '& .MuiListItemButton-root': {
           my: 0.5,
+          backdropFilter: 'blur(12px)',
+          background: 'rgba(255, 255, 255, 0.5)',
         }
       }}>
         {navigationItems.map((item) => (
@@ -416,14 +422,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             keepMounted: true,
           }}
           sx={{
+            display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              borderRight: 'none',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)',
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: 'rgba(255, 255, 255, 0.8)',
               backdropFilter: 'blur(12px)',
-              borderRadius: { xs: 0, sm: '0 2px 2px 0' },
+              border: 'none',
             },
           }}
         >

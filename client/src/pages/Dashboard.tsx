@@ -113,19 +113,18 @@ export const Dashboard: React.FC = () => {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             borderRadius: '12px',
             height: '100%',
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              '& .MuiTypography-root': {
-                color: '#48BB78',
-              },
             }
           }}>
             <CardContent>
               <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Total Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#48BB78', fontWeight: 600 }}>
                 {dashboardData.statistics.totalBookings}
               </Typography>
             </CardContent>
@@ -138,19 +137,18 @@ export const Dashboard: React.FC = () => {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             borderRadius: '12px',
             height: '100%',
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              '& .MuiTypography-root': {
-                color: '#48BB78',
-              },
             }
           }}>
             <CardContent>
               <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Available Courts
               </Typography>
-              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#48BB78', fontWeight: 600 }}>
                 {dashboardData.statistics.availableCourts} / {dashboardData.statistics.totalCourts}
               </Typography>
             </CardContent>
@@ -163,19 +161,18 @@ export const Dashboard: React.FC = () => {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             borderRadius: '12px',
             height: '100%',
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              '& .MuiTypography-root': {
-                color: '#48BB78',
-              },
             }
           }}>
             <CardContent>
               <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Cancelled Bookings
               </Typography>
-              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#48BB78', fontWeight: 600 }}>
                 {dashboardData.statistics.cancelledBookings}
               </Typography>
             </CardContent>
@@ -188,19 +185,18 @@ export const Dashboard: React.FC = () => {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             borderRadius: '12px',
             height: '100%',
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             '&:hover': { 
               transform: 'translateY(-4px)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              '& .MuiTypography-root': {
-                color: '#48BB78',
-              },
             }
           }}>
             <CardContent>
               <Typography color="#34495E" gutterBottom variant="subtitle2">
                 Total Spent
               </Typography>
-              <Typography variant="h4" sx={{ color: '#34495E', fontWeight: 600 }}>
+              <Typography variant="h4" sx={{ color: '#48BB78', fontWeight: 600 }}>
                 ₹{dashboardData.statistics.totalSpent}
               </Typography>
             </CardContent>
@@ -227,15 +223,16 @@ export const Dashboard: React.FC = () => {
                 Available Courts ({dashboardData.courts.available.length})
               </Typography>
               <Button
-                variant="contained"
+                variant="outlined"
+                onClick={() => navigate('/book')}
                 sx={{
-                  bgcolor: '#2C5282',
-                  borderRadius: '12px',
+                  color: '#48BB78',
+                  borderColor: '#48BB78',
                   '&:hover': {
-                    bgcolor: '#48BB78',
+                    borderColor: '#48BB78',
+                    backgroundColor: 'rgba(72, 187, 120, 0.04)',
                   },
                 }}
-                onClick={() => navigate('/book')}
               >
                 Book a Court
               </Button>
@@ -278,13 +275,11 @@ export const Dashboard: React.FC = () => {
                           variant="outlined"
                           size="small"
                           sx={{
-                            color: '#2C5282',
-                            borderColor: '#2C5282',
-                            borderRadius: '8px',
+                            color: '#48BB78',
+                            borderColor: '#48BB78',
                             '&:hover': {
                               borderColor: '#48BB78',
-                              color: '#48BB78',
-                              transform: 'translateY(-2px)',
+                              backgroundColor: 'rgba(72, 187, 120, 0.04)',
                             },
                           }}
                           onClick={() => navigate(`/book?courtId=${court.id}`)}
@@ -319,15 +314,15 @@ export const Dashboard: React.FC = () => {
               </Typography>
               <Button
                 variant="outlined"
+                onClick={() => navigate('/bookings')}
                 sx={{
-                  color: '#2C5282',
-                  borderColor: '#2C5282',
+                  color: '#48BB78',
+                  borderColor: '#48BB78',
                   '&:hover': {
                     borderColor: '#48BB78',
-                    color: '#48BB78',
+                    backgroundColor: 'rgba(72, 187, 120, 0.04)',
                   },
                 }}
-                onClick={() => navigate('/bookings')}
               >
                 View All Bookings
               </Button>
