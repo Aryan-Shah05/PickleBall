@@ -131,31 +131,31 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               mx: 1,
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: `#F6E05E20`,
+                backgroundColor: `#48BB7820`,
                 transform: 'translateX(4px)',
                 '& .MuiListItemIcon-root': {
-                  color: '#F6E05E',
+                  color: '#48BB78',
                 },
                 '& .MuiListItemText-root': {
-                  color: '#F6E05E',
+                  color: '#48BB78',
                 },
               },
               '&.Mui-selected': {
-                backgroundColor: `#F6E05E20`,
+                backgroundColor: `#48BB7820`,
                 '& .MuiListItemIcon-root': {
-                  color: '#F6E05E',
+                  color: '#48BB78',
                 },
                 '& .MuiListItemText-root': {
-                  color: '#F6E05E',
+                  color: '#48BB78',
                 },
                 '&:hover': {
-                  backgroundColor: `#F6E05E30`,
+                  backgroundColor: `#48BB7830`,
                 },
               },
             }}
           >
             <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? '#F6E05E' : 'inherit',
+              color: location.pathname === item.path ? '#48BB78' : 'inherit',
               transition: 'color 0.2s ease-in-out',
             }}>
               {item.icon}
@@ -163,7 +163,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <ListItemText 
               primary={item.text}
               sx={{
-                color: location.pathname === item.path ? '#F6E05E' : 'inherit',
+                color: location.pathname === item.path ? '#48BB78' : 'inherit',
                 transition: 'color 0.2s ease-in-out',
               }}
             />
@@ -228,7 +228,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 component={Box}
                 onClick={() => navigate('/dashboard')}
                 sx={{ 
-                  color: '#34495E', 
+                  color: '#2C5282', 
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
@@ -237,19 +237,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   letterSpacing: '0.05em',
                   cursor: 'pointer',
                   '&:hover': {
-                    color: '#F6E05E',
+                    color: '#48BB78',
                   },
                 }}
               >
                 <SportsTennis sx={{ 
-                  color: '#34495E',
+                  color: '#2C5282',
                   animation: 'bounce 2s infinite',
                   '@keyframes bounce': {
                     '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
                     '50%': { transform: 'rotate(180deg) scale(1.1)' },
                   },
                   '&:hover': {
-                    color: '#F6E05E',
+                    color: '#48BB78',
                   },
                 }} />
                 PickleBall
@@ -277,7 +277,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       key={item.text}
                       startIcon={
                         <Box sx={{ 
-                          color: location.pathname === item.path ? '#F6E05E' : '#34495E',
+                          color: location.pathname === item.path ? '#48BB78' : '#2C5282',
                           transition: 'all 0.3s ease-in-out',
                           transform: location.pathname === item.path ? 'scale(1.1)' : 'scale(1)',
                         }}>
@@ -286,7 +286,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       }
                       onClick={() => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
                       sx={{
-                        color: location.pathname === item.path ? '#F6E05E' : '#34495E',
+                        color: location.pathname === item.path ? '#48BB78' : '#2C5282',
                         borderRadius: '12px',
                         px: 2,
                         py: 1,
@@ -300,15 +300,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           left: '50%',
                           width: location.pathname === item.path ? '100%' : '0%',
                           height: '2px',
-                          background: `linear-gradient(90deg, #F6E05E 0%, #F6E05E80 100%)`,
+                          background: `linear-gradient(90deg, #48BB78 0%, #48BB7880 100%)`,
                           transition: 'all 0.3s ease-in-out',
                           transform: 'translateX(-50%)',
                           borderRadius: '12px',
                         },
                         '&:hover': {
-                          backgroundColor: `#F6E05E10`,
+                          backgroundColor: `#48BB7810`,
                           transform: 'translateY(-2px)',
-                          color: '#F6E05E',
+                          color: '#48BB78',
                           '&::after': {
                             width: '100%',
                           },
@@ -336,10 +336,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     sx={{ 
                       width: 38, 
                       height: 38, 
-                      background: `linear-gradient(135deg, ${pickleballColors.court.main} 0%, ${pickleballColors.accent.main} 100%)`,
+                      background: `linear-gradient(135deg, #2C5282 0%, #48BB78 100%)`,
                       color: 'white',
                       fontWeight: 600,
-                      boxShadow: `0 2px 12px ${pickleballColors.court.main}40`,
+                      boxShadow: `0 2px 12px #2C528240`,
                       border: `2px solid ${pickleballColors.background.paper}`,
                     }}
                   >
@@ -392,8 +392,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     borderRadius: '2px',
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
-                      backgroundColor: `#F6E05E15`,
-                      color: '#F6E05E',
+                      backgroundColor: `#48BB7815`,
+                      color: '#48BB78',
                       transform: 'translateX(4px)',
                     }
                   }}

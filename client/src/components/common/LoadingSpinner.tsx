@@ -55,8 +55,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           height: '100%',
           borderRadius: '50%',
           border: '3px solid',
-          borderColor: '#F6E05E20',
-          borderTopColor: '#F6E05E',
+          borderColor: '#48BB7820',
+          borderTopColor: '#48BB78',
           animation: `${spin} 1s linear infinite`,
         },
       }}
@@ -76,7 +76,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <Typography 
       variant="body1" 
       sx={{ 
-        color: '#F6E05E',
+        color: '#48BB78',
         animation: `${slideIn} 0.5s ease-out`,
         fontWeight: 500,
       }}
