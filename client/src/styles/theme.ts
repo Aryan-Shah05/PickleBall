@@ -3,19 +3,19 @@ import { createTheme, alpha } from '@mui/material';
 // Custom theme colors
 export const pickleballColors = {
   court: {
-    main: '#2C5282', // Court blue
+    main: '#2C5282', // Primary court blue
     light: '#4299E1',
     dark: '#2A4365',
     contrastText: '#FFFFFF',
   },
   ball: {
-    main: '#F6E05E', // Ball yellow
+    main: '#F6E05E', // Secondary ball yellow
     light: '#FAF089',
     dark: '#D69E2E',
     contrastText: '#1A202C',
   },
   accent: {
-    main: '#48BB78', // Fresh green
+    main: '#48BB78', // Fresh green accent
     light: '#9AE6B4',
     dark: '#2F855A',
     contrastText: '#FFFFFF',
@@ -80,23 +80,29 @@ export const theme = createTheme({
     h1: {
       fontWeight: 700,
       letterSpacing: '-0.025em',
+      color: pickleballColors.court.main,
     },
     h2: {
       fontWeight: 600,
       letterSpacing: '-0.025em',
+      color: pickleballColors.court.main,
     },
     h3: {
       fontWeight: 600,
       letterSpacing: '-0.025em',
+      color: pickleballColors.court.main,
     },
     h4: {
       fontWeight: 600,
+      color: pickleballColors.court.main,
     },
     h5: {
       fontWeight: 600,
+      color: pickleballColors.court.main,
     },
     h6: {
       fontWeight: 600,
+      color: pickleballColors.court.main,
     },
     button: {
       fontWeight: 600,
@@ -130,12 +136,27 @@ export const theme = createTheme({
           },
         },
         contained: {
-          backgroundImage: `linear-gradient(135deg, ${pickleballColors.court.main}, ${pickleballColors.court.dark})`,
+          background: `linear-gradient(135deg, ${pickleballColors.court.main}, ${pickleballColors.court.dark})`,
+          '&:hover': {
+            background: `linear-gradient(135deg, ${pickleballColors.accent.main}, ${pickleballColors.accent.dark})`,
+          },
         },
         outlined: {
           borderWidth: 2,
+          borderColor: pickleballColors.court.main,
+          color: pickleballColors.court.main,
           '&:hover': {
             borderWidth: 2,
+            borderColor: pickleballColors.accent.main,
+            color: pickleballColors.accent.main,
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+          },
+        },
+        text: {
+          color: pickleballColors.court.main,
+          '&:hover': {
+            color: pickleballColors.accent.main,
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
           },
         },
       },
@@ -159,39 +180,40 @@ export const theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            '& fieldset': {
+              borderColor: alpha(pickleballColors.court.main, 0.3),
+            },
+            '&:hover fieldset': {
+              borderColor: pickleballColors.accent.main,
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: pickleballColors.accent.main,
+            },
             '&:hover': {
               transform: 'translateY(-2px)',
             },
             '&.Mui-focused': {
               transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+              boxShadow: `0 4px 12px ${alpha(pickleballColors.accent.main, 0.2)}`,
             },
           },
         },
       },
     },
-    MuiAppBar: {
+    MuiSelect: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
-          backdropFilter: 'blur(8px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          borderBottom: `1px solid rgba(0, 0, 0, 0.1)`,
-          borderRadius: 12,
-        },
-      },
-    },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          backgroundColor: alpha(pickleballColors.court.dark, 0.95),
-          backdropFilter: 'blur(4px)',
-          borderRadius: 8,
-          padding: '8px 12px',
-          fontSize: '0.875rem',
-        },
-        arrow: {
-          color: alpha(pickleballColors.court.dark, 0.95),
+          '&.MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: alpha(pickleballColors.court.main, 0.3),
+            },
+            '&:hover fieldset': {
+              borderColor: pickleballColors.accent.main,
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: pickleballColors.accent.main,
+            },
+          },
         },
       },
     },
@@ -203,6 +225,44 @@ export const theme = createTheme({
           '&:hover': {
             transform: 'scale(1.05)',
           },
+          '&.MuiChip-colorPrimary': {
+            backgroundColor: alpha(pickleballColors.court.main, 0.1),
+            color: pickleballColors.court.main,
+          },
+          '&.MuiChip-colorSecondary': {
+            backgroundColor: alpha(pickleballColors.ball.main, 0.1),
+            color: pickleballColors.ball.dark,
+          },
+          '&.MuiChip-colorSuccess': {
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+            color: pickleballColors.accent.main,
+          },
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          '&.MuiAlert-standardSuccess': {
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+            color: pickleballColors.accent.dark,
+            '& .MuiAlert-icon': {
+              color: pickleballColors.accent.main,
+            },
+          },
+          '&.MuiAlert-standardError': {
+            '& .MuiAlert-icon': {
+              color: pickleballColors.ball.main,
+            },
+          },
+          '&.MuiAlert-standardInfo': {
+            backgroundColor: alpha(pickleballColors.court.main, 0.1),
+            color: pickleballColors.court.dark,
+            '& .MuiAlert-icon': {
+              color: pickleballColors.court.main,
+            },
+          },
         },
       },
     },
@@ -212,6 +272,44 @@ export const theme = createTheme({
           borderRadius: 12,
           backgroundImage: `linear-gradient(135deg, ${alpha(pickleballColors.background.paper, 0.98)}, ${alpha(pickleballColors.background.paper, 0.95)})`,
           backdropFilter: 'blur(8px)',
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+            color: pickleballColors.accent.main,
+            transform: 'translateX(4px)',
+            '& .MuiListItemIcon-root': {
+              color: pickleballColors.accent.main,
+            },
+          },
+          '&.Mui-selected': {
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+            color: pickleballColors.accent.main,
+            '& .MuiListItemIcon-root': {
+              color: pickleballColors.accent.main,
+            },
+            '&:hover': {
+              backgroundColor: alpha(pickleballColors.accent.main, 0.2),
+            },
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            backgroundColor: alpha(pickleballColors.accent.main, 0.1),
+            color: pickleballColors.accent.main,
+            transform: 'scale(1.1)',
+          },
         },
       },
     },
