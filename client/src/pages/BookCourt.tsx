@@ -11,8 +11,6 @@ import {
   Card,
   Typography,
   keyframes,
-  Fade,
-  Slide,
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
