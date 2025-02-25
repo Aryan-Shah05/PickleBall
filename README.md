@@ -114,5 +114,10 @@ npm test
 4. Push to the branch
 5. Create a new Pull Request
 
-## License
-This project is licensed under the MIT License.
+<img width="1440" alt="Screenshot 2025-02-25 at 5 50 45 PM" src="https://github.com/user-attachments/assets/b2bf546d-6aff-469c-bba5-cbe8c7a6c115" />
+<img width="1440" alt="Screenshot 2025-02-25 at 5 50 33 PM" src="https://github.com/user-attachments/assets/aafaf02e-bf4d-4c9a-a013-cdf71aab68e5" />
+<img width="1440" alt="Screenshot 2025-02-25 at 5 50 25 PM" src="https://github.com/user-attachments/assets/051a467f-21c3-406c-8a72-021f9c494fa7" />
+<img width="1440" alt="Screenshot 2025-02-25 at 5 50 15 PM" src="https://github.com/user-attachments/assets/f5199ede-9d92-46a9-98c2-3397c10d6936" />
+<img width="1440" alt="Screenshot 2025-02-25 at 5 49 53 PM" src="https://github.com/user-attachments/assets/d0cc60f7-c5b3-453c-b2ca-f233ab6895e8" />
+<img width="1440" alt="Screenshot 2025-02-25 at 5 47 56 PM" src="https://github.com/user-attachments/assets/b0c72eff-0815-49e4-a8d9-4d92f04db4a3" />
+
